@@ -1,0 +1,168 @@
+<!--
+  Author: florian
+  File: px-bindings.xjb
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+-->
+<jxb:bindings version="2.1"
+              xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+              xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+              xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc">
+
+    <jxb:globalBindings choiceContentProperty="true">
+        <!-- the serializable uid should reflect the version number 1.0.0 -->
+        <jxb:serializable uid="100"/>
+        <!-- this interface will be used to ensure type safety in generified methods -->
+        <xjc:superClass name="uk.ac.ebi.pride.px.model.PXObject"/>
+        <xjc:javaType name="java.util.Calendar" xmlType="xsd:date"
+                      adapter="uk.ac.ebi.pride.px.jaxb.adapters.CalendarAdapter"/>
+    </jxb:globalBindings>
+
+
+    <!-- ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### -->
+    <!-- #####       ProteomeXchange XML bindings                                ##### -->
+    <!-- ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### -->
+
+    <jxb:bindings schemaLocation="proteomeXchange-0.1.xsd" node="/xsd:schema">
+
+        <jxb:schemaBindings>
+            <jxb:package name="uk.ac.ebi.pride.px.model"/>
+        </jxb:schemaBindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='AbstractParamType']">
+            <jxb:class name="AbstractParam"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='AdditionalInformationType']">
+            <jxb:class name="AdditionalInformation"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='AnnotationListType']">
+            <jxb:class name="AnnotationList"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='ContactListType']">
+            <jxb:class name="ContactList"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='ContactType']">
+            <jxb:class name="Contact"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='CvParamType']">
+            <jxb:class name="CvParam"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='DatasetFileListType']">
+            <jxb:class name="DatasetFileList"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='DatasetFileType']">
+            <jxb:class name="DatasetFile"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='DatasetIdentifierListType']">
+            <jxb:class name="DatasetIdentifierList"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='DatasetIdentifierType']">
+            <jxb:class name="DatasetIdentifier"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='DatasetOriginListType']">
+            <jxb:class name="DatasetOriginList"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='DatasetOriginType']">
+            <jxb:class name="DatasetOrigin"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='DatasetSummaryType']">
+            <jxb:class name="DatasetSummary"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='FullDatasetLinkListType']">
+            <jxb:class name="FullDatasetLinkList"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='FullDatasetLinkType']">
+            <jxb:class name="FullDatasetLink"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='InstrumentListType']">
+            <jxb:class name="InstrumentList"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='InstrumentType']">
+            <jxb:class name="Instrument"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='KeywordListType']">
+            <jxb:class name="KeywordList"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='ModificationListType']">
+            <jxb:class name="ModificationList"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='ProteomeXchangeDatasetType']">
+            <jxb:class name="ProteomeXchangeDataset"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='PublicationListType']">
+            <jxb:class name="PublicationList"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='PublicationType']">
+            <jxb:class name="Publication"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='RefType']">
+            <jxb:class name="Ref"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='RepositoryRecordListType']">
+            <jxb:class name="RepositoryRecordList"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='RepositoryRecordType']">
+            <jxb:class name="RepositoryRecord"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='SampleListType']">
+            <jxb:class name="SampleList"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='SampleType']">
+            <jxb:class name="Sample"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='SpeciesListType']">
+            <jxb:class name="SpeciesList"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='SpeciesType']">
+            <jxb:class name="Species"/>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xsd:complexType[@name='UserParamType']">
+            <jxb:class name="UserParam"/>
+        </jxb:bindings>
+
+
+
+
+    </jxb:bindings>
+
+
+</jxb:bindings>
