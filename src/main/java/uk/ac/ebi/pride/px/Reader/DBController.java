@@ -23,7 +23,7 @@ public class DBController {
      */
     public static final String PRIDE_URL = "http://www.ebi.ac.uk/pride/simpleSearch.do?simpleSearchValue=";
     //will use that map to store the relation between experiment_id->publication_ref
-    private Map<Long,PXObject> publicationMap = new HashMap<Long, PXObject>();
+    private Map<Long, PXObject> publicationMap = new HashMap<Long, PXObject>();
     private Map<Long, PXObject> instrumentMap = new HashMap<Long, PXObject>();
     private Connection DBConnection = null;
     //    Logger object
@@ -96,9 +96,9 @@ public class DBController {
     }
 
     //helper method that will add all the experimentId, separated by comma, to the Map for that particular id
-    private static void addKeysMap(Map<Long, PXObject> idMap, PXObject object, String experimentIDs){
+    private static void addKeysMap(Map<Long, PXObject> idMap, PXObject object, String experimentIDs) {
         String[] expIds = experimentIDs.split(",");
-        for(String expId: expIds){
+        for (String expId : expIds) {
             idMap.put(new Long(expId), object);
         }
     }
@@ -351,15 +351,18 @@ public class DBController {
                 publicationList.getPublication().add(publication);
             }
             rs.close();
-            if (!refSubmitted) {
+            //if some experiments did not have a publication, add the special element
+            if (publicationMap.size() != experimentIDs.size()) {
                 //nothing in pride_reference yet, unpublished data
                 Publication publication = new Publication();
-                publication.setId("unpublished" + index);
+                publication.setId("unpublished");
                 CvParam cvParam = new CvParam();
                 cvParam.setCvRef("MS");
                 cvParam.setName("unpublished data");
                 cvParam.setAccession("MS:100????");
                 publication.getCvParam().add(cvParam);
+                //if there is no publication, add the special param in the map
+                publicationMap.put(new Long(0), publication);
                 publicationList.getPublication().add(publication);
             }
         } catch (SQLException e) {
@@ -411,12 +414,12 @@ public class DBController {
         return datasetLinkList;
     }
 
-    public RepositoryRecord getRepositoryRecord(long experimentID){
+    public RepositoryRecord getRepositoryRecord(long experimentID) {
         RepositoryRecord repositoryRecord = new RepositoryRecord();
         String query = "SELECT p.accession, p.short_label, p.title " +
                 "FROM pride_experiment p  " +
                 "WHERE p.experiment_id = ? ";
-         try {
+        try {
             PreparedStatement st = DBConnection.prepareStatement(query);
             st.setLong(1, experimentID);
             ResultSet rs = st.executeQuery();
@@ -428,23 +431,56 @@ public class DBController {
                 repositoryRecord.setName(rs.getString(3));
             }
             rs.close();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             logger.error(e.getMessage(), e);
         }
         return repositoryRecord;
     }
+
+    public SampleList getSampleList(long experimentID) {
+        SampleList sampleList = new SampleList();
+        String query = "SELECT m.sample_name, ms.name, ms.cv_label, ms.accession " +
+                "FROM pride_experiment p, mzdata_mz_data m LEFT JOIN mzdata_sample_param ms ON m.mz_data_id=ms.parent_element_fk " +
+                "WHERE p.experiment_id = ? " +
+                "AND p.accession = m.accession_number ";
+        try {
+            PreparedStatement st = DBConnection.prepareStatement(query);
+            st.setLong(1, experimentID);
+            ResultSet rs = st.executeQuery();
+            Sample sample = new Sample();
+            while (rs.next()) {
+                //TODO: assuming only 1 sample in PRIDE at the moment
+                sample.setId(rs.getString(1));
+                //TODO: using id and name same value, sample_name
+                sample.setName(rs.getString(1));
+                CvParam cvParam = new CvParam();
+                cvParam.setName(rs.getString(2));
+                cvParam.setCvRef(rs.getString(3));
+                cvParam.setAccession(rs.getString(4));
+                sample.getCvParam().add(cvParam);
+            }
+            rs.close();
+            sampleList.getSample().add(sample);
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+        }
+        return sampleList;
+    }
+
     //helper method, will return a Ref for a certain type of elements (right now only publication or instrument)
-    public Ref getRef(String type, long experimentID){
+    public Ref getRef(String type, long experimentID) {
         Ref ref = new Ref();
 
-        if (type.equals("instrument")){
+        if (type.equals("instrument")) {
             ref.setRef(instrumentMap.get(experimentID));
-        }
-        else if (type.equals("publication")){
-            ref.setRef(publicationMap.get(experimentID));
-        }
-        else{
+        } else if (type.equals("publication")) {
+            if (publicationMap.containsKey(experimentID)) {
+                ref.setRef(publicationMap.get(experimentID));
+            } else {
+                //there is no publication, add the special param for that
+                ref.setRef(publicationMap.get(new Long(0)));
+            }
+        } else {
             logger.error("Trying to return an invalid ref: allowed types \"publication\" and \"instrument\"");
         }
         return ref;

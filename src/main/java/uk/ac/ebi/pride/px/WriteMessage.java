@@ -72,20 +72,19 @@ public class WriteMessage {
             //TODO: no DatasetFileList, where are the raw files stored?
             // create RepositoryRecordList with all experiments in project
             RepositoryRecordList repositoryRecordList = new RepositoryRecordList();
-            for(long experimentID: experimentIDs){
+            for (long experimentID : experimentIDs) {
                 //get new record
                 RepositoryRecord repositoryRecord = dbac.getRepositoryRecord(experimentID);
                 //we now need to add the additional elements to the record: source, publication, instrument, sample, modification
                 //TODO; need to deal with source file, where are they ??
                 //TODO: an experiment can have more than 1 publication or more than 1 instrument ??
-                Ref publicationRef = new Ref();
-                publicationRef = dbac.getRef("publication", experimentID);
+                Ref publicationRef = dbac.getRef("publication", experimentID);
                 repositoryRecord.getPublicationRef().add(publicationRef);
                 Ref instrumentRef = dbac.getRef("instrument", experimentID);
                 repositoryRecord.getInstrumentRef().add(instrumentRef);
                 //TODO: get Sample List
-                //SampleList sampleList = dbac.getSampleList(experimentID);
-                //repositoryRecord.getSampleList().addAll(sampleList);
+                SampleList sampleList = dbac.getSampleList(experimentID);
+                repositoryRecord.getSampleList().add(sampleList);
                 //and the modificationList
                 List<Long> expId = new ArrayList<Long>();  //need to create a list with 1 element for the method
                 expId.add(experimentID);
