@@ -25,17 +25,13 @@ public class PropertiesHelper {
 
 	private static Properties PRIDE_APPLICATION_PROPERTIES;
 
-    HashSet sdf;
-
     // Define any properties files to be loaded here and add them to the PROPERTIES_FILE array.
 	// They will then all be loaded in as required.
 	private static final String PRIDE_EMAIL_PROPERTIES_FILENAME = "email.properties";
-	private static final String PRIDE_DB_PROPERTIES_FILENAME = "database.properties";
 
-	private static final String[] PROPERTIES_FILES = new String[2];
+	private static final String[] PROPERTIES_FILES = new String[1];
 	static{
 		PROPERTIES_FILES[0] = PRIDE_EMAIL_PROPERTIES_FILENAME;
-		PROPERTIES_FILES[1] = PRIDE_DB_PROPERTIES_FILENAME;
 	}
 
 	public static String getProperty (ProteomExchangePropertyType type){
