@@ -2,8 +2,6 @@ package uk.ac.ebi.pride.px.Reader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.pride.px.Mail.PropertiesHelper;
-import uk.ac.ebi.pride.px.Mail.ProteomExchangePropertyType;
 import uk.ac.ebi.pride.px.model.*;
 import uk.ac.ebi.pride.px.model.Ref;
 
@@ -32,26 +30,26 @@ public class DBController {
     Logger logger = LoggerFactory.getLogger(DBController.class);
 
     public DBController() {
-        //get properties file
-//        Properties properties = new Properties();
-//        InputStream is = this.getClass().getClassLoader().getResourceAsStream("database.properties");
-//        try {
-//            properties.load(is);
-//        } catch (IOException e) {
-//            logger.error(e.getMessage(), e);
-//        }
+//        get properties file
+        Properties properties = new Properties();
+        InputStream is = this.getClass().getClassLoader().getResourceAsStream("database.properties");
+        try {
+            properties.load(is);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
         //create connection
         //load driver
+        
         try {
-            Class.forName(PropertiesHelper.getProperty(ProteomExchangePropertyType.DRIVER));
+            Class.forName(properties.getProperty("driver"));
         } catch (ClassNotFoundException e) {
             logger.error(e.getMessage(), e);
         }
-        String url_connection = PropertiesHelper.getProperty(ProteomExchangePropertyType.PROTOCOL) + ':' + PropertiesHelper.getProperty(ProteomExchangePropertyType.SUBPROTOCOL) +
-                ':' + PropertiesHelper.getProperty(ProteomExchangePropertyType.ALIAS);
+        String url_connection = properties.getProperty("protocol") + ':' + properties.getProperty("subprotocol") + ':' + properties.getProperty("alias");
         logger.debug("Connecting to " + url_connection);
         try {
-            DBConnection = DriverManager.getConnection(url_connection, PropertiesHelper.getProperty(ProteomExchangePropertyType.USER), PropertiesHelper.getProperty(ProteomExchangePropertyType.PASSWORD));
+            DBConnection = DriverManager.getConnection(url_connection, properties.getProperty("user"), properties.getProperty("password"));
         } catch (SQLException err) {
             logger.error(err.getMessage(), err);
         }
