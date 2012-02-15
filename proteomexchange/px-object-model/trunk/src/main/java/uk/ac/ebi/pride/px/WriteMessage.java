@@ -39,7 +39,6 @@ public class WriteMessage {
             //first, create the DBController and connect to the database
             dbac = new DBController();
             marshaller = new PxMarshaller();
-            //TODO: what should I do with DatasetIdentifierList and DatasetOriginList ??
             ProteomeXchangeDataset proteomeXchangeDataset = new ProteomeXchangeDataset();
             //get all experiments in the project
             List<Long> experimentIDs = dbac.getExperimentIds(projectName);
@@ -50,7 +49,12 @@ public class WriteMessage {
             //extract DatasetSummary: should be same for all experiments, using first expermient one only
             DatasetSummary datasetSummary = dbac.getDatasetSummary(experimentIDs.get(0));
             proteomeXchangeDataset.setDatasetSummary(datasetSummary);
-            //TODO: DatasetIdentifierList and DatasetOriginList, where are they stored in Pride
+
+            DatasetIdentifierList datasetIdentifierList = dbac.getDatasetIdentifierList(experimentIDs);
+            proteomeXchangeDataset.setDatasetIdentifierList(datasetIdentifierList);
+            DatasetOriginList datasetOriginList = new DatasetOriginList();
+            datasetOriginList.setDatasetOrigin(getDatasetOrigin());
+            proteomeXchangeDataset.setDatasetOriginList(datasetOriginList);
             //extract Species information for all experiments
             SpeciesList speciesList = dbac.getSpecies(experimentIDs);
             proteomeXchangeDataset.setSpeciesList(speciesList);
@@ -66,7 +70,9 @@ public class WriteMessage {
             //extract publicationList
             PublicationList publicationList = dbac.getPublicationList(experimentIDs);
             proteomeXchangeDataset.setPublicationList(publicationList);
-            //TODO: no keyword list in database yet
+            //TODO: test keyword list, none present in DB at the moment
+            KeywordList keywordList = dbac.getKeywordList(experimentIDs);
+            proteomeXchangeDataset.setKeywordList(keywordList);
             FullDatasetLinkList datasetLinkList = dbac.getFullDataSetLinkList(experimentIDs);
             proteomeXchangeDataset.setFullDatasetLinkList(datasetLinkList);
             //TODO: no DatasetFileList, where are the raw files stored?
@@ -100,5 +106,17 @@ public class WriteMessage {
             logger.error(e.getMessage(), e); //To change body of catch statement use File | Settings | File Templates.
 
         }
+    }
+
+    //TODO: DatasetOriginList, at the moment, it is hardcoded, all are new submissions
+    //might change in future
+    private static DatasetOrigin getDatasetOrigin(){
+        DatasetOrigin datasetOrigin = new DatasetOrigin();
+        CvParam cvParam = new CvParam();
+        cvParam.setAccession("PRIDE:0000402");
+        cvParam.setName("Original data");
+        cvParam.setCvRef("PRIDE");
+        datasetOrigin.getCvParam().add(cvParam);
+        return datasetOrigin;
     }
 }

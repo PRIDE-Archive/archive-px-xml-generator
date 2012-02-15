@@ -1,5 +1,7 @@
 package uk.ac.ebi.pride.px.Reader;
 
+import com.sun.deploy.util.ArrayUtil;
+import com.sun.xml.internal.bind.v2.TODO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.px.model.*;
@@ -40,7 +42,7 @@ public class DBController {
         }
         //create connection
         //load driver
-        
+
         try {
             Class.forName(properties.getProperty("driver"));
         } catch (ClassNotFoundException e) {
@@ -89,12 +91,12 @@ public class DBController {
         return builder.toString();
     }
 
-    private static void setValues(PreparedStatement preparedStatement, Object... values) throws SQLException {
+    private static void setValues(PreparedStatement preparedStatement, Object[] values) throws SQLException {
         for (int i = 0; i < values.length; i++) {
             preparedStatement.setObject(i + 1, values[i]);
         }
     }
-
+    
     //helper method that will add all the experimentId, separated by comma, to the Map for that particular id
     private static void addKeysMap(Map<Long, PXObject> idMap, PXObject object, String experimentIDs) {
         String[] expIds = experimentIDs.split(",");
@@ -244,9 +246,9 @@ public class DBController {
         if (modificationList.getCvParam().isEmpty()) {
             //if there are no modifications, add new CV param
             CvParam cvParam = new CvParam();
-            cvParam.setAccession("MS:100????");
+            cvParam.setAccession("PRIDE:0000398");
             cvParam.setName("No applicable mass modifications");
-            cvParam.setCvRef("MS");
+            cvParam.setCvRef("PRIDE");
             modificationList.getCvParam().add(cvParam);
         }
         return modificationList;
@@ -282,8 +284,8 @@ public class DBController {
                     //add the institution as cvParam
                     CvParam cvParam = new CvParam();
                     cvParam.setValue(rs.getString(2));
-                    cvParam.setCvRef("MS"); //MS cv for contact address
-                    cvParam.setAccession("MS:1000???");
+                    cvParam.setCvRef("MS"); //will use CV for contact organization as the affiliation
+                    cvParam.setAccession("MS:1000590");
                     cvParam.setName("contact affiliation");
                     contact.getCvParam().add(cvParam);
                 }
@@ -325,14 +327,21 @@ public class DBController {
 
                 //create the reference Param
                 CvParam refCvParam = new CvParam();
-                refCvParam.setCvRef("MS");
-                refCvParam.setAccession("MS:100????");
-                refCvParam.setName("Refline");
+                //Dataset associated manuscript, might have or not PubMedID
+                refCvParam.setCvRef("PRIDE");
+                refCvParam.setAccession("PRIDE:0000400");
+                refCvParam.setName("Reference");
                 refCvParam.setValue(rs.getString(3));
                 publication.getCvParam().add(refCvParam);
                 if (rs.getString(1) == null) {
                     //there is no data in PubMed yet, but paper has been submitted
-                    publication.setId("submitted" + index);
+                    publication.setId("accepted" + index);
+                    //and add new CvParam to indicated has been published but waiting for PubMed
+                    CvParam pubAccepted = new CvParam();
+                    pubAccepted.setCvRef("PRIDE");
+                    pubAccepted.setAccession("PRIDE:0000399");
+                    pubAccepted.setName("Accepted manuscript");
+                    publication.getCvParam().add(pubAccepted);
                     index++;
                 } else {
                     //has a pubMed or DOI
@@ -342,8 +351,13 @@ public class DBController {
                     pubMed.setCvRef("MS");
                     pubMed.setName(rs.getString(2));
                     pubMed.setValue(rs.getString(1));
-                    //TODO: need to include DOI as well
-                    pubMed.setAccession("MS:1000879");
+                    if (rs.getString(1).equals("PubMed identifier")) {
+                        //add the PubMed accession
+                        pubMed.setAccession("MS:1000879");
+                    } else {
+                        //add the DOI accession
+                        pubMed.setAccession("MS:1001922");
+                    }
                     publication.getCvParam().add(pubMed);
                 }
                 //helper method to add the instrument to all the experiments
@@ -387,7 +401,7 @@ public class DBController {
                 CvParam cvParam = new CvParam();
                 cvParam.setCvRef("MS");
                 cvParam.setName("PRIDE experiment URI");
-                cvParam.setAccession("MS:100????");
+                cvParam.setAccession("MS:1001929");
                 cvParam.setValue(PRIDE_URL + rs.getString(1));
                 datasetLink.setCvParam(cvParam);
                 datasetLinkList.getFullDatasetLink().add(datasetLink);
@@ -401,7 +415,7 @@ public class DBController {
                     CvParam trancheParam = new CvParam();
                     trancheParam.setCvRef("MS");
                     trancheParam.setName("Tranche project hash");
-                    trancheParam.setAccession("MS:100????");
+                    trancheParam.setAccession("MS:1001928");
                     trancheParam.setValue(tranche_hash);
                     datasetLinkTranche.setCvParam(trancheParam);
                     datasetLinkList.getFullDatasetLink().add(datasetLinkTranche);
@@ -486,4 +500,63 @@ public class DBController {
         return ref;
     }
 
+    public KeywordList getKeywordList(List<Long> experimentIDs) {
+        KeywordList keywordList = new KeywordList();
+        String[] accessions = new String[]{"MS:1001923", "MS:1001924", "MS:1001925", "MS:1001926"};
+        keywordList.getCvParam().addAll(getExperimentParams(experimentIDs, Arrays.asList(accessions)));
+        return keywordList;
+    }
+    
+    //helper method, for a list pf experiments and accessions, will get from the pride_experiment_param all the Params
+    // associated. Very useful in ProteomeXchange, most data stored in that table
+    private List<CvParam> getExperimentParams(List<Long> experimentIDs, List<String> accessions){
+        List<CvParam> cvParams = new ArrayList<CvParam>();
+        String query = "SELECT ppp.accession, ppp.value, ppp.name, ppp.cv_label " +
+                "FROM pride_experiment pe LEFT JOIN pride_experiment_param ppp ON pe.experiment_id = ppp.parent_element_fk " +
+                "WHERE pe.experiment_id IN (%s) and " +
+                "ppp.accession IN (%s)";
+        String sql = String.format(query, preparePlaceHolders(experimentIDs.size()), preparePlaceHolders(accessions.size()));
+        try {
+            PreparedStatement st = DBConnection.prepareStatement(sql);
+            //copy both arrays, experimentIds and accession in a single Object array for method to work
+            setValues(st, concatArrays(experimentIDs.toArray(), accessions.toArray()));
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                //a keyword list is nothing but a list of CvParam
+                CvParam cvParam = new CvParam();
+                cvParam.setAccession(rs.getString(1));
+                cvParam.setValue(rs.getString(2));
+                cvParam.setName(rs.getString(3));
+                cvParam.setCvRef(rs.getString(4));
+                cvParams.add(cvParam);
+            }
+            rs.close();
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+        }
+        return cvParams;
+    }
+
+    //helper method to concatenate 2 Object arrays in a single one
+    private Object[] concatArrays(Object[] array1, Object[] array2){
+        Object[] newArray= new Object[array1.length + array2.length];
+        System.arraycopy(array1, 0, newArray, 0, array1.length);
+        System.arraycopy(array2, 0, newArray, array1.length, array2.length);
+        return newArray;
+    }
+    //TODO: test DatastIdentifierList: is it required
+    public DatasetIdentifierList getDatasetIdentifierList(List<Long> experimentIDs) {
+        DatasetIdentifierList datasetIdentifierList = new DatasetIdentifierList();
+        //first, get Dataset for ProteomeXchange ID, if present
+        String[] accessionsPX = new String[]{"MS:1001919", "MS:1001921"};
+        DatasetIdentifier px = new DatasetIdentifier();
+        px.getCvParam().addAll(getExperimentParams(experimentIDs, Arrays.asList(accessionsPX)));
+        datasetIdentifierList.getDatasetIdentifier().add(px);
+         //now dataset for DOI, if present
+        String[] accessionsDOI = new String[]{"MS:1001922"};
+        DatasetIdentifier DOI = new DatasetIdentifier();
+        DOI.getCvParam().addAll(getExperimentParams(experimentIDs, Arrays.asList(accessionsPX)));
+        datasetIdentifierList.getDatasetIdentifier().add(DOI);
+        return datasetIdentifierList;
+    }
 }
