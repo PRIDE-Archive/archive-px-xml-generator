@@ -1,7 +1,5 @@
 package uk.ac.ebi.pride.px.Reader;
 
-import com.sun.deploy.util.ArrayUtil;
-import com.sun.xml.internal.bind.v2.TODO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.px.model.*;
@@ -57,8 +55,8 @@ public class DBController {
         }
     }
 
-    //helper method, for a ProjectName will return all the experimentIds to report
-    public List<Long> getExperimentIds(String projectName) {
+    //helper method, for a pxAccession will return all the experimentIds to report
+    public List<Long> getExperimentIds(String pxAccession) {
         List<Long> expIds = new ArrayList<Long>();
         try {
             String query = "SELECT parent_element_fk " +
@@ -66,7 +64,7 @@ public class DBController {
                     "WHERE value = ? ";
 
             PreparedStatement st = DBConnection.prepareStatement(query);
-            st.setString(1, projectName);
+            st.setString(1, pxAccession);
 
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
@@ -313,6 +311,7 @@ public class DBController {
                 "LEFT JOIN  pride_reference_param ppm ON pr.reference_id = ppm.parent_element_fk " +
                 "WHERE pl.experiment_id IN (%s) " +
                 "AND pl.reference_id = pr.reference_id " +
+                "AND ppm.cv_label IN ('PubMed','DOI') " +
                 "GROUP BY ppm.name";
         String sql = String.format(query, preparePlaceHolders(experimentIDs.size()));
         try {
@@ -544,7 +543,7 @@ public class DBController {
         System.arraycopy(array2, 0, newArray, array1.length, array2.length);
         return newArray;
     }
-    //TODO: test DatastIdentifierList: is it required
+
     public DatasetIdentifierList getDatasetIdentifierList(List<Long> experimentIDs) {
         DatasetIdentifierList datasetIdentifierList = new DatasetIdentifierList();
         //first, get Dataset for ProteomeXchange ID, if present
@@ -555,7 +554,7 @@ public class DBController {
          //now dataset for DOI, if present
         String[] accessionsDOI = new String[]{"MS:1001922"};
         DatasetIdentifier DOI = new DatasetIdentifier();
-        DOI.getCvParam().addAll(getExperimentParams(experimentIDs, Arrays.asList(accessionsPX)));
+        DOI.getCvParam().addAll(getExperimentParams(experimentIDs, Arrays.asList(accessionsDOI)));
         datasetIdentifierList.getDatasetIdentifier().add(DOI);
         return datasetIdentifierList;
     }
