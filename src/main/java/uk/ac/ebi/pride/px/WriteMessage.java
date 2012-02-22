@@ -33,15 +33,17 @@ public class WriteMessage {
 //        }
 //        String accession = args[0];
 //        //we will use accesion_number.xml as the file name
-        String projectName = "HUPO Plasma Proteome Project 2 (ProteomExchange)";
+
+        String pxAccession = "PXD000018";
+
         try {
-            FileWriter fw = new FileWriter(projectName + ".xml");
+            FileWriter fw = new FileWriter(pxAccession + ".xml");
             //first, create the DBController and connect to the database
             dbac = new DBController();
             marshaller = new PxMarshaller();
             ProteomeXchangeDataset proteomeXchangeDataset = new ProteomeXchangeDataset();
             //get all experiments in the project
-            List<Long> experimentIDs = dbac.getExperimentIds(projectName);
+            List<Long> experimentIDs = dbac.getExperimentIds(pxAccession);
             if (experimentIDs.isEmpty()) {
                 logger.error("Project contains no experiments");
                 System.exit(0);
