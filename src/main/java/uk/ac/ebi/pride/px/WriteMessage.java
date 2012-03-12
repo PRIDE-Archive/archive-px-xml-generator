@@ -23,23 +23,14 @@ public class WriteMessage {
     private static PxMarshaller marshaller;
 
     private static final Logger logger = LoggerFactory.getLogger(WriteMessage.class);
-
     //main method to write a message to ProteomeXChange
-    //needs one argument: experiment_accession
-    public static void main(String args[]) {
-//        if (args.length == 0) {
-//            logger.error("There should be one argument: project_name");
-//            System.exit(1);
-//        }
-//        String accession = args[0];
-//        //we will use accesion_number.xml as the file name
+    public WriteMessage(DBController dbController){
+        dbac = dbController;
+    }
 
-        String pxAccession = "PXD000018";
-
+    public void createXMLMessage(String pxAccession){
         try {
             FileWriter fw = new FileWriter(pxAccession + ".xml");
-            //first, create the DBController and connect to the database
-            dbac = new DBController();
             marshaller = new PxMarshaller();
             ProteomeXchangeDataset proteomeXchangeDataset = new ProteomeXchangeDataset();
             //get all experiments in the project
