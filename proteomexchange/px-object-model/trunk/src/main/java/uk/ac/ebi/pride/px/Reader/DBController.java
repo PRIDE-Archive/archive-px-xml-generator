@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.px.model.*;
 import uk.ac.ebi.pride.px.model.Ref;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
@@ -28,6 +29,12 @@ public class DBController {
     private Connection DBConnection = null;
     //    Logger object
     Logger logger = LoggerFactory.getLogger(DBController.class);
+
+    public DBController(DataSource dataSource) throws SQLException{
+
+        DBConnection = dataSource.getConnection();
+
+    }
 
     public DBController() {
 //        get properties file
