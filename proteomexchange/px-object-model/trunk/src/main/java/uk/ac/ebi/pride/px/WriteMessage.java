@@ -6,6 +6,7 @@ import uk.ac.ebi.pride.px.Reader.DBController;
 import uk.ac.ebi.pride.px.model.*;
 import uk.ac.ebi.pride.px.xml.PxMarshaller;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,15 +23,22 @@ public class WriteMessage {
     private static DBController dbac;
     private static PxMarshaller marshaller;
 
+    private static final String FORMAT_VERSION = "1.0.0";
+
+    //sample list counter to fake the ID
+    private int sampleListCounter = 1;
+
     private static final Logger logger = LoggerFactory.getLogger(WriteMessage.class);
     //main method to write a message to ProteomeXChange
     public WriteMessage(DBController dbController){
         dbac = dbController;
     }
 
-    public void createXMLMessage(String pxAccession){
+    public File createXMLMessage(String pxAccession, File directory){
+        File file = new File(directory.getAbsolutePath() + File.separator + pxAccession + ".xml");
         try {
-            FileWriter fw = new FileWriter(pxAccession + ".xml");
+
+            FileWriter fw = new FileWriter(file);
             marshaller = new PxMarshaller();
             ProteomeXchangeDataset proteomeXchangeDataset = new ProteomeXchangeDataset();
             //get all experiments in the project
@@ -67,7 +75,9 @@ public class WriteMessage {
             KeywordList keywordList = dbac.getKeywordList(experimentIDs);
             proteomeXchangeDataset.setKeywordList(keywordList);
             FullDatasetLinkList datasetLinkList = dbac.getFullDataSetLinkList(experimentIDs);
-            proteomeXchangeDataset.setFullDatasetLinkList(datasetLinkList);
+            if (!datasetLinkList.getFullDatasetLink().isEmpty()){
+                proteomeXchangeDataset.setFullDatasetLinkList(datasetLinkList);
+            }
             //TODO: no DatasetFileList, where are the raw files stored?
             // create RepositoryRecordList with all experiments in project
             RepositoryRecordList repositoryRecordList = new RepositoryRecordList();
@@ -83,6 +93,9 @@ public class WriteMessage {
                 repositoryRecord.getInstrumentRef().add(instrumentRef);
                 //TODO: get Sample List
                 SampleList sampleList = dbac.getSampleList(experimentID);
+                //TODO: sampleList Counter added
+                sampleList.setId("sampleList_" + sampleListCounter);
+                sampleListCounter++;
                 repositoryRecord.getSampleList().add(sampleList);
                 //and the modificationList
                 List<Long> expId = new ArrayList<Long>();  //need to create a list with 1 element for the method
@@ -93,12 +106,17 @@ public class WriteMessage {
 
             }
             proteomeXchangeDataset.setRepositoryRecordList(repositoryRecordList);
+            //and add the attributes
+            proteomeXchangeDataset.setId(pxAccession);
+            //TODO: format version will always be hardcoded ??
+            proteomeXchangeDataset.setFormatVersion(FORMAT_VERSION);
             //and marshal it
             marshaller.marshall(proteomeXchangeDataset, fw);
         } catch (IOException e) {
             logger.error(e.getMessage(), e); //To change body of catch statement use File | Settings | File Templates.
 
         }
+        return file;
     }
 
     //TODO: DatasetOriginList, at the moment, it is hardcoded, all are new submissions

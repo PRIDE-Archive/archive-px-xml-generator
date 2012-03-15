@@ -3,6 +3,7 @@ package uk.ac.ebi.pride.px.xml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.px.model.PXObject;
+import uk.ac.ebi.pride.px.model.ProteomeXchangeDataset;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -32,17 +33,18 @@ public class PxMarshaller {
             // Set JAXB_FRAGMENT_PROPERTY to true for all objects that do not have
             // a @XmlRootElement annotation
 
-            if (!(object instanceof PXObject)) {
-                marshaller.setProperty("jaxb.fragment", true);
-                if (logger.isDebugEnabled()) logger.debug("Object '" + object.getClass().getName() +
-                                                          "' will be treated as root element.");
-            } else {
-                if (logger.isDebugEnabled()) logger.debug("Object '" + object.getClass().getName() +
-                                                          "' will be treated as fragment.");
-            }
+//            if (!(object instanceof PXObject)) {
+//                marshaller.setProperty("jaxb.fragment", true);
+//                if (logger.isDebugEnabled()) logger.debug("Object '" + object.getClass().getName() +
+//                                                          "' will be treated as root element.");
+//            } else {
+//                if (logger.isDebugEnabled()) logger.debug("Object '" + object.getClass().getName() +
+//                                                          "' will be treated as fragment.");
+//            }
+            marshaller.setProperty(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, "proteomeXchange-draft-05.xsd");
 
-            marshaller.marshal( new JAXBElement(new QName("uri","local"), object.getClass(), object), out );
-
+//            marshaller.marshal( new JAXBElement(new QName("uri","local"), object.getClass(), object), out );
+             marshaller.marshal(object, out);
         } catch (JAXBException e) {
             logger.error("PxMarshaller.marshall", e);
             throw new IllegalStateException("Error while marshalling object:" + object.toString());
