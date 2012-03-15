@@ -27,6 +27,7 @@ public class DBController {
     private Map<Long, PXObject> publicationMap = new HashMap<Long, PXObject>();
     private Map<Long, PXObject> instrumentMap = new HashMap<Long, PXObject>();
     private Connection DBConnection = null;
+
     //    Logger object
     Logger logger = LoggerFactory.getLogger(DBController.class);
 
@@ -102,6 +103,7 @@ public class DBController {
         }
     }
     
+
     //helper method that will add all the experimentId, separated by comma, to the Map for that particular id
     private static void addKeysMap(Map<Long, PXObject> idMap, PXObject object, String experimentIDs) {
         String[] expIds = experimentIDs.split(",");
@@ -198,7 +200,7 @@ public class DBController {
 
                 //instrumentMap.put(rs.getLong(5), id); //add it to the map for latter reference
                 Instrument instrument = new Instrument();
-                instrument.setId(id);
+                instrument.setId(id.replaceAll(" ","_"));
                 String name = rs.getString(2);
                 String accession = rs.getString(3);
                 String cvRef = rs.getString(4);
@@ -274,7 +276,7 @@ public class DBController {
             while (rs.next()) {
                 Contact contact = new Contact();
                 //set contact name as the ID
-                contact.setId(rs.getString(1));
+                contact.setId(rs.getString(1).replaceAll(" ","_"));
                 //and add it as a Param as well....
                 CvParam nameParam = new CvParam();
                 nameParam.setValue(rs.getString(1));
@@ -351,7 +353,7 @@ public class DBController {
                     index++;
                 } else {
                     //has a pubMed or DOI
-                    publication.setId(rs.getString(1));
+                    publication.setId(rs.getString(1).replaceAll(" ","_"));
                     //and add it as a cvParam as well
                     CvParam pubMed = new CvParam();
                     pubMed.setCvRef("MS");
@@ -393,6 +395,19 @@ public class DBController {
 
     public FullDatasetLinkList getFullDataSetLinkList(List<Long> experimentIDs) {
         FullDatasetLinkList datasetLinkList = new FullDatasetLinkList();
+        //add the PRIDE URI
+        List<String> accessions = getAccessions(experimentIDs);
+        for (String accession : accessions) {
+            FullDatasetLink datasetLink = new FullDatasetLink();
+            CvParam cvParam = new CvParam();
+            cvParam.setCvRef("MS");
+            cvParam.setName("PRIDE experiment URI");
+            cvParam.setAccession("MS:1001929");
+            cvParam.setValue(PRIDE_URL + accession);
+            datasetLink.setCvParam(cvParam);
+            datasetLinkList.getFullDatasetLink().add(datasetLink);
+        }
+        //and now add the Tranche if present
         String query = "SELECT p.accession, pe.value " +
                 "FROM pride_experiment p LEFT JOIN pride_experiment_param pe ON p.experiment_id = pe.parent_element_fk " +
                 "WHERE p.experiment_id IN (%s) " +
@@ -403,14 +418,6 @@ public class DBController {
             setValues(st, experimentIDs.toArray());
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
-                FullDatasetLink datasetLink = new FullDatasetLink();
-                CvParam cvParam = new CvParam();
-                cvParam.setCvRef("MS");
-                cvParam.setName("PRIDE experiment URI");
-                cvParam.setAccession("MS:1001929");
-                cvParam.setValue(PRIDE_URL + rs.getString(1));
-                datasetLink.setCvParam(cvParam);
-                datasetLinkList.getFullDatasetLink().add(datasetLink);
                 //add the tranche only if present
                 if (rs.getString(2) != null) {
                     FullDatasetLink datasetLinkTranche = new FullDatasetLink();
@@ -459,6 +466,7 @@ public class DBController {
 
     public SampleList getSampleList(long experimentID) {
         SampleList sampleList = new SampleList();
+
         String query = "SELECT m.sample_name, ms.name, ms.cv_label, ms.accession " +
                 "FROM pride_experiment p, mzdata_mz_data m LEFT JOIN mzdata_sample_param ms ON m.mz_data_id=ms.parent_element_fk " +
                 "WHERE p.experiment_id = ? " +
@@ -470,14 +478,16 @@ public class DBController {
             Sample sample = new Sample();
             while (rs.next()) {
                 //TODO: assuming only 1 sample in PRIDE at the moment
-                sample.setId(rs.getString(1));
+                sample.setId(rs.getString(1).replaceAll(" ","_"));
                 //TODO: using id and name same value, sample_name
                 sample.setName(rs.getString(1));
-                CvParam cvParam = new CvParam();
-                cvParam.setName(rs.getString(2));
-                cvParam.setCvRef(rs.getString(3));
-                cvParam.setAccession(rs.getString(4));
-                sample.getCvParam().add(cvParam);
+                if (rs.getString(4) != null){
+                    CvParam cvParam = new CvParam();
+                    cvParam.setName(rs.getString(2));
+                    cvParam.setCvRef(rs.getString(3));
+                    cvParam.setAccession(rs.getString(4));
+                    sample.getCvParam().add(cvParam);
+                }
             }
             rs.close();
             sampleList.getSample().add(sample);
@@ -564,5 +574,27 @@ public class DBController {
         DOI.getCvParam().addAll(getExperimentParams(experimentIDs, Arrays.asList(accessionsDOI)));
         datasetIdentifierList.getDatasetIdentifier().add(DOI);
         return datasetIdentifierList;
+    }
+    
+    //helper method to return all accessions in the submissions
+    private List<String> getAccessions(List<Long> experimentIDs){
+        List<String> accessions = new ArrayList<String>();
+        String query = "SELECT p.accession " +
+                "FROM pride_experiment p " +
+                "WHERE p.experiment_id IN (%s) ";
+
+        String sql = String.format(query, preparePlaceHolders(experimentIDs.size()));
+        try {
+            PreparedStatement st = DBConnection.prepareStatement(sql);
+            setValues(st, experimentIDs.toArray());
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                accessions.add(rs.getString(1));
+            }
+            rs.close();
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+        }
+        return accessions;
     }
 }

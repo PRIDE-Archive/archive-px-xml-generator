@@ -2,6 +2,8 @@ import junit.framework.TestCase;
 import uk.ac.ebi.pride.px.Reader.DBController;
 import uk.ac.ebi.pride.px.WriteMessage;
 
+import java.io.File;
+
 /**
  * Created by IntelliJ IDEA.
  * User: dani
@@ -14,6 +16,8 @@ public class testWriteMessage extends TestCase{
     public void testMessage(){
         DBController dbController = new DBController();
         WriteMessage messageWriter = new WriteMessage(dbController);
-        messageWriter.createXMLMessage("PXD000018");
+        File directory = new File(System.getProperty("user.dir"));
+        File file = messageWriter.createXMLMessage("PXD000001", directory);
+        System.out.println("File created: " + file.getAbsolutePath());
     }
 }
