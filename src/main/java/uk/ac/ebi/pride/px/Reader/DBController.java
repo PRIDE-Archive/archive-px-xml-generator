@@ -508,7 +508,7 @@ public class DBController {
                 ref.setRef(publicationMap.get(experimentID));
             } else {
                 //there is no publication, add the special param for that
-                ref.setRef(publicationMap.get(new Long(0)));
+                ref.setRef(publicationMap.get(0));
             }
         } else {
             logger.error("Trying to return an invalid ref: allowed types \"publication\" and \"instrument\"");
@@ -525,8 +525,8 @@ public class DBController {
     
     //helper method, for a list pf experiments and accessions, will get from the pride_experiment_param all the Params
     // associated. Very useful in ProteomeXchange, most data stored in that table
-    private List<CvParam> getExperimentParams(List<Long> experimentIDs, List<String> accessions){
-        List<CvParam> cvParams = new ArrayList<CvParam>();
+    private Set<CvParam> getExperimentParams(List<Long> experimentIDs, List<String> accessions){
+        Set<CvParam> cvParams = new HashSet<CvParam>();
         String query = "SELECT ppp.accession, ppp.value, ppp.name, ppp.cv_label " +
                 "FROM pride_experiment pe LEFT JOIN pride_experiment_param ppp ON pe.experiment_id = ppp.parent_element_fk " +
                 "WHERE pe.experiment_id IN (%s) and " +
