@@ -31,6 +31,9 @@ public class DBController {
     //    Logger object
     Logger logger = LoggerFactory.getLogger(DBController.class);
 
+    //counter for publication ID
+    private int publicationCounter = 1;
+
     public DBController(DataSource dataSource) throws SQLException{
 
         DBConnection = dataSource.getConnection();
@@ -343,7 +346,8 @@ public class DBController {
                 publication.getCvParam().add(refCvParam);
                 if (rs.getString(1) == null) {
                     //there is no data in PubMed yet, but paper has been submitted
-                    publication.setId("accepted" + index);
+                    publication.setId("PUB" + publicationCounter);
+                    publicationCounter++;
                     //and add new CvParam to indicated has been published but waiting for PubMed
                     CvParam pubAccepted = new CvParam();
                     pubAccepted.setCvRef("PRIDE");
@@ -353,7 +357,8 @@ public class DBController {
                     index++;
                 } else {
                     //has a pubMed or DOI
-                    publication.setId(rs.getString(1).replaceAll(" ","_"));
+                    publication.setId("PUB" + publicationCounter);
+                    publicationCounter++;
                     //and add it as a cvParam as well
                     CvParam pubMed = new CvParam();
                     pubMed.setCvRef("MS");
@@ -377,7 +382,8 @@ public class DBController {
             if (publicationMap.size() != experimentIDs.size()) {
                 //nothing in pride_reference yet, unpublished data
                 Publication publication = new Publication();
-                publication.setId("unpublished");
+                publication.setId("PUB" + publicationCounter);
+                publicationCounter++;
                 CvParam cvParam = new CvParam();
                 cvParam.setCvRef("MS");
                 cvParam.setName("unpublished data");
@@ -477,9 +483,6 @@ public class DBController {
             ResultSet rs = st.executeQuery();
             Sample sample = new Sample();
             while (rs.next()) {
-                //TODO: assuming only 1 sample in PRIDE at the moment
-                sample.setId(rs.getString(1).replaceAll(" ","_"));
-                //TODO: using id and name same value, sample_name
                 sample.setName(rs.getString(1));
                 if (rs.getString(4) != null){
                     CvParam cvParam = new CvParam();
@@ -508,7 +511,7 @@ public class DBController {
                 ref.setRef(publicationMap.get(experimentID));
             } else {
                 //there is no publication, add the special param for that
-                ref.setRef(publicationMap.get(0));
+                ref.setRef(publicationMap.get(new Long(0)));
             }
         } else {
             logger.error("Trying to return an invalid ref: allowed types \"publication\" and \"instrument\"");
