@@ -25,9 +25,6 @@ public class WriteMessage {
 
     private static final String FORMAT_VERSION = "1.0.0";
 
-    //sample list counter to fake the ID
-    private int sampleListCounter = 1;
-
     private static final Logger logger = LoggerFactory.getLogger(WriteMessage.class);
     //main method to write a message to ProteomeXChange
     public WriteMessage(DBController dbController){
@@ -91,11 +88,7 @@ public class WriteMessage {
                 repositoryRecord.getPublicationRef().add(publicationRef);
                 Ref instrumentRef = dbac.getRef("instrument", experimentID);
                 repositoryRecord.getInstrumentRef().add(instrumentRef);
-                //TODO: get Sample List
                 SampleList sampleList = dbac.getSampleList(experimentID);
-                //TODO: sampleList Counter added
-                sampleList.setId("sampleList_" + sampleListCounter);
-                sampleListCounter++;
                 repositoryRecord.getSampleList().add(sampleList);
                 //and the modificationList
                 List<Long> expId = new ArrayList<Long>();  //need to create a list with 1 element for the method
