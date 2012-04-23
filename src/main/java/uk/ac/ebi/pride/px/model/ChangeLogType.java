@@ -11,16 +11,18 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for SampleListType complex type.
+ * A collection of all change log messages to record the changes and updates related to this dataset.
+ * 
+ * <p>Java class for ChangeLogType complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="SampleListType">
+ * &lt;complexType name="ChangeLogType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="Sample" type="{}SampleType" maxOccurs="unbounded"/>
+ *         &lt;element name="ChangeLogEntry" type="{}ChangeLogEntryType" maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -30,45 +32,45 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "SampleListType", propOrder = {
-    "sample"
+@XmlType(name = "ChangeLogType", propOrder = {
+    "changeLogEntry"
 })
-public class SampleList
+public class ChangeLogType
     extends PXObject
     implements Serializable
 {
 
     private final static long serialVersionUID = 100L;
-    @XmlElement(name = "Sample", required = true)
-    protected List<Sample> sample;
+    @XmlElement(name = "ChangeLogEntry", required = true)
+    protected List<ChangeLogEntryType> changeLogEntry;
 
     /**
-     * Gets the value of the sample property.
+     * Gets the value of the changeLogEntry property.
      * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the sample property.
+     * This is why there is not a <CODE>set</CODE> method for the changeLogEntry property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getSample().add(newItem);
+     *    getChangeLogEntry().add(newItem);
      * </pre>
      * 
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link Sample }
+     * {@link ChangeLogEntryType }
      * 
      * 
      */
-    public List<Sample> getSample() {
-        if (sample == null) {
-            sample = new ArrayList<Sample>();
+    public List<ChangeLogEntryType> getChangeLogEntry() {
+        if (changeLogEntry == null) {
+            changeLogEntry = new ArrayList<ChangeLogEntryType>();
         }
-        return this.sample;
+        return this.changeLogEntry;
     }
 
 }
