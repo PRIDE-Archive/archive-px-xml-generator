@@ -24,9 +24,11 @@ import uk.ac.ebi.pride.px.jaxb.adapters.CalendarAdapter;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element name="Description" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="ReviewLevel" type="{}ReviewLevelType"/>
+ *         &lt;element name="RepositorySupport" type="{}RepositorySupportType"/>
  *       &lt;/sequence>
  *       &lt;attribute name="announceDate" use="required" type="{http://www.w3.org/2001/XMLSchema}date" />
- *       &lt;attribute name="broadcaster" use="required" type="{}BroadcasterType" />
+ *       &lt;attribute name="hostingRepository" use="required" type="{}HostingRepositoryType" />
  *       &lt;attribute name="title" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -37,7 +39,9 @@ import uk.ac.ebi.pride.px.jaxb.adapters.CalendarAdapter;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DatasetSummaryType", propOrder = {
-    "description"
+    "description",
+    "reviewLevel",
+    "repositorySupport"
 })
 public class DatasetSummary
     extends PXObject
@@ -47,12 +51,16 @@ public class DatasetSummary
     private final static long serialVersionUID = 100L;
     @XmlElement(name = "Description", required = true)
     protected String description;
+    @XmlElement(name = "ReviewLevel", required = true)
+    protected ReviewLevelType reviewLevel;
+    @XmlElement(name = "RepositorySupport", required = true)
+    protected RepositorySupportType repositorySupport;
     @XmlAttribute(required = true)
     @XmlJavaTypeAdapter(CalendarAdapter.class)
     @XmlSchemaType(name = "date")
     protected Calendar announceDate;
     @XmlAttribute(required = true)
-    protected BroadcasterType broadcaster;
+    protected HostingRepositoryType hostingRepository;
     @XmlAttribute(required = true)
     protected String title;
 
@@ -81,6 +89,54 @@ public class DatasetSummary
     }
 
     /**
+     * Gets the value of the reviewLevel property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link ReviewLevelType }
+     *     
+     */
+    public ReviewLevelType getReviewLevel() {
+        return reviewLevel;
+    }
+
+    /**
+     * Sets the value of the reviewLevel property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link ReviewLevelType }
+     *     
+     */
+    public void setReviewLevel(ReviewLevelType value) {
+        this.reviewLevel = value;
+    }
+
+    /**
+     * Gets the value of the repositorySupport property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link RepositorySupportType }
+     *     
+     */
+    public RepositorySupportType getRepositorySupport() {
+        return repositorySupport;
+    }
+
+    /**
+     * Sets the value of the repositorySupport property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link RepositorySupportType }
+     *     
+     */
+    public void setRepositorySupport(RepositorySupportType value) {
+        this.repositorySupport = value;
+    }
+
+    /**
      * Gets the value of the announceDate property.
      * 
      * @return
@@ -105,27 +161,27 @@ public class DatasetSummary
     }
 
     /**
-     * Gets the value of the broadcaster property.
+     * Gets the value of the hostingRepository property.
      * 
      * @return
      *     possible object is
-     *     {@link BroadcasterType }
+     *     {@link HostingRepositoryType }
      *     
      */
-    public BroadcasterType getBroadcaster() {
-        return broadcaster;
+    public HostingRepositoryType getHostingRepository() {
+        return hostingRepository;
     }
 
     /**
-     * Sets the value of the broadcaster property.
+     * Sets the value of the hostingRepository property.
      * 
      * @param value
      *     allowed object is
-     *     {@link BroadcasterType }
+     *     {@link HostingRepositoryType }
      *     
      */
-    public void setBroadcaster(BroadcasterType value) {
-        this.broadcaster = value;
+    public void setHostingRepository(HostingRepositoryType value) {
+        this.hostingRepository = value;
     }
 
     /**

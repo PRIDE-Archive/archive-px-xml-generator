@@ -89,22 +89,4 @@ public class CvParam
         this.accession = value;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        CvParam cvParam = (CvParam) o;
-
-        if (!accession.equals(cvParam.accession)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return accession.hashCode();
-    }
-
-
 }

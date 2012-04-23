@@ -2,6 +2,8 @@
 package uk.ac.ebi.pride.px.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -25,7 +27,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="cvParam" type="{}CvParamType"/>
+ *         &lt;element name="cvParam" type="{}CvParamType" maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *       &lt;attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}ID" />
  *     &lt;/restriction>
@@ -46,7 +48,7 @@ public class Instrument
 
     private final static long serialVersionUID = 100L;
     @XmlElement(required = true)
-    protected CvParam cvParam;
+    protected List<CvParam> cvParam;
     @XmlAttribute(required = true)
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
@@ -56,25 +58,30 @@ public class Instrument
     /**
      * Gets the value of the cvParam property.
      * 
-     * @return
-     *     possible object is
-     *     {@link CvParam }
-     *     
-     */
-    public CvParam getCvParam() {
-        return cvParam;
-    }
-
-    /**
-     * Sets the value of the cvParam property.
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the cvParam property.
      * 
-     * @param value
-     *     allowed object is
-     *     {@link CvParam }
-     *     
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getCvParam().add(newItem);
+     * </pre>
+     * 
+     * 
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link CvParam }
+     * 
+     * 
      */
-    public void setCvParam(CvParam value) {
-        this.cvParam = value;
+    public List<CvParam> getCvParam() {
+        if (cvParam == null) {
+            cvParam = new ArrayList<CvParam>();
+        }
+        return this.cvParam;
     }
 
     /**

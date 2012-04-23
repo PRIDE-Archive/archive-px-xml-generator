@@ -4,7 +4,7 @@
 
     <groupId>uk.ac.ebi.pride.px</groupId>
     <artifactId>px-xml-generator</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>ProteomeXchange XML message</name>
@@ -98,7 +98,7 @@
                     <extension>true</extension>
                     <schemaDirectory>src/main/resources</schemaDirectory>
                     <schemaIncludes>
-                        <include>proteomeXchange-0.1.xsd</include>
+                        <include>proteomeXchange-draft-07.xsd</include>
                     </schemaIncludes>
                     <bindingDirectory>src/main/resources</bindingDirectory>
                     <bindingIncludes>

@@ -27,12 +27,12 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="InstrumentRef" type="{}RefType" maxOccurs="unbounded"/>
  *         &lt;element name="SampleList" type="{}SampleListType" maxOccurs="unbounded"/>
  *         &lt;element name="ModificationList" type="{}ModificationListType" minOccurs="0"/>
- *         &lt;element name="AnnotationList" type="{}AnnotationListType" minOccurs="0"/>
+ *         &lt;element name="AnnotationList" type="{}AdditionalInformationType" minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="label" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="recordID" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="repositoryID" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="repositoryID" use="required" type="{}HostingRepositoryType" />
  *       &lt;attribute name="uri" use="required" type="{http://www.w3.org/2001/XMLSchema}anyURI" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -67,7 +67,7 @@ public class RepositoryRecord
     @XmlElement(name = "ModificationList")
     protected ModificationList modificationList;
     @XmlElement(name = "AnnotationList")
-    protected AnnotationList annotationList;
+    protected AdditionalInformation annotationList;
     @XmlAttribute(required = true)
     protected String name;
     @XmlAttribute
@@ -75,7 +75,7 @@ public class RepositoryRecord
     @XmlAttribute(required = true)
     protected String recordID;
     @XmlAttribute(required = true)
-    protected String repositoryID;
+    protected HostingRepositoryType repositoryID;
     @XmlAttribute(required = true)
     @XmlSchemaType(name = "anyURI")
     protected String uri;
@@ -225,10 +225,10 @@ public class RepositoryRecord
      * 
      * @return
      *     possible object is
-     *     {@link AnnotationList }
+     *     {@link AdditionalInformation }
      *     
      */
-    public AnnotationList getAnnotationList() {
+    public AdditionalInformation getAnnotationList() {
         return annotationList;
     }
 
@@ -237,10 +237,10 @@ public class RepositoryRecord
      * 
      * @param value
      *     allowed object is
-     *     {@link AnnotationList }
+     *     {@link AdditionalInformation }
      *     
      */
-    public void setAnnotationList(AnnotationList value) {
+    public void setAnnotationList(AdditionalInformation value) {
         this.annotationList = value;
     }
 
@@ -321,10 +321,10 @@ public class RepositoryRecord
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link HostingRepositoryType }
      *     
      */
-    public String getRepositoryID() {
+    public HostingRepositoryType getRepositoryID() {
         return repositoryID;
     }
 
@@ -333,10 +333,10 @@ public class RepositoryRecord
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link HostingRepositoryType }
      *     
      */
-    public void setRepositoryID(String value) {
+    public void setRepositoryID(HostingRepositoryType value) {
         this.repositoryID = value;
     }
 

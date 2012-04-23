@@ -8,11 +8,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlID;
-import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 
 /**
@@ -31,7 +27,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *       &lt;sequence>
  *         &lt;element name="cvParam" type="{}CvParamType" maxOccurs="unbounded"/>
  *       &lt;/sequence>
- *       &lt;attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}ID" />
  *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -52,11 +47,6 @@ public class Sample
     private final static long serialVersionUID = 100L;
     @XmlElement(required = true)
     protected List<CvParam> cvParam;
-    @XmlAttribute(required = true)
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-    @XmlID
-    @XmlSchemaType(name = "ID")
-    protected String id;
     @XmlAttribute(required = true)
     protected String name;
 
@@ -87,30 +77,6 @@ public class Sample
             cvParam = new ArrayList<CvParam>();
         }
         return this.cvParam;
-    }
-
-    /**
-     * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setId(String value) {
-        this.id = value;
     }
 
     /**

@@ -33,7 +33,7 @@
     <!-- #####       ProteomeXchange XML bindings                                ##### -->
     <!-- ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### -->
 
-    <jxb:bindings schemaLocation="proteomeXchange-0.1.xsd" node="/xsd:schema">
+    <jxb:bindings schemaLocation="proteomeXchange-draft-07.xsd" node="/xsd:schema">
 
         <jxb:schemaBindings>
             <jxb:package name="uk.ac.ebi.pride.px.model"/>
@@ -47,9 +47,11 @@
             <jxb:class name="AdditionalInformation"/>
         </jxb:bindings>
 
+        <!--
         <jxb:bindings node="//xsd:complexType[@name='AnnotationListType']">
             <jxb:class name="AnnotationList"/>
         </jxb:bindings>
+        -->
 
         <jxb:bindings node="//xsd:complexType[@name='ContactListType']">
             <jxb:class name="ContactList"/>

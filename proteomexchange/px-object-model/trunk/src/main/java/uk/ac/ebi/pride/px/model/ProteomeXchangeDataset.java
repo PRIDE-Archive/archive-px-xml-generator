@@ -2,7 +2,11 @@
 package uk.ac.ebi.pride.px.model;
 
 import java.io.Serializable;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
 
 
 /**
@@ -15,6 +19,7 @@ import javax.xml.bind.annotation.*;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
+ *         &lt;element name="ChangeLog" type="{}ChangeLogType" minOccurs="0"/>
  *         &lt;element name="DatasetSummary" type="{}DatasetSummaryType"/>
  *         &lt;element name="DatasetIdentifierList" type="{}DatasetIdentifierListType"/>
  *         &lt;element name="DatasetOriginList" type="{}DatasetOriginListType"/>
@@ -38,9 +43,9 @@ import javax.xml.bind.annotation.*;
  * 
  * 
  */
-@XmlRootElement(name = "ProteomeXchangeDataset")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ProteomeXchangeDatasetType", propOrder = {
+    "changeLog",
     "datasetSummary",
     "datasetIdentifierList",
     "datasetOriginList",
@@ -61,6 +66,8 @@ public class ProteomeXchangeDataset
 {
 
     private final static long serialVersionUID = 100L;
+    @XmlElement(name = "ChangeLog")
+    protected ChangeLogType changeLog;
     @XmlElement(name = "DatasetSummary", required = true)
     protected DatasetSummary datasetSummary;
     @XmlElement(name = "DatasetIdentifierList", required = true)
@@ -91,6 +98,30 @@ public class ProteomeXchangeDataset
     protected String id;
     @XmlAttribute(required = true)
     protected String formatVersion;
+
+    /**
+     * Gets the value of the changeLog property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link ChangeLogType }
+     *     
+     */
+    public ChangeLogType getChangeLog() {
+        return changeLog;
+    }
+
+    /**
+     * Sets the value of the changeLog property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link ChangeLogType }
+     *     
+     */
+    public void setChangeLog(ChangeLogType value) {
+        this.changeLog = value;
+    }
 
     /**
      * Gets the value of the datasetSummary property.
