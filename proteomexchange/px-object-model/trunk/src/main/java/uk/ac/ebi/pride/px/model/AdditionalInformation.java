@@ -39,8 +39,7 @@ import javax.xml.bind.annotation.XmlType;
     "userParam"
 })
 public class AdditionalInformation
-    extends PXObject
-    implements Serializable
+    implements Serializable, PXObject
 {
 
     private final static long serialVersionUID = 100L;

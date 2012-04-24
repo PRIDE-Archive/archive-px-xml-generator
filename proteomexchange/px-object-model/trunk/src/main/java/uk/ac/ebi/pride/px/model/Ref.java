@@ -30,8 +30,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "RefType")
 public class Ref
-    extends PXObject
-    implements Serializable
+    implements Serializable, PXObject
 {
 
     private final static long serialVersionUID = 100L;

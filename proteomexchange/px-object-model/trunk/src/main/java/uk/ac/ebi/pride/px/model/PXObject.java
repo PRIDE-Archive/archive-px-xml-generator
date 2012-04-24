@@ -6,5 +6,5 @@ package uk.ac.ebi.pride.px.model;
  *         Date: 10/10/11
  * @since 0.1
  */
-public class PXObject {
+public interface PXObject {
 }

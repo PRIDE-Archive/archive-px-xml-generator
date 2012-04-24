@@ -132,7 +132,7 @@ public class DBController {
                 datasetSummary.setTitle(title);
                 datasetSummary.setDescription(description);
                 datasetSummary.setAnnounceDate(Calendar.getInstance());
-                datasetSummary.setBroadcaster(BroadcasterType.PRIDE);
+                datasetSummary.setHostingRepository(HostingRepositoryType.PRIDE);
             }
             rs.close();
         } catch (SQLException e) {
@@ -213,7 +213,7 @@ public class DBController {
                 cvParam.setCvRef(cvRef);
                 cvParam.setName(name);
                 cvParam.setAccession(accession);
-                instrument.setCvParam(cvParam);
+                instrument.getCvParam().add(cvParam);
                 //helper method to add the instrument to all the experiments
                 addKeysMap(instrumentMap, instrument, rs.getString(5));
                 instrumentList.getInstrument().add(instrument);
@@ -458,7 +458,7 @@ public class DBController {
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 repositoryRecord.setRecordID(rs.getString(1)); //set the accession
-                repositoryRecord.setRepositoryID("PRIDE");
+                repositoryRecord.setRepositoryID(HostingRepositoryType.PRIDE);
                 repositoryRecord.setUri(PRIDE_URL + rs.getString(1)); //set link to experiment
                 repositoryRecord.setLabel(rs.getString(2)); //set label
                 repositoryRecord.setName(rs.getString(3));

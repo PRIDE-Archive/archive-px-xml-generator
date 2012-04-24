@@ -40,8 +40,7 @@ import javax.xml.bind.annotation.XmlType;
     CvParam.class
 })
 public abstract class AbstractParam
-    extends PXObject
-    implements Serializable
+    implements Serializable, PXObject
 {
 
     private final static long serialVersionUID = 100L;

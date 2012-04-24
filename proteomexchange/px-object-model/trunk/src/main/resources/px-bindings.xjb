@@ -23,7 +23,7 @@
         <!-- the serializable uid should reflect the version number 1.0.0 -->
         <jxb:serializable uid="100"/>
         <!-- this interface will be used to ensure type safety in generified methods -->
-        <xjc:superClass name="uk.ac.ebi.pride.px.model.PXObject"/>
+        <xjc:superInterface name="uk.ac.ebi.pride.px.model.PXObject"/>
         <xjc:javaType name="java.util.Calendar" xmlType="xsd:date"
                       adapter="uk.ac.ebi.pride.px.jaxb.adapters.CalendarAdapter"/>
     </jxb:globalBindings>

@@ -38,8 +38,7 @@ import uk.ac.ebi.pride.px.jaxb.adapters.CalendarAdapter;
     "value"
 })
 public class ChangeLogEntryType
-    extends PXObject
-    implements Serializable
+    implements Serializable, PXObject
 {
 
     private final static long serialVersionUID = 100L;
