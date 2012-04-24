@@ -44,8 +44,7 @@ import uk.ac.ebi.pride.px.jaxb.adapters.CalendarAdapter;
     "repositorySupport"
 })
 public class DatasetSummary
-    extends PXObject
-    implements Serializable
+    implements Serializable, PXObject
 {
 
     private final static long serialVersionUID = 100L;

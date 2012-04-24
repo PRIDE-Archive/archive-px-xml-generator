@@ -34,27 +34,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link ModificationList }
+     * Create an instance of {@link Contact }
      * 
      */
-    public ModificationList createModificationList() {
-        return new ModificationList();
-    }
-
-    /**
-     * Create an instance of {@link RepositorySupportType }
-     * 
-     */
-    public RepositorySupportType createRepositorySupportType() {
-        return new RepositorySupportType();
-    }
-
-    /**
-     * Create an instance of {@link FullDatasetLink }
-     * 
-     */
-    public FullDatasetLink createFullDatasetLink() {
-        return new FullDatasetLink();
+    public Contact createContact() {
+        return new Contact();
     }
 
     /**
@@ -74,51 +58,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link DatasetOrigin }
+     * Create an instance of {@link DatasetIdentifier }
      * 
      */
-    public DatasetOrigin createDatasetOrigin() {
-        return new DatasetOrigin();
-    }
-
-    /**
-     * Create an instance of {@link Instrument }
-     * 
-     */
-    public Instrument createInstrument() {
-        return new Instrument();
-    }
-
-    /**
-     * Create an instance of {@link ContactList }
-     * 
-     */
-    public ContactList createContactList() {
-        return new ContactList();
-    }
-
-    /**
-     * Create an instance of {@link SpeciesList }
-     * 
-     */
-    public SpeciesList createSpeciesList() {
-        return new SpeciesList();
-    }
-
-    /**
-     * Create an instance of {@link DatasetOriginList }
-     * 
-     */
-    public DatasetOriginList createDatasetOriginList() {
-        return new DatasetOriginList();
-    }
-
-    /**
-     * Create an instance of {@link ChangeLogType }
-     * 
-     */
-    public ChangeLogType createChangeLogType() {
-        return new ChangeLogType();
+    public DatasetIdentifier createDatasetIdentifier() {
+        return new DatasetIdentifier();
     }
 
     /**
@@ -130,43 +74,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link ChangeLogEntryType }
-     * 
-     */
-    public ChangeLogEntryType createChangeLogEntryType() {
-        return new ChangeLogEntryType();
-    }
-
-    /**
      * Create an instance of {@link DatasetFileList }
      * 
      */
     public DatasetFileList createDatasetFileList() {
         return new DatasetFileList();
-    }
-
-    /**
-     * Create an instance of {@link DatasetIdentifier }
-     * 
-     */
-    public DatasetIdentifier createDatasetIdentifier() {
-        return new DatasetIdentifier();
-    }
-
-    /**
-     * Create an instance of {@link UserParam }
-     * 
-     */
-    public UserParam createUserParam() {
-        return new UserParam();
-    }
-
-    /**
-     * Create an instance of {@link RepositoryRecord }
-     * 
-     */
-    public RepositoryRecord createRepositoryRecord() {
-        return new RepositoryRecord();
     }
 
     /**
@@ -178,75 +90,67 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Species }
-     * 
-     */
-    public Species createSpecies() {
-        return new Species();
-    }
-
-    /**
-     * Create an instance of {@link Contact }
-     * 
-     */
-    public Contact createContact() {
-        return new Contact();
-    }
-
-    /**
-     * Create an instance of {@link FullDatasetLinkList }
-     * 
-     */
-    public FullDatasetLinkList createFullDatasetLinkList() {
-        return new FullDatasetLinkList();
-    }
-
-    /**
-     * Create an instance of {@link KeywordList }
-     * 
-     */
-    public KeywordList createKeywordList() {
-        return new KeywordList();
-    }
-
-    /**
-     * Create an instance of {@link Publication }
-     * 
-     */
-    public Publication createPublication() {
-        return new Publication();
-    }
-
-    /**
-     * Create an instance of {@link AdditionalInformation }
-     * 
-     */
-    public AdditionalInformation createAdditionalInformation() {
-        return new AdditionalInformation();
-    }
-
-    /**
-     * Create an instance of {@link PublicationList }
-     * 
-     */
-    public PublicationList createPublicationList() {
-        return new PublicationList();
-    }
-
-    /**
-     * Create an instance of {@link DatasetIdentifierList }
-     * 
-     */
-    public DatasetIdentifierList createDatasetIdentifierList() {
-        return new DatasetIdentifierList();
-    }
-
-    /**
      * Create an instance of {@link ProteomeXchangeDataset }
      * 
      */
     public ProteomeXchangeDataset createProteomeXchangeDataset() {
         return new ProteomeXchangeDataset();
+    }
+
+    /**
+     * Create an instance of {@link ModificationList }
+     * 
+     */
+    public ModificationList createModificationList() {
+        return new ModificationList();
+    }
+
+    /**
+     * Create an instance of {@link DatasetOrigin }
+     * 
+     */
+    public DatasetOrigin createDatasetOrigin() {
+        return new DatasetOrigin();
+    }
+
+    /**
+     * Create an instance of {@link RepositoryRecord }
+     * 
+     */
+    public RepositoryRecord createRepositoryRecord() {
+        return new RepositoryRecord();
+    }
+
+    /**
+     * Create an instance of {@link Instrument }
+     * 
+     */
+    public Instrument createInstrument() {
+        return new Instrument();
+    }
+
+    /**
+     * Create an instance of {@link ChangeLogEntryType }
+     * 
+     */
+    public ChangeLogEntryType createChangeLogEntryType() {
+        return new ChangeLogEntryType();
+    }
+
+    /**
+     * Create an instance of {@link SpeciesList }
+     * 
+     */
+    public SpeciesList createSpeciesList() {
+        return new SpeciesList();
+    }
+
+    /**
+     * Create an instance of {@link Species }
+     * 
+     */
+    public Species createSpecies() {
+        return new Species();
     }
 
     /**
@@ -258,11 +162,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link DatasetSummary }
+     * Create an instance of {@link ChangeLogType }
      * 
      */
-    public DatasetSummary createDatasetSummary() {
-        return new DatasetSummary();
+    public ChangeLogType createChangeLogType() {
+        return new ChangeLogType();
+    }
+
+    /**
+     * Create an instance of {@link UserParam }
+     * 
+     */
+    public UserParam createUserParam() {
+        return new UserParam();
     }
 
     /**
@@ -282,11 +194,99 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link DatasetIdentifierList }
+     * 
+     */
+    public DatasetIdentifierList createDatasetIdentifierList() {
+        return new DatasetIdentifierList();
+    }
+
+    /**
+     * Create an instance of {@link PublicationList }
+     * 
+     */
+    public PublicationList createPublicationList() {
+        return new PublicationList();
+    }
+
+    /**
+     * Create an instance of {@link RepositorySupportType }
+     * 
+     */
+    public RepositorySupportType createRepositorySupportType() {
+        return new RepositorySupportType();
+    }
+
+    /**
+     * Create an instance of {@link AdditionalInformation }
+     * 
+     */
+    public AdditionalInformation createAdditionalInformation() {
+        return new AdditionalInformation();
+    }
+
+    /**
      * Create an instance of {@link ReviewLevelType }
      * 
      */
     public ReviewLevelType createReviewLevelType() {
         return new ReviewLevelType();
+    }
+
+    /**
+     * Create an instance of {@link Publication }
+     * 
+     */
+    public Publication createPublication() {
+        return new Publication();
+    }
+
+    /**
+     * Create an instance of {@link FullDatasetLinkList }
+     * 
+     */
+    public FullDatasetLinkList createFullDatasetLinkList() {
+        return new FullDatasetLinkList();
+    }
+
+    /**
+     * Create an instance of {@link KeywordList }
+     * 
+     */
+    public KeywordList createKeywordList() {
+        return new KeywordList();
+    }
+
+    /**
+     * Create an instance of {@link DatasetOriginList }
+     * 
+     */
+    public DatasetOriginList createDatasetOriginList() {
+        return new DatasetOriginList();
+    }
+
+    /**
+     * Create an instance of {@link DatasetSummary }
+     * 
+     */
+    public DatasetSummary createDatasetSummary() {
+        return new DatasetSummary();
+    }
+
+    /**
+     * Create an instance of {@link ContactList }
+     * 
+     */
+    public ContactList createContactList() {
+        return new ContactList();
+    }
+
+    /**
+     * Create an instance of {@link FullDatasetLink }
+     * 
+     */
+    public FullDatasetLink createFullDatasetLink() {
+        return new FullDatasetLink();
     }
 
     /**

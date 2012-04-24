@@ -36,8 +36,7 @@ import javax.xml.bind.annotation.XmlType;
     "changeLogEntry"
 })
 public class ChangeLogType
-    extends PXObject
-    implements Serializable
+    implements Serializable, PXObject
 {
 
     private final static long serialVersionUID = 100L;

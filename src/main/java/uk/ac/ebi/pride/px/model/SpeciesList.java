@@ -34,8 +34,7 @@ import javax.xml.bind.annotation.XmlType;
     "species"
 })
 public class SpeciesList
-    extends PXObject
-    implements Serializable
+    implements Serializable, PXObject
 {
 
     private final static long serialVersionUID = 100L;

@@ -40,8 +40,7 @@ import javax.xml.bind.annotation.XmlType;
     "cvParam"
 })
 public class Sample
-    extends PXObject
-    implements Serializable
+    implements Serializable, PXObject
 {
 
     private final static long serialVersionUID = 100L;
