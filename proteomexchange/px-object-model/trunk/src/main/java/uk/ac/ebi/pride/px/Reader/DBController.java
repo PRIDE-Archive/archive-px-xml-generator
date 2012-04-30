@@ -115,31 +115,32 @@ public class DBController {
         }
     }
 
-    public DatasetSummary getDatasetSummary(long experimentID) {
-        DatasetSummary datasetSummary = new DatasetSummary();
-        try {
-            String query = "SELECT pe.title, ppp.value " +
-                    "FROM pride_experiment pe LEFT JOIN pride_experiment_param ppp ON pe.experiment_id = ppp.parent_element_fk " +
-                    "WHERE pe.experiment_id = ? and " +
-                    "ppp.accession = 'PRIDE:0000097'";
-            PreparedStatement st = DBConnection.prepareStatement(query);
-            st.setLong(1, experimentID);
-
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                String title = rs.getString(1);
-                String description = rs.getString(2);
-                datasetSummary.setTitle(title);
-                datasetSummary.setDescription(description);
-                datasetSummary.setAnnounceDate(Calendar.getInstance());
-                datasetSummary.setHostingRepository(HostingRepositoryType.PRIDE);
-            }
-            rs.close();
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return datasetSummary;
-    }
+    //this information comes from summary file at the moment
+//    public DatasetSummary getDatasetSummary(long experimentID) {
+//        DatasetSummary datasetSummary = new DatasetSummary();
+//        try {
+//            String query = "SELECT pe.title, ppp.value " +
+//                    "FROM pride_experiment pe LEFT JOIN pride_experiment_param ppp ON pe.experiment_id = ppp.parent_element_fk " +
+//                    "WHERE pe.experiment_id = ? and " +
+//                    "ppp.accession = 'PRIDE:0000097'";
+//            PreparedStatement st = DBConnection.prepareStatement(query);
+//            st.setLong(1, experimentID);
+//
+//            ResultSet rs = st.executeQuery();
+//            while (rs.next()) {
+//                String title = rs.getString(1);
+//                String description = rs.getString(2);
+//                datasetSummary.setTitle(title);
+//                datasetSummary.setDescription(description);
+//                datasetSummary.setAnnounceDate(Calendar.getInstance());
+//                datasetSummary.setHostingRepository(HostingRepositoryType.PRIDE);
+//            }
+//            rs.close();
+//        } catch (SQLException e) {
+//            logger.error(e.getMessage(), e);
+//        }
+//        return datasetSummary;
+//    }
 
     //returns SpeciesList for this experiment
     public SpeciesList getSpecies(List<Long> experimentIDs) {
@@ -264,7 +265,7 @@ public class DBController {
         return modificationList;
     }
 
-    public ContactList getContactList(List<Long> experimentIDs) {
+    public ContactList getContactList(List<Long> experimentIDs, Set<String> contactEmails) {
         ContactList contactList = new ContactList();
         String query = "SELECT DISTINCT(c.contact_name), c.institution, c.contact_info  " +
                 "FROM pride_experiment pe, mzdata_contact c, mzdata_mz_data m " +
@@ -300,6 +301,8 @@ public class DBController {
                     contact.getCvParam().add(cvParam);
                 }
                 if (rs.getString(3) != null) {
+                    //if that email is already in the summary file, do not include this contact
+                    if (contactEmails.contains(rs.getString(3))) continue;
                     CvParam cvParam = new CvParam();
                     cvParam.setValue(rs.getString(3));
                     cvParam.setCvRef("MS");
@@ -385,9 +388,9 @@ public class DBController {
                 publication.setId("PUB" + publicationCounter);
                 publicationCounter++;
                 CvParam cvParam = new CvParam();
-                cvParam.setCvRef("MS");
-                cvParam.setName("unpublished data");
-                cvParam.setAccession("MS:100????");
+                cvParam.setCvRef("PRIDE");
+                cvParam.setName("Dataset with no associated published manuscript");
+                cvParam.setAccession("PRIDE:0000412");
                 publication.getCvParam().add(cvParam);
                 //if there is no publication, add the special param in the map
                 publicationMap.put(new Long(0), publication);
@@ -519,13 +522,14 @@ public class DBController {
         return ref;
     }
 
-    public KeywordList getKeywordList(List<Long> experimentIDs) {
-        KeywordList keywordList = new KeywordList();
-        String[] accessions = new String[]{"MS:1001923", "MS:1001924", "MS:1001925", "MS:1001926"};
-        keywordList.getCvParam().addAll(getExperimentParams(experimentIDs, Arrays.asList(accessions)));
-        return keywordList;
-    }
-    
+//   at the moment keyword list will always come from the submission file
+//   public KeywordList getKeywordList(List<Long> experimentIDs) {
+//        KeywordList keywordList = new KeywordList();
+//        String[] accessions = new String[]{"MS:1001923", "MS:1001924", "MS:1001925", "MS:1001926"};
+//        keywordList.getCvParam().addAll(getExperimentParams(experimentIDs, Arrays.asList(accessions)));
+//        return keywordList;
+//    }
+//
     //helper method, for a list pf experiments and accessions, will get from the pride_experiment_param all the Params
     // associated. Very useful in ProteomeXchange, most data stored in that table
     private Set<CvParam> getExperimentParams(List<Long> experimentIDs, List<String> accessions){
