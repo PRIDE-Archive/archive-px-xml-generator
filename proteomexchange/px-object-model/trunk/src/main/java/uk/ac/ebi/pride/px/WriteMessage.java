@@ -167,8 +167,8 @@ public class WriteMessage {
         Species species = new Species();
         //need to create 2 cvParam: one with the NEWT code and one with the name
         for (uk.ac.ebi.pride.data.model.CvParam cvParam : submissionSummary.getMetaData().getSpecies()) {
-            species.getCvParam().add(createCvParam("MS:1001469", cvParam.getAccession(), "taxonomy: scientific name", "PSI-MS"));
-            species.getCvParam().add(createCvParam("MS:1001467", cvParam.getValue(), "taxonomy: NCBI TaxID", "PSI-MS"));
+            species.getCvParam().add(createCvParam("MS:1001469", cvParam.getName(), "taxonomy: scientific name", "PSI-MS"));
+            species.getCvParam().add(createCvParam("MS:1001467", cvParam.getAccession(), "taxonomy: NCBI TaxID", "PSI-MS"));
         }
         return species;
     }

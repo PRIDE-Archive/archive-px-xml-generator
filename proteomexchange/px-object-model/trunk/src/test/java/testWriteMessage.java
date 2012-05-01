@@ -1,8 +1,11 @@
 import junit.framework.TestCase;
+import uk.ac.ebi.pride.data.exception.SubmissionFileException;
 import uk.ac.ebi.pride.px.Reader.DBController;
 import uk.ac.ebi.pride.px.WriteMessage;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  * Created by IntelliJ IDEA.
@@ -13,11 +16,12 @@ import java.io.File;
  */
 public class testWriteMessage extends TestCase{
 
-    public void testMessage(){
+    public void testMessage() throws URISyntaxException, SubmissionFileException {
         DBController dbController = new DBController();
         WriteMessage messageWriter = new WriteMessage(dbController);
         File directory = new File(System.getProperty("user.dir"));
-        File file = messageWriter.createXMLMessage("PXD000001", directory);
+        File submissionFile = new File("src/test/resources");
+        File file = messageWriter.createXMLMessage("PXD000003", directory, submissionFile);
         System.out.println("File created: " + file.getAbsolutePath());
     }
 }
