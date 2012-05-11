@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.data.exception.SubmissionFileException;
 import uk.ac.ebi.pride.data.io.SubmissionFileParser;
 import uk.ac.ebi.pride.data.model.*;
+import uk.ac.ebi.pride.data.util.MassSpecFileType;
 import uk.ac.ebi.pride.px.Reader.DBController;
 import uk.ac.ebi.pride.px.model.*;
 import uk.ac.ebi.pride.px.model.Contact;
@@ -43,9 +44,12 @@ public class WriteMessage {
 
     //the pxSummaryLocation will indicate where in the filesystem is stored the summary file
     //to extract some of the information
-    public File createXMLMessage(String pxAccession, File directory, File pxSummaryLocation) throws SubmissionFileException {
+    public File createXMLMessage(String pxAccession, File directory, File submissionFile) throws Exception {
         //first, extract submission file object
-        File submissionFile = new File(pxSummaryLocation + File.separator + SUBMISSION_SUMMARY_FILE);
+//        File submissionFile = new File(pxSummaryLocation + File.separator + SUBMISSION_SUMMARY_FILE);
+        if (!submissionFile.isFile() || !submissionFile.exists()){
+            throw new Exception("No submission file in " + submissionFile.getAbsolutePath());
+        }
         Submission submissionSummary = SubmissionFileParser.parse(submissionFile);
         //will return if submission contains only supported files
         //to extract info from database or not supported files
@@ -120,7 +124,9 @@ public class WriteMessage {
             publicationList.getPublication().addAll(getPublicationParams(submissionSummary));
             proteomeXchangeDataset.setPublicationList(publicationList);
         }
-        //TODO:ask Flo about FullDatasetLinkList: data not in Pride, what to have
+        //add dataset link list, data will be in FTP only, so link will refer to files in FTP
+        FullDatasetLinkList fullDatasetLinkList = createFullDatasetLinkList(submissionSummary);
+        proteomeXchangeDataset.setFullDatasetLinkList(fullDatasetLinkList);
     }
 
     //method to extract Publication information from file
@@ -272,7 +278,22 @@ public class WriteMessage {
         return datasetOrigin;
     }
 
-    //TODO: Florian : ReviewLevel and RepositorySupport, no idea what to put there
+    //helper method to return DatasetLink
+    private static FullDatasetLinkList createFullDatasetLinkList(Submission submissionSummary){
+        FullDatasetLinkList fullDatasetLinkList = new FullDatasetLinkList();
+
+        //for each of the result files, add it to the DatasetLinkList
+        for (DataFile dataFile : submissionSummary.getDataFiles()) {
+            if (dataFile.getFileType().equals(MassSpecFileType.RESULT)){
+                FullDatasetLink fullDatasetLink = new FullDatasetLink();
+                CvParam datasetLinkParam = createCvParam("PRIDE:0000411",dataFile.getFile().getAbsolutePath(),"Dataset FTP location","PRIDE");
+                fullDatasetLink.setCvParam(datasetLinkParam);
+                fullDatasetLinkList.getFullDatasetLink().add(fullDatasetLink);
+            }
+        }
+        return fullDatasetLinkList;
+    }
+
     //this information will come from the summary file
     private static DatasetSummary getDatasetSummary(Submission submissionSummary){
         DatasetSummary datasetSummary = new DatasetSummary();
@@ -280,9 +301,42 @@ public class WriteMessage {
         datasetSummary.setDescription(submissionSummary.getMetaData().getDescription());
         datasetSummary.setAnnounceDate(Calendar.getInstance());
         datasetSummary.setHostingRepository(HostingRepositoryType.PRIDE);
-//        datasetSummary.setReviewLevel();
-//        datasetSummary.setRepositorySupport();
+        //add Review level, depending wether has a pubmed or not
+        ReviewLevelType reviewLevelType = addReviewLevel(submissionSummary);
+        datasetSummary.setReviewLevel(reviewLevelType);
+        //add Repository Support level, depending if files are supported or not
+        RepositorySupportType repositorySupportType = addRepositorySupport(submissionSummary);
+        datasetSummary.setRepositorySupport(repositorySupportType);
         return datasetSummary;
+    }
+
+    //helper method to retrieve Repository support, either submission is supported or non supported at the moment
+    private static RepositorySupportType addRepositorySupport(Submission submissionSummary){
+        RepositorySupportType repositorySupportType = new RepositorySupportType();
+        CvParam repositorySupport;
+        if (submissionSummary.getMetaData().isSupported()){
+            repositorySupport = createCvParam("PRIDE:0000416", null, "Supported dataset by repository", "PRIDE");
+        }
+        else{
+            repositorySupport = createCvParam("PRIDE:0000417", null, "Unsupported dataset by repository", "PRIDE");
+        }
+        repositorySupportType.setCvParam(repositorySupport);
+        return repositorySupportType;
+    }
+
+    //helper method to retrieve reviewLeveltype, either peered or non-peered at the moment
+    private static ReviewLevelType addReviewLevel(Submission submissionSummary){
+        ReviewLevelType reviewLevelType = new ReviewLevelType();
+
+        CvParam reviewLevel;
+        if (submissionSummary.getMetaData().hasPubmedIds()){
+            reviewLevel = createCvParam("PRIDE:0000414",null,"Peer-reviewed dataset","PRIDE");
+        }
+        else{
+            reviewLevel = createCvParam("PRIDE:0000415", null, "Non peer-reviewed dataset", "PRIDE");
+        }
+        reviewLevelType.setCvParam(reviewLevel);
+        return reviewLevelType;
     }
 
     //private method to extract the contact list from the summary file
