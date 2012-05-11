@@ -16,12 +16,12 @@ import java.net.URL;
  */
 public class testWriteMessage extends TestCase{
 
-    public void testMessage() throws URISyntaxException, SubmissionFileException {
+    public void testMessage() throws Exception, SubmissionFileException {
         DBController dbController = new DBController();
         WriteMessage messageWriter = new WriteMessage(dbController);
         File directory = new File(System.getProperty("user.dir"));
-        File submissionFile = new File("src/test/resources");
-        File file = messageWriter.createXMLMessage("PXD000003", directory, submissionFile);
+        File submissionFile = new File("src/test/resources/submission_csordas.px");
+        File file = messageWriter.createXMLMessage("PXD000002", directory, submissionFile);
         System.out.println("File created: " + file.getAbsolutePath());
     }
 }
