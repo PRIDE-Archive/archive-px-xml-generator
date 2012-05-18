@@ -38,7 +38,7 @@ public class WriteMessage {
     private static Set<String> contactEmails = new HashSet<String>();
 
     //main method to write a message to ProteomeXChange
-    public WriteMessage(DBController dbController){
+    public WriteMessage(DBController dbController) {
         dbac = dbController;
     }
 
@@ -47,7 +47,7 @@ public class WriteMessage {
     public File createXMLMessage(String pxAccession, File directory, File submissionFile) throws Exception {
         //first, extract submission file object
 //        File submissionFile = new File(pxSummaryLocation + File.separator + SUBMISSION_SUMMARY_FILE);
-        if (!submissionFile.isFile() || !submissionFile.exists()){
+        if (!submissionFile.isFile() || !submissionFile.exists()) {
             throw new Exception("No submission file in " + submissionFile.getAbsolutePath());
         }
         Submission submissionSummary = SubmissionFileParser.parse(submissionFile);
@@ -70,10 +70,9 @@ public class WriteMessage {
             //extract Keyword List from file
             KeywordList keywordList = getKeywordList(submissionSummary);
             proteomeXchangeDataset.setKeywordList(keywordList);
-            if (!submissionSupported){
+            if (!submissionSupported) {
                 populatePxSubmissionFromFile(proteomeXchangeDataset, submissionSummary, pxAccession);
-            }
-            else{
+            } else {
                 populatePxSubmissionFromDB(proteomeXchangeDataset, pxAccession);
             }
             //and add the attributes
@@ -90,7 +89,7 @@ public class WriteMessage {
     }
 
     //method to retrieve keyword list from the summary file
-    private static KeywordList getKeywordList(Submission submissionSummary){
+    private static KeywordList getKeywordList(Submission submissionSummary) {
         KeywordList keywordList = new KeywordList();
         keywordList.getCvParam().add(createCvParam("MS:1001925", submissionSummary.getMetaData().getKeywords(), "submitter keyword", "MS"));
         return keywordList;
@@ -98,7 +97,7 @@ public class WriteMessage {
 
     //method to populate all information in the proteomeXchange dataset from the
     //summary file
-    private static void populatePxSubmissionFromFile(ProteomeXchangeDataset proteomeXchangeDataset, Submission submissionSummary, String pxAccession){
+    private static void populatePxSubmissionFromFile(ProteomeXchangeDataset proteomeXchangeDataset, Submission submissionSummary, String pxAccession) {
         DatasetIdentifierList datasetIdentifierList = new DatasetIdentifierList();
         datasetIdentifierList.getDatasetIdentifier().add(getDatasetIdentifier(submissionSummary, pxAccession));
         proteomeXchangeDataset.setDatasetIdentifierList(datasetIdentifierList);
@@ -119,7 +118,7 @@ public class WriteMessage {
         modificationList.getCvParam().addAll(getModificationCvParams(submissionSummary));
         proteomeXchangeDataset.setModificationList(modificationList);
         //add pubmed information, if present
-        if (submissionSummary.getMetaData().hasPubmedIds()){
+        if (submissionSummary.getMetaData().hasPubmedIds()) {
             PublicationList publicationList = new PublicationList();
             publicationList.getPublication().addAll(getPublicationParams(submissionSummary));
             proteomeXchangeDataset.setPublicationList(publicationList);
@@ -130,7 +129,7 @@ public class WriteMessage {
     }
 
     //method to extract Publication information from file
-    private static List<Publication> getPublicationParams(Submission submissionSummary){
+    private static List<Publication> getPublicationParams(Submission submissionSummary) {
         List<Publication> publications = new ArrayList<Publication>();
 
         for (String pubmedID : submissionSummary.getMetaData().getPubmedIds()) {
@@ -143,7 +142,7 @@ public class WriteMessage {
     }
 
     //method to extract modifications from summary file
-    private static List<CvParam> getModificationCvParams(Submission submissionSummary){
+    private static List<CvParam> getModificationCvParams(Submission submissionSummary) {
         List<CvParam> cvParams = new ArrayList<CvParam>();
         for (uk.ac.ebi.pride.data.model.CvParam cvParam : submissionSummary.getMetaData().getModifications()) {
             cvParams.add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), cvParam.getCvLabel()));
@@ -152,7 +151,7 @@ public class WriteMessage {
     }
 
     //method to extract instrument information from summary file
-    private static List<Instrument> getInstrument(Submission submissionSummary){
+    private static List<Instrument> getInstrument(Submission submissionSummary) {
         List<Instrument> instruments = new ArrayList<Instrument>();
         int instrumentNum = 1;
         //convert CvParam into px CvParam
@@ -169,7 +168,7 @@ public class WriteMessage {
     }
 
     //method to get Species information from summary file
-    private static Species getSpecies(Submission submissionSummary){
+    private static Species getSpecies(Submission submissionSummary) {
         Species species = new Species();
         //need to create 2 cvParam: one with the NEWT code and one with the name
         for (uk.ac.ebi.pride.data.model.CvParam cvParam : submissionSummary.getMetaData().getSpecies()) {
@@ -181,7 +180,7 @@ public class WriteMessage {
 
     //method to add Dataset identifier information from file
     //at the moment, let's not worry about PxAccessions, they refer to previous submissions
-    private static DatasetIdentifier getDatasetIdentifier(Submission submissionSummary, String pxAccession){
+    private static DatasetIdentifier getDatasetIdentifier(Submission submissionSummary, String pxAccession) {
         //add px number as CvParam
         DatasetIdentifier px = new DatasetIdentifier();
         px.getCvParam().add(createCvParam("MS:1001919", pxAccession, "ProteomeXchange accession number", "MS"));
@@ -194,7 +193,7 @@ public class WriteMessage {
         return px;
     }
 
-    private static CvParam createCvParam(String accession, String value, String name, String cvRef){
+    private static CvParam createCvParam(String accession, String value, String name, String cvRef) {
 
         CvParam cvParam = new CvParam();
         cvParam.setAccession(accession);
@@ -207,7 +206,7 @@ public class WriteMessage {
 
     //method will get all information for a specific submission from the database and populate
     //the ProteomeXchangeDataset object with it
-    private static void populatePxSubmissionFromDB(ProteomeXchangeDataset proteomeXchangeDataset, String pxAccession){
+    private static void populatePxSubmissionFromDB(ProteomeXchangeDataset proteomeXchangeDataset, String pxAccession) {
         //get all experiments in the project
         List<Long> experimentIDs = dbac.getExperimentIds(pxAccession);
         if (experimentIDs.isEmpty()) {
@@ -229,7 +228,10 @@ public class WriteMessage {
         ModificationList modificationList = dbac.getModificationList(experimentIDs);
         proteomeXchangeDataset.setModificationList(modificationList);
         //extract contact list that are not present already in the file
-        ContactList contactList = dbac.getContactList(experimentIDs, contactEmails);
+        ContactList newContactList = dbac.getContactList(experimentIDs, contactEmails);
+        ContactList contactList = proteomeXchangeDataset.getContactList();
+        //add contacts from DB
+        contactList.getContact().addAll(newContactList.getContact());
         proteomeXchangeDataset.setContactList(contactList);
         //extract publicationList
         PublicationList publicationList = dbac.getPublicationList(experimentIDs);
@@ -237,7 +239,7 @@ public class WriteMessage {
 //        KeywordList keywordList = dbac.getKeywordList(experimentIDs);
 //        proteomeXchangeDataset.setKeywordList(keywordList);
         FullDatasetLinkList datasetLinkList = dbac.getFullDataSetLinkList(experimentIDs);
-        if (!datasetLinkList.getFullDatasetLink().isEmpty()){
+        if (!datasetLinkList.getFullDatasetLink().isEmpty()) {
             proteomeXchangeDataset.setFullDatasetLinkList(datasetLinkList);
         }
         //TODO: no DatasetFileList, where are the raw files stored?
@@ -268,7 +270,7 @@ public class WriteMessage {
 
     //TODO: DatasetOriginList, at the moment, it is hardcoded, all are new submissions
     //might change in future
-    private static DatasetOrigin getDatasetOrigin(){
+    private static DatasetOrigin getDatasetOrigin() {
         DatasetOrigin datasetOrigin = new DatasetOrigin();
         CvParam cvParam = new CvParam();
         cvParam.setAccession("PRIDE:0000402");
@@ -279,14 +281,14 @@ public class WriteMessage {
     }
 
     //helper method to return DatasetLink
-    private static FullDatasetLinkList createFullDatasetLinkList(Submission submissionSummary){
+    private static FullDatasetLinkList createFullDatasetLinkList(Submission submissionSummary) {
         FullDatasetLinkList fullDatasetLinkList = new FullDatasetLinkList();
 
         //for each of the result files, add it to the DatasetLinkList
         for (DataFile dataFile : submissionSummary.getDataFiles()) {
-            if (dataFile.getFileType().equals(MassSpecFileType.RESULT)){
+            if (dataFile.getFileType().equals(MassSpecFileType.RESULT)) {
                 FullDatasetLink fullDatasetLink = new FullDatasetLink();
-                CvParam datasetLinkParam = createCvParam("PRIDE:0000411",dataFile.getFile().getAbsolutePath(),"Dataset FTP location","PRIDE");
+                CvParam datasetLinkParam = createCvParam("PRIDE:0000411", dataFile.getFile().getAbsolutePath(), "Dataset FTP location", "PRIDE");
                 fullDatasetLink.setCvParam(datasetLinkParam);
                 fullDatasetLinkList.getFullDatasetLink().add(fullDatasetLink);
             }
@@ -295,7 +297,7 @@ public class WriteMessage {
     }
 
     //this information will come from the summary file
-    private static DatasetSummary getDatasetSummary(Submission submissionSummary){
+    private static DatasetSummary getDatasetSummary(Submission submissionSummary) {
         DatasetSummary datasetSummary = new DatasetSummary();
         datasetSummary.setTitle(submissionSummary.getMetaData().getTitle());
         datasetSummary.setDescription(submissionSummary.getMetaData().getDescription());
@@ -311,13 +313,12 @@ public class WriteMessage {
     }
 
     //helper method to retrieve Repository support, either submission is supported or non supported at the moment
-    private static RepositorySupportType addRepositorySupport(Submission submissionSummary){
+    private static RepositorySupportType addRepositorySupport(Submission submissionSummary) {
         RepositorySupportType repositorySupportType = new RepositorySupportType();
         CvParam repositorySupport;
-        if (submissionSummary.getMetaData().isSupported()){
+        if (submissionSummary.getMetaData().isSupported()) {
             repositorySupport = createCvParam("PRIDE:0000416", null, "Supported dataset by repository", "PRIDE");
-        }
-        else{
+        } else {
             repositorySupport = createCvParam("PRIDE:0000417", null, "Unsupported dataset by repository", "PRIDE");
         }
         repositorySupportType.setCvParam(repositorySupport);
@@ -325,14 +326,13 @@ public class WriteMessage {
     }
 
     //helper method to retrieve reviewLeveltype, either peered or non-peered at the moment
-    private static ReviewLevelType addReviewLevel(Submission submissionSummary){
+    private static ReviewLevelType addReviewLevel(Submission submissionSummary) {
         ReviewLevelType reviewLevelType = new ReviewLevelType();
 
         CvParam reviewLevel;
-        if (submissionSummary.getMetaData().hasPubmedIds()){
-            reviewLevel = createCvParam("PRIDE:0000414",null,"Peer-reviewed dataset","PRIDE");
-        }
-        else{
+        if (submissionSummary.getMetaData().hasPubmedIds()) {
+            reviewLevel = createCvParam("PRIDE:0000414", null, "Peer-reviewed dataset", "PRIDE");
+        } else {
             reviewLevel = createCvParam("PRIDE:0000415", null, "Non peer-reviewed dataset", "PRIDE");
         }
         reviewLevelType.setCvParam(reviewLevel);
@@ -340,10 +340,10 @@ public class WriteMessage {
     }
 
     //private method to extract the contact list from the summary file
-    private static ContactList getContactList(Submission submissionSummary){
+    private static ContactList getContactList(Submission submissionSummary) {
         ContactList contactList = new ContactList();
         Contact contact = new Contact();
-        contact.setId(submissionSummary.getContact().getName().replace(' ','_'));
+        contact.setId(submissionSummary.getContact().getName().replace(' ', '_'));
         contact.getCvParam().add(createCvParam("MS:1000586", submissionSummary.getContact().getName(), "contact name", "MS"));
         contact.getCvParam().add(createCvParam("MS:1000589", submissionSummary.getContact().getEmail(), "contact email", "MS"));
         contactEmails.add(submissionSummary.getContact().getEmail());
