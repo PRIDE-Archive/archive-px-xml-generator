@@ -42,7 +42,7 @@ public class WriteMessage {
     /**
      * Method overloading, this method is for the first time when a PX xml is created
      */
-    public File createXmlMessage(String pxAccession, File directory, File submissionFile) throws IOException, SubmissionFileException {
+    public File createXMLMessage(String pxAccession, File directory, File submissionFile) throws IOException, SubmissionFileException {
         return createXMLMessage(pxAccession, directory, submissionFile, null);
     }
 
