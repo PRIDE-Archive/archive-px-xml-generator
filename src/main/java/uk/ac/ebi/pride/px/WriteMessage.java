@@ -4,12 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.data.exception.SubmissionFileException;
 import uk.ac.ebi.pride.data.io.SubmissionFileParser;
-import uk.ac.ebi.pride.data.model.*;
+import uk.ac.ebi.pride.data.model.DataFile;
+import uk.ac.ebi.pride.data.model.Submission;
 import uk.ac.ebi.pride.data.util.MassSpecFileType;
 import uk.ac.ebi.pride.px.Reader.DBController;
 import uk.ac.ebi.pride.px.model.*;
-import uk.ac.ebi.pride.px.model.Contact;
-import uk.ac.ebi.pride.px.model.CvParam;
 import uk.ac.ebi.pride.px.xml.PxMarshaller;
 
 import java.io.File;
@@ -29,63 +28,86 @@ public class WriteMessage {
     private static PxMarshaller marshaller;
 
     private static final String FORMAT_VERSION = "1.0.0";
-    //name of the file containing the summary of the submission
-    private static final String SUBMISSION_SUMMARY_FILE = "submission.px";
 
     private static final Logger logger = LoggerFactory.getLogger(WriteMessage.class);
 
     //this list will store the contact emails present in the file, so we don't add them again from DB
     private static Set<String> contactEmails = new HashSet<String>();
 
-    //main method to write a message to ProteomeXChange
+    //main method to write a message to ProteomeXchange
     public WriteMessage(DBController dbController) {
         dbac = dbController;
     }
 
-    //the pxSummaryLocation will indicate where in the filesystem is stored the summary file
-    //to extract some of the information
-    public File createXMLMessage(String pxAccession, File directory, File submissionFile) throws Exception {
+    /**
+     * Method overloading, this method is for the first time when a PX xml is created
+     */
+    public File createXmlMessage(String pxAccession, File directory, File submissionFile) throws IOException, SubmissionFileException {
+        return createXMLMessage(pxAccession, directory, submissionFile, null);
+    }
+
+    /*
+        the pxSummaryLocation will indicate where in the filesystem is stored the summary file
+        to extract some of the information
+     */
+    public File createXMLMessage(String pxAccession, File directory, File submissionFile, String changeLog) throws IOException, SubmissionFileException {
         //first, extract submission file object
-//        File submissionFile = new File(pxSummaryLocation + File.separator + SUBMISSION_SUMMARY_FILE);
         if (!submissionFile.isFile() || !submissionFile.exists()) {
-            throw new Exception("No submission file in " + submissionFile.getAbsolutePath());
+            throw new IllegalArgumentException("No submission file in " + submissionFile.getAbsolutePath());
         }
+
+        File file = new File(directory.getAbsolutePath() + File.separator + pxAccession + ".xml");
+        FileWriter fw = new FileWriter(file);
+
+        marshaller = new PxMarshaller();
+        ProteomeXchangeDataset proteomeXchangeDataset = createProteomeXchangeDataset(pxAccession, submissionFile, changeLog);
+        //and marshal it
+        marshaller.marshall(proteomeXchangeDataset, fw);
+
+        return file;
+    }
+
+    private ProteomeXchangeDataset createProteomeXchangeDataset(String pxAccession, File submissionFile, String changeLog) throws SubmissionFileException {
         Submission submissionSummary = SubmissionFileParser.parse(submissionFile);
         //will return if submission contains only supported files
         //to extract info from database or not supported files
         //and extract info from the metadata file
         boolean submissionSupported = submissionSummary.getMetaData().isSupported();
-        File file = new File(directory.getAbsolutePath() + File.separator + pxAccession + ".xml");
-        try {
 
-            FileWriter fw = new FileWriter(file);
-            marshaller = new PxMarshaller();
-            ProteomeXchangeDataset proteomeXchangeDataset = new ProteomeXchangeDataset();
-            //extract DatasetSummary: this information will always come from Summary object
-            DatasetSummary datasetSummary = getDatasetSummary(submissionSummary);
-            proteomeXchangeDataset.setDatasetSummary(datasetSummary);
-            //extract ContactList: this information comes from summary file
-            ContactList contactList = getContactList(submissionSummary);
-            proteomeXchangeDataset.setContactList(contactList);
-            //extract Keyword List from file
-            KeywordList keywordList = getKeywordList(submissionSummary);
-            proteomeXchangeDataset.setKeywordList(keywordList);
-            if (!submissionSupported) {
-                populatePxSubmissionFromFile(proteomeXchangeDataset, submissionSummary, pxAccession);
-            } else {
-                populatePxSubmissionFromDB(proteomeXchangeDataset, pxAccession);
-            }
-            //and add the attributes
-            proteomeXchangeDataset.setId(pxAccession);
-            //TODO: format version will always be hardcoded ??
-            proteomeXchangeDataset.setFormatVersion(FORMAT_VERSION);
-            //and marshal it
-            marshaller.marshall(proteomeXchangeDataset, fw);
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e); //To change body of catch statement use File | Settings | File Templates.
+        ProteomeXchangeDataset proteomeXchangeDataset = new ProteomeXchangeDataset();
+        //extract DatasetSummary: this information will always come from Summary object
+        DatasetSummary datasetSummary = getDatasetSummary(submissionSummary);
+        proteomeXchangeDataset.setDatasetSummary(datasetSummary);
 
+        //extract ContactList: this information comes from summary file
+        ContactList contactList = getContactList(submissionSummary);
+        proteomeXchangeDataset.setContactList(contactList);
+
+        //extract Keyword List from file
+        KeywordList keywordList = getKeywordList(submissionSummary);
+        proteomeXchangeDataset.setKeywordList(keywordList);
+        if (!submissionSupported) {
+            populatePxSubmissionFromFile(proteomeXchangeDataset, submissionSummary, pxAccession);
+        } else {
+            populatePxSubmissionFromDB(proteomeXchangeDataset, pxAccession);
         }
-        return file;
+
+        //and add the attributes
+        proteomeXchangeDataset.setId(pxAccession);
+        //TODO: format version will always be hardcoded ??
+        proteomeXchangeDataset.setFormatVersion(FORMAT_VERSION);
+
+        // add change log if there is any
+        if (changeLog != null) {
+            ChangeLogType changeLogType = new ChangeLogType();
+            ChangeLogEntryType changeLogEntryType = new ChangeLogEntryType();
+            changeLogEntryType.setValue(changeLog);
+            changeLogEntryType.setDate(Calendar.getInstance());
+            changeLogType.getChangeLogEntry().add(changeLogEntryType);
+            proteomeXchangeDataset.setChangeLog(changeLogType);
+        }
+
+        return proteomeXchangeDataset;
     }
 
     //method to retrieve keyword list from the summary file
