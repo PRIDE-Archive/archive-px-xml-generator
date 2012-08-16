@@ -86,6 +86,7 @@ public class WriteMessage {
         //extract Keyword List from file
         KeywordList keywordList = getKeywordList(submissionSummary);
         proteomeXchangeDataset.setKeywordList(keywordList);
+        // populate dataset
         if (!submissionSupported) {
             populatePxSubmissionFromFile(proteomeXchangeDataset, submissionSummary, pxAccession);
         } else {
