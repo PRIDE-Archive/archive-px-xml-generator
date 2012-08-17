@@ -582,6 +582,35 @@ public class DBController {
         datasetIdentifierList.getDatasetIdentifier().add(DOI);
         return datasetIdentifierList;
     }
+
+    public CvParam getLdcFtpLink(long experimentID) {
+        CvParam cvParam = null;
+
+        String query =
+                "SELECT ppp.accession, ppp.value, ppp.name, ppp.cv_label " +
+                "FROM pride_experiment pe LEFT JOIN pride_reference_param ppp ON pe.experiment_id = ppp.parent_element_fk " +
+                "WHERE pe.experiment_id = ?";
+
+        try {
+            PreparedStatement st = DBConnection.prepareStatement(query);
+            st.setLong(1, experimentID);
+            ResultSet rs = st.executeQuery();
+            // process results
+            if (rs.next()) {
+                cvParam = new CvParam();
+                cvParam.setAccession(rs.getString(1));
+                cvParam.setValue(rs.getString(2));
+                cvParam.setName(rs.getString(3));
+                cvParam.setCvRef(rs.getString(4));
+            }
+            rs.close();
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        return cvParam;
+
+    }
     
     //helper method to return all accessions in the submissions
     private List<String> getAccessions(List<Long> experimentIDs){
