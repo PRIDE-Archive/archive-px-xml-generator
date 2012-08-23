@@ -28,8 +28,10 @@ public class WriteMessage {
     private static PxMarshaller marshaller;
 
     private static final String FORMAT_VERSION = "1.0.0";
+    private static final String DOI_PREFFIX = "10.6019";
 
     private static final Logger logger = LoggerFactory.getLogger(WriteMessage.class);
+
 
     //this list will store the contact emails present in the file, so we don't add them again from DB
     private static Set<String> contactEmails = new HashSet<String>();
@@ -92,6 +94,10 @@ public class WriteMessage {
         FullDatasetLinkList fullDatasetLinkList = createFTPDatasetLink(submissionSummary);
         proteomeXchangeDataset.setFullDatasetLinkList(fullDatasetLinkList);
 
+        //add DatasetIdentifier
+        DatasetIdentifierList datasetIdentifierList = getDatasetIdentifierList(submissionSummary, pxAccession);
+        proteomeXchangeDataset.setDatasetIdentifierList(datasetIdentifierList);
+
         // populate dataset
         if (!submissionSupported) {
             populatePxSubmissionFromFile(proteomeXchangeDataset, submissionSummary, pxAccession);
@@ -127,9 +133,6 @@ public class WriteMessage {
     //method to populate all information in the proteomeXchange dataset from the
     //summary file
     private static void populatePxSubmissionFromFile(ProteomeXchangeDataset proteomeXchangeDataset, Submission submissionSummary, String pxAccession) {
-        DatasetIdentifierList datasetIdentifierList = new DatasetIdentifierList();
-        datasetIdentifierList.getDatasetIdentifier().add(getDatasetIdentifier(submissionSummary, pxAccession));
-        proteomeXchangeDataset.setDatasetIdentifierList(datasetIdentifierList);
         //add DataSet info, it is constant right now
         DatasetOriginList datasetOriginList = new DatasetOriginList();
         datasetOriginList.setDatasetOrigin(getDatasetOrigin());
@@ -217,17 +220,21 @@ public class WriteMessage {
 
     //method to add Dataset identifier information from file
     //at the moment, let's not worry about PxAccessions, they refer to previous submissions
-    private static DatasetIdentifier getDatasetIdentifier(Submission submissionSummary, String pxAccession) {
+    private static DatasetIdentifierList getDatasetIdentifierList(Submission submissionSummary, String pxAccession) {
+        DatasetIdentifierList datasetIdentifierList = new DatasetIdentifierList();
         //add px number as CvParam
         DatasetIdentifier px = new DatasetIdentifier();
         px.getCvParam().add(createCvParam("MS:1001919", pxAccession, "ProteomeXchange accession number", "MS"));
-//        //add DOI from file if present
-//        if (submissionSummary.getMetaData().hasPxAccessions()){
-//            for (String accession : submissionSummary.getMetaData().getPxAccessions()) {
-//                px.getCvParam().add(createCvParam("MS:1001922", accession, "Digital Object Identifier (DOI)", "MS"));
-//            }
-//        }
-        return px;
+        datasetIdentifierList.getDatasetIdentifier().add(px);
+        //add DOI from if is supported
+        if (submissionSummary.getMetaData().isSupported()){
+            DatasetIdentifier DOI = new DatasetIdentifier();
+            //add DOI value
+            DOI.getCvParam().add(createCvParam("MS:1001922", DOI_PREFFIX + "/" + pxAccession, "Digital Object Identifier (DOI)", "MS"));
+            datasetIdentifierList.getDatasetIdentifier().add(DOI);
+        }
+
+        return datasetIdentifierList;
     }
 
     private static CvParam createCvParam(String accession, String value, String name, String cvRef) {
@@ -250,8 +257,9 @@ public class WriteMessage {
             logger.error("Project contains no experiments");
             System.exit(0);
         }
-        DatasetIdentifierList datasetIdentifierList = dbac.getDatasetIdentifierList(experimentIDs);
-        proteomeXchangeDataset.setDatasetIdentifierList(datasetIdentifierList);
+//        DatasetIdentifier datasetIdentifier = dbac.getDatasetIdentifier(experimentIDs);
+//        DatasetIdentifierList datasetIdentifierList = proteomeXchangeDataset.getDatasetIdentifierList();
+//        proteomeXchangeDataset.setDatasetIdentifierList(datasetIdentifierList);
         DatasetOriginList datasetOriginList = new DatasetOriginList();
         datasetOriginList.setDatasetOrigin(getDatasetOrigin());
         proteomeXchangeDataset.setDatasetOriginList(datasetOriginList);
@@ -275,12 +283,12 @@ public class WriteMessage {
         proteomeXchangeDataset.setPublicationList(publicationList);
 //        KeywordList keywordList = dbac.getKeywordList(experimentIDs);
 //        proteomeXchangeDataset.setKeywordList(keywordList);
-        FullDatasetLinkList datasetLinkList = dbac.getFullDataSetLinkList(experimentIDs);
-        if (!datasetLinkList.getFullDatasetLink().isEmpty()) {
-            //add links to PRIDE experiments to dataset list
-            FullDatasetLinkList fullDatasetLinkList = proteomeXchangeDataset.getFullDatasetLinkList();
-            fullDatasetLinkList.getFullDatasetLink().addAll(datasetLinkList.getFullDatasetLink());
-        }
+//        FullDatasetLinkList datasetLinkList = dbac.getFullDataSetLinkList(experimentIDs);
+//        if (!datasetLinkList.getFullDatasetLink().isEmpty()) {
+//            //add links to PRIDE experiments to dataset list
+//            FullDatasetLinkList fullDatasetLinkList = proteomeXchangeDataset.getFullDatasetLinkList();
+//            fullDatasetLinkList.getFullDatasetLink().addAll(datasetLinkList.getFullDatasetLink());
+//        }
         //TODO: no DatasetFileList, where are the raw files stored?
         // create RepositoryRecordList with all experiments in project
         RepositoryRecordList repositoryRecordList = new RepositoryRecordList();
