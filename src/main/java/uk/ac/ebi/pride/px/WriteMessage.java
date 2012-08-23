@@ -86,6 +86,12 @@ public class WriteMessage {
         //extract Keyword List from file
         KeywordList keywordList = getKeywordList(submissionSummary);
         proteomeXchangeDataset.setKeywordList(keywordList);
+
+        //add FTP DatasetLink
+
+        FullDatasetLinkList fullDatasetLinkList = createFTPDatasetLink(submissionSummary);
+        proteomeXchangeDataset.setFullDatasetLinkList(fullDatasetLinkList);
+
         // populate dataset
         if (!submissionSupported) {
             populatePxSubmissionFromFile(proteomeXchangeDataset, submissionSummary, pxAccession);
@@ -141,14 +147,22 @@ public class WriteMessage {
         modificationList.getCvParam().addAll(getModificationCvParams(submissionSummary));
         proteomeXchangeDataset.setModificationList(modificationList);
         //add pubmed information, if present
+        PublicationList publicationList = new PublicationList();
         if (submissionSummary.getMetaData().hasPubmedIds()) {
-            PublicationList publicationList = new PublicationList();
             publicationList.getPublication().addAll(getPublicationParams(submissionSummary));
-            proteomeXchangeDataset.setPublicationList(publicationList);
         }
-        //add dataset link list, data will be in FTP only, so link will refer to files in FTP
-        FullDatasetLinkList fullDatasetLinkList = createFullDatasetLinkList(submissionSummary);
-        proteomeXchangeDataset.setFullDatasetLinkList(fullDatasetLinkList);
+        //if there is no publication, add the special no publication param
+        else{
+            CvParam cvParam = new CvParam();
+            cvParam.setCvRef("PRIDE");
+            cvParam.setName("Dataset with no associated published manuscript");
+            cvParam.setAccession("PRIDE:0000412");
+            Publication publication = new Publication();
+            publication.setId("PUB1");
+            publication.getCvParam().add(cvParam);
+            publicationList.getPublication().add(publication);
+        }
+        proteomeXchangeDataset.setPublicationList(publicationList);
     }
 
     //method to extract Publication information from file
@@ -263,7 +277,9 @@ public class WriteMessage {
 //        proteomeXchangeDataset.setKeywordList(keywordList);
         FullDatasetLinkList datasetLinkList = dbac.getFullDataSetLinkList(experimentIDs);
         if (!datasetLinkList.getFullDatasetLink().isEmpty()) {
-            proteomeXchangeDataset.setFullDatasetLinkList(datasetLinkList);
+            //add links to PRIDE experiments to dataset list
+            FullDatasetLinkList fullDatasetLinkList = proteomeXchangeDataset.getFullDatasetLinkList();
+            fullDatasetLinkList.getFullDatasetLink().addAll(datasetLinkList.getFullDatasetLink());
         }
         //TODO: no DatasetFileList, where are the raw files stored?
         // create RepositoryRecordList with all experiments in project
@@ -303,19 +319,20 @@ public class WriteMessage {
         return datasetOrigin;
     }
 
-    //helper method to return DatasetLink
-    private static FullDatasetLinkList createFullDatasetLinkList(Submission submissionSummary) {
+    //helper method to return DatasetLink with FTP location of files
+    private static FullDatasetLinkList createFTPDatasetLink(Submission submissionSummary) {
+        //get first file, all should point to same location
         FullDatasetLinkList fullDatasetLinkList = new FullDatasetLinkList();
-
+        DataFile dataFile = submissionSummary.getDataFiles().get(0);
         //for each of the result files, add it to the DatasetLinkList
-        for (DataFile dataFile : submissionSummary.getDataFiles()) {
-            if (dataFile.getFileType().equals(MassSpecFileType.RESULT)) {
+//        for (DataFile dataFile : submissionSummary.getDataFiles()) {
+//            if (dataFile.getFileType().equals(MassSpecFileType.RESULT)) {
                 FullDatasetLink fullDatasetLink = new FullDatasetLink();
-                CvParam datasetLinkParam = createCvParam("PRIDE:0000411", dataFile.getFile().getAbsolutePath(), "Dataset FTP location", "PRIDE");
+                CvParam datasetLinkParam = createCvParam("PRIDE:0000411", dataFile.getFile().getParent(), "Dataset FTP location", "PRIDE");
                 fullDatasetLink.setCvParam(datasetLinkParam);
                 fullDatasetLinkList.getFullDatasetLink().add(fullDatasetLink);
-            }
-        }
+//            }
+//        }
         return fullDatasetLinkList;
     }
 
