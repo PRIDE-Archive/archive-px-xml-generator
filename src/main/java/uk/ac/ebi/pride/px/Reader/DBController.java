@@ -360,14 +360,14 @@ public class DBController {
                     index++;
                 } else {
                     //has a pubMed or DOI
-                    publication.setId("PUB" + publicationCounter);
+                    publication.setId("PMID" + rs.getString(1));
                     publicationCounter++;
                     //and add it as a cvParam as well
                     CvParam pubMed = new CvParam();
                     pubMed.setCvRef("MS");
                     pubMed.setName(rs.getString(2));
                     pubMed.setValue(rs.getString(1));
-                    if (rs.getString(1).equals("PubMed identifier")) {
+                    if (rs.getString(2).equals("PubMed")) {
                         //add the PubMed accession
                         pubMed.setAccession("MS:1000879");
                     } else {
@@ -402,7 +402,7 @@ public class DBController {
         return publicationList;
     }
 
-    public FullDatasetLinkList getFullDataSetLinkList(List<Long> experimentIDs) {
+    public FullDatasetLinkList getDatasetIdentifier(List<Long> experimentIDs) {
         FullDatasetLinkList datasetLinkList = new FullDatasetLinkList();
         //add the PRIDE URI
         List<String> accessions = getAccessions(experimentIDs);

@@ -7,6 +7,8 @@ import uk.ac.ebi.pride.data.io.SubmissionFileParser;
 import uk.ac.ebi.pride.data.model.DataFile;
 import uk.ac.ebi.pride.data.model.Submission;
 import uk.ac.ebi.pride.data.util.MassSpecFileType;
+import uk.ac.ebi.pride.pubmed.PubMedFetcher;
+import uk.ac.ebi.pride.pubmed.model.PubMedSummary;
 import uk.ac.ebi.pride.px.Reader.DBController;
 import uk.ac.ebi.pride.px.model.*;
 import uk.ac.ebi.pride.px.xml.PxMarshaller;
@@ -29,6 +31,7 @@ public class WriteMessage {
 
     private static final String FORMAT_VERSION = "1.0.0";
     private static final String DOI_PREFFIX = "10.6019";
+    private static final String NCBI_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
 
     private static final Logger logger = LoggerFactory.getLogger(WriteMessage.class);
 
@@ -169,13 +172,25 @@ public class WriteMessage {
     }
 
     //method to extract Publication information from file
-    private static List<Publication> getPublicationParams(Submission submissionSummary) {
+    private static List<Publication> getPublicationParams(Submission submissionSummary){
         List<Publication> publications = new ArrayList<Publication>();
+        PubMedFetcher pubMedFetcher = new PubMedFetcher(NCBI_URL);
 
         for (String pubmedID : submissionSummary.getMetaData().getPubmedIds()) {
             Publication publication = new Publication();
+            //add pubmedID
             publication.setId("PMID" + pubmedID);
             publication.getCvParam().add(createCvParam("MS:1000879", pubmedID, "PubMed identifier", "MS"));
+            //and the reference
+            //get reference line using external library
+            PubMedSummary pubMedSummary = null;
+            try {
+                pubMedSummary = pubMedFetcher.getPubMedSummary(pubmedID);
+            } catch (IOException e) {
+                logger.error("Problems getting reference line from pubMed " + e.getMessage());
+            }
+            String reference_line = pubMedSummary.getReference();
+            publication.getCvParam().add(createCvParam("PRIDE:0000400", reference_line,"Reference","PRIDE"));
             publications.add(publication);
         }
         return publications;
