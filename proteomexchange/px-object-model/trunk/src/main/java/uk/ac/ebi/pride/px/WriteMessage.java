@@ -32,6 +32,8 @@ public class WriteMessage {
     private static final String FORMAT_VERSION = "1.0.0";
     private static final String DOI_PREFFIX = "10.6019";
     private static final String NCBI_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
+    private static final String FTP = "ftp://ftp.pride.ebi.ac.uk";
+    private static final String PRIVATE_DIR = "/nfs/pride/private/data";
 
     private static final Logger logger = LoggerFactory.getLogger(WriteMessage.class);
 
@@ -351,7 +353,7 @@ public class WriteMessage {
 //        for (DataFile dataFile : submissionSummary.getDataFiles()) {
 //            if (dataFile.getFileType().equals(MassSpecFileType.RESULT)) {
                 FullDatasetLink fullDatasetLink = new FullDatasetLink();
-                CvParam datasetLinkParam = createCvParam("PRIDE:0000411", dataFile.getFile().getParent(), "Dataset FTP location", "PRIDE");
+                CvParam datasetLinkParam = createCvParam("PRIDE:0000411", dataFile.getFile().getParent().replace(PRIVATE_DIR, FTP), "Dataset FTP location", "PRIDE");
                 fullDatasetLink.setCvParam(datasetLinkParam);
                 fullDatasetLinkList.getFullDatasetLink().add(fullDatasetLink);
 //            }
