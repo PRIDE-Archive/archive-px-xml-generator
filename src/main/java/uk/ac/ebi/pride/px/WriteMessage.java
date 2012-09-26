@@ -96,7 +96,7 @@ public class WriteMessage {
 
         //add FTP DatasetLink
 
-        FullDatasetLinkList fullDatasetLinkList = createFTPDatasetLink(submissionSummary);
+        FullDatasetLinkList fullDatasetLinkList = createFTPDatasetLink(submissionSummary, pxAccession);
         proteomeXchangeDataset.setFullDatasetLinkList(fullDatasetLinkList);
 
         //add DatasetIdentifier
@@ -345,20 +345,32 @@ public class WriteMessage {
     }
 
     //helper method to return DatasetLink with FTP location of files
-    private static FullDatasetLinkList createFTPDatasetLink(Submission submissionSummary) {
+    private static FullDatasetLinkList createFTPDatasetLink(Submission submissionSummary, String pxAccession) {
         //get first file, all should point to same location
         FullDatasetLinkList fullDatasetLinkList = new FullDatasetLinkList();
         DataFile dataFile = submissionSummary.getDataFiles().get(0);
+        String dataPath = getYearMonthSubmission(submissionSummary);
         //for each of the result files, add it to the DatasetLinkList
 //        for (DataFile dataFile : submissionSummary.getDataFiles()) {
 //            if (dataFile.getFileType().equals(MassSpecFileType.RESULT)) {
                 FullDatasetLink fullDatasetLink = new FullDatasetLink();
-                CvParam datasetLinkParam = createCvParam("PRIDE:0000411", dataFile.getFile().getParent().replace(PRIVATE_DIR, FTP), "Dataset FTP location", "PRIDE");
+                CvParam datasetLinkParam = createCvParam("PRIDE:0000411", FTP + "/" + dataPath + "/" + pxAccession, "Dataset FTP location", "PRIDE");
                 fullDatasetLink.setCvParam(datasetLinkParam);
                 fullDatasetLinkList.getFullDatasetLink().add(fullDatasetLink);
 //            }
 //        }
         return fullDatasetLinkList;
+    }
+
+    //helper method to return the year and month the XML is being generated to be included in the path
+    private static String getYearMonthSubmission(Submission submissionSummary){
+
+        String year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
+        int month = Calendar.getInstance().get(Calendar.MONTH) + 1;
+        String monthValue = String.valueOf(month);
+        if (month < 10) monthValue = 0 + monthValue;
+        return year.substring(2) + "/" + monthValue;
+
     }
 
     //this information will come from the summary file
