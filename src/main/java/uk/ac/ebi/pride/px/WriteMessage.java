@@ -16,6 +16,7 @@ import uk.ac.ebi.pride.px.xml.PxMarshaller;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -49,7 +50,7 @@ public class WriteMessage {
     /**
      * Method overloading, this method is for the first time when a PX xml is created
      */
-    public File createXMLMessage(String pxAccession, File directory, File submissionFile) throws IOException, SubmissionFileException {
+    public File createXMLMessage(String pxAccession, File directory, File submissionFile) throws IOException, SubmissionFileException, SQLException {
         return createXMLMessage(pxAccession, directory, submissionFile, null);
     }
 
@@ -57,7 +58,7 @@ public class WriteMessage {
         the pxSummaryLocation will indicate where in the filesystem is stored the summary file
         to extract some of the information
      */
-    public File createXMLMessage(String pxAccession, File directory, File submissionFile, String changeLog) throws IOException, SubmissionFileException {
+    public File createXMLMessage(String pxAccession, File directory, File submissionFile, String changeLog) throws IOException, SubmissionFileException, SQLException {
         //first, extract submission file object
         if (!submissionFile.isFile() || !submissionFile.exists()) {
             throw new IllegalArgumentException("No submission file in " + submissionFile.getAbsolutePath());
@@ -74,7 +75,7 @@ public class WriteMessage {
         return file;
     }
 
-    private ProteomeXchangeDataset createProteomeXchangeDataset(String pxAccession, File submissionFile, String changeLog) throws SubmissionFileException {
+    private ProteomeXchangeDataset createProteomeXchangeDataset(String pxAccession, File submissionFile, String changeLog) throws SubmissionFileException, SQLException {
         Submission submissionSummary = SubmissionFileParser.parse(submissionFile);
         //will return if submission contains only supported files
         //to extract info from database or not supported files
@@ -83,7 +84,7 @@ public class WriteMessage {
 
         ProteomeXchangeDataset proteomeXchangeDataset = new ProteomeXchangeDataset();
         //extract DatasetSummary: this information will always come from Summary object
-        DatasetSummary datasetSummary = getDatasetSummary(submissionSummary);
+        DatasetSummary datasetSummary = getDatasetSummary(submissionSummary, pxAccession);
         proteomeXchangeDataset.setDatasetSummary(datasetSummary);
 
         //extract ContactList: this information comes from summary file
@@ -97,19 +98,25 @@ public class WriteMessage {
         //add FTP DatasetLink
 
         FullDatasetLinkList fullDatasetLinkList = createFTPDatasetLink(submissionSummary, pxAccession);
-        proteomeXchangeDataset.setFullDatasetLinkList(fullDatasetLinkList);
 
         //add DatasetIdentifier
         DatasetIdentifierList datasetIdentifierList = getDatasetIdentifierList(submissionSummary, pxAccession);
         proteomeXchangeDataset.setDatasetIdentifierList(datasetIdentifierList);
+        proteomeXchangeDataset.setFullDatasetLinkList(fullDatasetLinkList);
+
+        //extract publication information from DB
+        PublicationList publicationList = dbac.getPublicationList(pxAccession);
+        proteomeXchangeDataset.setPublicationList(publicationList);
 
         // populate dataset
         if (!submissionSupported) {
             populatePxSubmissionFromFile(proteomeXchangeDataset, submissionSummary, pxAccession);
+            //not relevant now, maybe in the future will be added PrideInspector URL
         } else {
+            //if it is supported, need to add prideInspectorURL to datasetLink
             populatePxSubmissionFromDB(proteomeXchangeDataset, pxAccession);
-        }
 
+        }
         //and add the attributes
         proteomeXchangeDataset.setId(pxAccession);
         //TODO: format version will always be hardcoded ??
@@ -154,27 +161,27 @@ public class WriteMessage {
         ModificationList modificationList = new ModificationList();
         modificationList.getCvParam().addAll(getModificationCvParams(submissionSummary));
         proteomeXchangeDataset.setModificationList(modificationList);
-        //add pubmed information, if present
-        PublicationList publicationList = new PublicationList();
-        if (submissionSummary.getMetaData().hasPubmedIds()) {
-            publicationList.getPublication().addAll(getPublicationParams(submissionSummary));
-        }
-        //if there is no publication, add the special no publication param
-        else{
-            CvParam cvParam = new CvParam();
-            cvParam.setCvRef("PRIDE");
-            cvParam.setName("Dataset with no associated published manuscript");
-            cvParam.setAccession("PRIDE:0000412");
-            Publication publication = new Publication();
-            publication.setId("PUB1");
-            publication.getCvParam().add(cvParam);
-            publicationList.getPublication().add(publication);
-        }
-        proteomeXchangeDataset.setPublicationList(publicationList);
+//        //add pubmed information, if present
+//        PublicationList publicationList = new PublicationList();
+//        if (submissionSummary.getMetaData().hasPubmedIds()) {
+//            publicationList.getPublication().addAll(getPublicationParams(submissionSummary));
+//        }
+//        //if there is no publication, add the special no publication param
+//        else {
+//            CvParam cvParam = new CvParam();
+//            cvParam.setCvRef("PRIDE");
+//            cvParam.setName("Dataset with no associated published manuscript");
+//            cvParam.setAccession("PRIDE:0000412");
+//            Publication publication = new Publication();
+//            publication.setId("PUB1");
+//            publication.getCvParam().add(cvParam);
+//            publicationList.getPublication().add(publication);
+//        }
+//        proteomeXchangeDataset.setPublicationList(publicationList);
     }
 
     //method to extract Publication information from file
-    private static List<Publication> getPublicationParams(Submission submissionSummary){
+    private static List<Publication> getPublicationParams(Submission submissionSummary) {
         List<Publication> publications = new ArrayList<Publication>();
         PubMedFetcher pubMedFetcher = new PubMedFetcher(NCBI_URL);
 
@@ -192,7 +199,7 @@ public class WriteMessage {
                 logger.error("Problems getting reference line from pubMed " + e.getMessage());
             }
             String reference_line = pubMedSummary.getReference();
-            publication.getCvParam().add(createCvParam("PRIDE:0000400", reference_line,"Reference","PRIDE"));
+            publication.getCvParam().add(createCvParam("PRIDE:0000400", reference_line, "Reference", "PRIDE"));
             publications.add(publication);
         }
         return publications;
@@ -244,7 +251,7 @@ public class WriteMessage {
         px.getCvParam().add(createCvParam("MS:1001919", pxAccession, "ProteomeXchange accession number", "MS"));
         datasetIdentifierList.getDatasetIdentifier().add(px);
         //add DOI from if is supported
-        if (submissionSummary.getMetaData().isSupported()){
+        if (submissionSummary.getMetaData().isSupported()) {
             DatasetIdentifier DOI = new DatasetIdentifier();
             //add DOI value
             DOI.getCvParam().add(createCvParam("MS:1001922", DOI_PREFFIX + "/" + pxAccession, "Digital Object Identifier (DOI)", "MS"));
@@ -267,7 +274,7 @@ public class WriteMessage {
 
     //method will get all information for a specific submission from the database and populate
     //the ProteomeXchangeDataset object with it
-    private static void populatePxSubmissionFromDB(ProteomeXchangeDataset proteomeXchangeDataset, String pxAccession) {
+    private static void populatePxSubmissionFromDB(ProteomeXchangeDataset proteomeXchangeDataset, String pxAccession) throws SubmissionFileException {
         //get all experiments in the project
         List<Long> experimentIDs = dbac.getExperimentIds(pxAccession);
         if (experimentIDs.isEmpty()) {
@@ -295,11 +302,15 @@ public class WriteMessage {
         //add contacts from DB
         contactList.getContact().addAll(newContactList.getContact());
         proteomeXchangeDataset.setContactList(contactList);
-        //extract publicationList
-        PublicationList publicationList = dbac.getPublicationList(experimentIDs);
-        proteomeXchangeDataset.setPublicationList(publicationList);
+//        //extract publicationList
+//        PublicationList publicationList = dbac.getPublicationList(experimentIDs);
+//        proteomeXchangeDataset.setPublicationList(publicationList);
 //        KeywordList keywordList = dbac.getKeywordList(experimentIDs);
-//        proteomeXchangeDataset.setKeywordList(keywordList);
+//        proteomeXchangeDataset.setKeywordList(keywordList)
+        //generatate prideInspectorURL
+//        FullDatasetLink fullDatasetLink = dbac.generatePrideInspectorURL(experimentIDs);
+//        //and add it to list of links
+//        fullDatasetLinkList.getFullDatasetLink().add(fullDatasetLink);
 //        FullDatasetLinkList datasetLinkList = dbac.getFullDataSetLinkList(experimentIDs);
 //        if (!datasetLinkList.getFullDatasetLink().isEmpty()) {
 //            //add links to PRIDE experiments to dataset list
@@ -315,7 +326,8 @@ public class WriteMessage {
             //we now need to add the additional elements to the record: source, publication, instrument, sample, modification
             //TODO; need to deal with source file, where are they ??
             //TODO: an experiment can have more than 1 publication or more than 1 instrument ??
-            Ref publicationRef = dbac.getRef("publication", experimentID);
+            //add publication ref, all projects will have 1, either no publication or the proper pubmedID
+            Ref publicationRef = dbac.getPublicationRef(pxAccession);
             repositoryRecord.getPublicationRef().add(publicationRef);
             Ref instrumentRef = dbac.getRef("instrument", experimentID);
             repositoryRecord.getInstrumentRef().add(instrumentRef);
@@ -345,43 +357,52 @@ public class WriteMessage {
     }
 
     //helper method to return DatasetLink with FTP location of files
-    private static FullDatasetLinkList createFTPDatasetLink(Submission submissionSummary, String pxAccession) {
+    private static FullDatasetLinkList createFTPDatasetLink(Submission submissionSummary, String pxAccession) throws SubmissionFileException {
         //get first file, all should point to same location
         FullDatasetLinkList fullDatasetLinkList = new FullDatasetLinkList();
-        DataFile dataFile = submissionSummary.getDataFiles().get(0);
-        String dataPath = getYearMonthSubmission(submissionSummary);
+        Date publicationDate = dbac.getPublicationDate(pxAccession);
+        if (publicationDate == null) {
+            String err = "No publication date in db for project " + pxAccession;
+            logger.error(err);
+            throw new SubmissionFileException(err);
+        }
+        //extract year/month path from the date was published
+        String dataPath = getYearMonthSubmission(publicationDate);
         //for each of the result files, add it to the DatasetLinkList
 //        for (DataFile dataFile : submissionSummary.getDataFiles()) {
 //            if (dataFile.getFileType().equals(MassSpecFileType.RESULT)) {
-                FullDatasetLink fullDatasetLink = new FullDatasetLink();
-                CvParam datasetLinkParam = createCvParam("PRIDE:0000411", FTP + "/" + dataPath + "/" + pxAccession, "Dataset FTP location", "PRIDE");
-                fullDatasetLink.setCvParam(datasetLinkParam);
-                fullDatasetLinkList.getFullDatasetLink().add(fullDatasetLink);
+        FullDatasetLink fullDatasetLink = new FullDatasetLink();
+        CvParam datasetLinkParam = createCvParam("PRIDE:0000411", FTP + "/" + dataPath + "/" + pxAccession, "Dataset FTP location", "PRIDE");
+        fullDatasetLink.setCvParam(datasetLinkParam);
+        fullDatasetLinkList.getFullDatasetLink().add(fullDatasetLink);
 //            }
 //        }
         return fullDatasetLinkList;
     }
 
     //helper method to return the year and month the XML is being generated to be included in the path
-    private static String getYearMonthSubmission(Submission submissionSummary){
+    private static String getYearMonthSubmission(Date publicationDate) {
 
-        String year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
-        int month = Calendar.getInstance().get(Calendar.MONTH) + 1;
-        String monthValue = String.valueOf(month);
-        if (month < 10) monthValue = 0 + monthValue;
-        return year.substring(2) + "/" + monthValue;
+        Calendar calendar = Calendar.getInstance();
 
+        calendar.setTime(publicationDate);
+
+        int month = calendar.get(Calendar.MONTH) + 1;
+
+        String path = calendar.get(Calendar.YEAR) + File.separator + (month < 10 ? "0" : "") + month;
+
+        return path;
     }
 
     //this information will come from the summary file
-    private static DatasetSummary getDatasetSummary(Submission submissionSummary) {
+    private static DatasetSummary getDatasetSummary(Submission submissionSummary, String pxAccession) throws SQLException {
         DatasetSummary datasetSummary = new DatasetSummary();
         datasetSummary.setTitle(submissionSummary.getMetaData().getTitle());
         datasetSummary.setDescription(submissionSummary.getMetaData().getDescription());
         datasetSummary.setAnnounceDate(Calendar.getInstance());
         datasetSummary.setHostingRepository(HostingRepositoryType.PRIDE);
         //add Review level, depending wether has a pubmed or not
-        ReviewLevelType reviewLevelType = addReviewLevel(submissionSummary);
+        ReviewLevelType reviewLevelType = addReviewLevel(submissionSummary, pxAccession);
         datasetSummary.setReviewLevel(reviewLevelType);
         //add Repository Support level, depending if files are supported or not
         RepositorySupportType repositorySupportType = addRepositorySupport(submissionSummary);
@@ -403,11 +424,13 @@ public class WriteMessage {
     }
 
     //helper method to retrieve reviewLeveltype, either peered or non-peered at the moment
-    private static ReviewLevelType addReviewLevel(Submission submissionSummary) {
+    private static ReviewLevelType addReviewLevel(Submission submissionSummary, String pxAccession) throws SQLException {
         ReviewLevelType reviewLevelType = new ReviewLevelType();
 
         CvParam reviewLevel;
-        if (submissionSummary.getMetaData().hasPubmedIds()) {
+        //i
+        if (dbac.getPubmedID(pxAccession) != null){
+//        if (submissionSummary.getMetaData().hasPubmedIds()) {
             reviewLevel = createCvParam("PRIDE:0000414", null, "Peer-reviewed dataset", "PRIDE");
         } else {
             reviewLevel = createCvParam("PRIDE:0000415", null, "Non peer-reviewed dataset", "PRIDE");

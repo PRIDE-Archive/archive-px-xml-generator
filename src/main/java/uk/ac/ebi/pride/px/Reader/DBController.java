@@ -2,14 +2,19 @@ package uk.ac.ebi.pride.px.Reader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.pride.data.exception.SubmissionFileException;
+import uk.ac.ebi.pride.pubmed.PubMedFetcher;
+import uk.ac.ebi.pride.pubmed.model.PubMedSummary;
 import uk.ac.ebi.pride.px.model.*;
 import uk.ac.ebi.pride.px.model.Ref;
+import uk.ac.ebi.pride.px.util.PrideInspectorUrlGenerator;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
 import java.util.*;
+import java.util.Date;
 
 /**
  * Created by IntelliJ IDEA.
@@ -23,8 +28,10 @@ public class DBController {
      * Database connection object
      */
     public static final String PRIDE_URL = "http://www.ebi.ac.uk/pride/simpleSearch.do?simpleSearchValue=";
-    //will use that map to store the relation between experiment_id->publication_ref
-    private Map<Long, PXObject> publicationMap = new HashMap<Long, PXObject>();
+    private static final String NCBI_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
+
+    //will use that map to store the relation between String->publication_ref
+    private Map<String, PXObject> publicationMap = new HashMap<String, PXObject>();
     private Map<Long, PXObject> instrumentMap = new HashMap<Long, PXObject>();
     private Connection DBConnection = null;
 
@@ -34,7 +41,7 @@ public class DBController {
     //counter for publication ID
     private int publicationCounter = 1;
 
-    public DBController(DataSource dataSource) throws SQLException{
+    public DBController(DataSource dataSource) throws SQLException {
 
         DBConnection = dataSource.getConnection();
 
@@ -105,7 +112,7 @@ public class DBController {
             preparedStatement.setObject(i + 1, values[i]);
         }
     }
-    
+
 
     //helper method that will add all the experimentId, separated by comma, to the Map for that particular id
     private static void addKeysMap(Map<Long, PXObject> idMap, PXObject object, String experimentIDs) {
@@ -204,7 +211,7 @@ public class DBController {
 
                 //instrumentMap.put(rs.getLong(5), id); //add it to the map for latter reference
                 Instrument instrument = new Instrument();
-                instrument.setId(id.replaceAll(" ","_"));
+                instrument.setId(id.replaceAll(" ", "_"));
                 String name = rs.getString(2);
                 String accession = rs.getString(3);
                 String cvRef = rs.getString(4);
@@ -280,7 +287,7 @@ public class DBController {
             while (rs.next()) {
                 Contact contact = new Contact();
                 //set contact name as the ID
-                contact.setId(rs.getString(1).replaceAll(" ","_"));
+                contact.setId(rs.getString(1).replaceAll(" ", "_"));
                 //and add it as a Param as well....
                 CvParam nameParam = new CvParam();
                 nameParam.setValue(rs.getString(1));
@@ -319,87 +326,60 @@ public class DBController {
         return contactList;
     }
 
-    public PublicationList getPublicationList(List<Long> experimentIDs) {
-        PublicationList publicationList = new PublicationList();
-        String query = "SELECT ppm.name, ppm.cv_label, pr.reference_line, GROUP_CONCAT(pl.experiment_id) " +
-                "FROM pride_reference_exp_link pl, pride_reference pr " +
-                "LEFT JOIN  pride_reference_param ppm ON pr.reference_id = ppm.parent_element_fk " +
-                "WHERE pl.experiment_id IN (%s) " +
-                "AND pl.reference_id = pr.reference_id " +
-                "AND ppm.cv_label IN ('PubMed','DOI') " +
-                "GROUP BY ppm.name";
-        String sql = String.format(query, preparePlaceHolders(experimentIDs.size()));
-        try {
-            PreparedStatement st = DBConnection.prepareStatement(sql);
-            setValues(st, experimentIDs.toArray());
-            boolean refSubmitted = false;
-            ResultSet rs = st.executeQuery();
-            int index = 1; //this index will be used to differentiate the different unpublished/submitted publications
-            while (rs.next()) {
-                Publication publication = new Publication();
-                refSubmitted = true;
+    public String getPubmedID(String pxAccession) throws SQLException {
 
-                //create the reference Param
-                CvParam refCvParam = new CvParam();
-                //Dataset associated manuscript, might have or not PubMedID
-                refCvParam.setCvRef("PRIDE");
-                refCvParam.setAccession("PRIDE:0000400");
-                refCvParam.setName("Reference");
-                refCvParam.setValue(rs.getString(3));
-                publication.getCvParam().add(refCvParam);
-                if (rs.getString(1) == null) {
-                    //there is no data in PubMed yet, but paper has been submitted
-                    publication.setId("PUB" + publicationCounter);
-                    publicationCounter++;
-                    //and add new CvParam to indicated has been published but waiting for PubMed
-                    CvParam pubAccepted = new CvParam();
-                    pubAccepted.setCvRef("PRIDE");
-                    pubAccepted.setAccession("PRIDE:0000399");
-                    pubAccepted.setName("Accepted manuscript");
-                    publication.getCvParam().add(pubAccepted);
-                    index++;
-                } else {
-                    //has a pubMed or DOI
-                    publication.setId("PMID" + rs.getString(1));
-                    publicationCounter++;
-                    //and add it as a cvParam as well
-                    CvParam pubMed = new CvParam();
-                    pubMed.setCvRef("MS");
-                    pubMed.setName(rs.getString(2));
-                    pubMed.setValue(rs.getString(1));
-                    if (rs.getString(2).equals("PubMed")) {
-                        //add the PubMed accession
-                        pubMed.setAccession("MS:1000879");
-                    } else {
-                        //add the DOI accession
-                        pubMed.setAccession("MS:1001922");
-                    }
-                    publication.getCvParam().add(pubMed);
-                }
-                //helper method to add the instrument to all the experiments
-                addKeysMap(publicationMap, publication, rs.getString(4));
-                publicationList.getPublication().add(publication);
+        String query = "SELECT pubmed_id from px_submission where px_accession = ?";
+
+        PreparedStatement st = DBConnection.prepareStatement(query);
+        st.setString(1, pxAccession);
+
+        ResultSet rs = st.executeQuery();
+        rs.next();
+        return rs.getString(1);
+    }
+    public PublicationList getPublicationList(String pxAccession) throws SQLException {
+        PublicationList publicationList = new PublicationList();
+        Publication publication = new Publication();
+        String pubmedID = getPubmedID(pxAccession);
+        if (pubmedID == null) {
+            //no pubmed, so no publication
+            CvParam cvParam = new CvParam();
+            cvParam.setCvRef("PRIDE");
+            cvParam.setName("Dataset with no associated published manuscript");
+            cvParam.setAccession("PRIDE:0000412");
+            publication.setId("PUB1");
+            publication.getCvParam().add(cvParam);
+            publicationList.getPublication().add(publication);
+        } else {
+            //add pubmedID
+            PubMedFetcher pubMedFetcher = new PubMedFetcher(NCBI_URL);
+            publication.setId("PMID" + pubmedID);
+            publication.getCvParam().add(createCvParam("MS:1000879", pubmedID, "PubMed identifier", "MS"));
+            //and the reference
+            //get reference line using external library
+            PubMedSummary pubMedSummary = null;
+            try {
+                pubMedSummary = pubMedFetcher.getPubMedSummary(pubmedID);
+            } catch (IOException e) {
+                logger.error("Problems getting reference line from pubMed " + e.getMessage());
             }
-            rs.close();
-            //if some experiments did not have a publication, add the special element
-            if (publicationMap.size() != experimentIDs.size()) {
-                //nothing in pride_reference yet, unpublished data
-                Publication publication = new Publication();
-                publication.setId("PUB" + publicationCounter);
-                publicationCounter++;
-                CvParam cvParam = new CvParam();
-                cvParam.setCvRef("PRIDE");
-                cvParam.setName("Dataset with no associated published manuscript");
-                cvParam.setAccession("PRIDE:0000412");
-                publication.getCvParam().add(cvParam);
-                //if there is no publication, add the special param in the map
-                publicationMap.put(new Long(0), publication);
-                publicationList.getPublication().add(publication);
-            }
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
+            String reference_line = pubMedSummary.getReference();
+            publication.getCvParam().add(createCvParam("PRIDE:0000400", reference_line, "Reference", "PRIDE"));
+            publicationList.getPublication().add(publication);
         }
+        publicationMap.put(pxAccession ,publication);
         return publicationList;
+      }
+
+    private static CvParam createCvParam(String accession, String value, String name, String cvRef) {
+
+        CvParam cvParam = new CvParam();
+        cvParam.setAccession(accession);
+        cvParam.setValue(value);
+        cvParam.setName(name);
+        cvParam.setCvRef(cvRef);
+
+        return cvParam;
     }
 
     public FullDatasetLinkList getDatasetIdentifier(List<Long> experimentIDs) {
@@ -487,7 +467,7 @@ public class DBController {
             Sample sample = new Sample();
             while (rs.next()) {
                 sample.setName(rs.getString(1));
-                if (rs.getString(4) != null){
+                if (rs.getString(4) != null) {
                     CvParam cvParam = new CvParam();
                     cvParam.setName(rs.getString(2));
                     cvParam.setCvRef(rs.getString(3));
@@ -503,6 +483,27 @@ public class DBController {
         return sampleList;
     }
 
+    //method to return a datasetlink to point to PrideInspector url for given experiments
+    public FullDatasetLink generatePrideInspectorURL(List<Long> experimentIDs) throws SubmissionFileException {
+        List<String> accessions = getAccessions(experimentIDs);
+        Set<String> accessionsSet = new HashSet<String>(accessions);
+        PrideInspectorUrlGenerator prideInspectorUrlGenerator = new PrideInspectorUrlGenerator();
+        String tinyURL = prideInspectorUrlGenerator.generate(accessionsSet);
+        FullDatasetLink fullDatasetLink = new FullDatasetLink();
+        CvParam cvParam = new CvParam();
+        cvParam.setName("Tiny URL");
+        cvParam.setCvRef("PRIDE");
+        cvParam.setAccession("PRIDE:????");
+        cvParam.setValue(tinyURL);
+        fullDatasetLink.setCvParam(cvParam);
+        return fullDatasetLink;
+    }
+
+    public Ref getPublicationRef(String pxAccession){
+        Ref ref = new Ref();
+        ref.setRef(publicationMap.get(pxAccession));
+        return ref;
+    }
     //helper method, will return a Ref for a certain type of elements (right now only publication or instrument)
     public Ref getRef(String type, long experimentID) {
         Ref ref = new Ref();
@@ -522,7 +523,22 @@ public class DBController {
         return ref;
     }
 
-//   at the moment keyword list will always come from the submission file
+    public Date getPublicationDate(String pxAccession) {
+        Date date = new Date();
+        String query = "SELECT publication_date FROM px_submission WHERE px_accession = ?";
+        try {
+            PreparedStatement st = DBConnection.prepareStatement(query);
+            st.setString(1, pxAccession);
+            ResultSet rs = st.executeQuery();
+            rs.next();
+            date = rs.getDate(1);
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+        }
+        return date;
+    }
+
+    //   at the moment keyword list will always come from the submission file
 //   public KeywordList getKeywordList(List<Long> experimentIDs) {
 //        KeywordList keywordList = new KeywordList();
 //        String[] accessions = new String[]{"MS:1001923", "MS:1001924", "MS:1001925", "MS:1001926"};
@@ -532,7 +548,7 @@ public class DBController {
 //
     //helper method, for a list pf experiments and accessions, will get from the pride_experiment_param all the Params
     // associated. Very useful in ProteomeXchange, most data stored in that table
-    private Set<CvParam> getExperimentParams(List<Long> experimentIDs, List<String> accessions){
+    private Set<CvParam> getExperimentParams(List<Long> experimentIDs, List<String> accessions) {
         Set<CvParam> cvParams = new HashSet<CvParam>();
         String query = "SELECT ppp.accession, ppp.value, ppp.name, ppp.cv_label " +
                 "FROM pride_experiment pe LEFT JOIN pride_experiment_param ppp ON pe.experiment_id = ppp.parent_element_fk " +
@@ -561,8 +577,8 @@ public class DBController {
     }
 
     //helper method to concatenate 2 Object arrays in a single one
-    private Object[] concatArrays(Object[] array1, Object[] array2){
-        Object[] newArray= new Object[array1.length + array2.length];
+    private Object[] concatArrays(Object[] array1, Object[] array2) {
+        Object[] newArray = new Object[array1.length + array2.length];
         System.arraycopy(array1, 0, newArray, 0, array1.length);
         System.arraycopy(array2, 0, newArray, array1.length, array2.length);
         return newArray;
@@ -575,7 +591,7 @@ public class DBController {
         DatasetIdentifier px = new DatasetIdentifier();
         px.getCvParam().addAll(getExperimentParams(experimentIDs, Arrays.asList(accessionsPX)));
         datasetIdentifierList.getDatasetIdentifier().add(px);
-         //now dataset for DOI, if present
+        //now dataset for DOI, if present
         String[] accessionsDOI = new String[]{"MS:1001922"};
         DatasetIdentifier DOI = new DatasetIdentifier();
         DOI.getCvParam().addAll(getExperimentParams(experimentIDs, Arrays.asList(accessionsDOI)));
@@ -588,8 +604,8 @@ public class DBController {
 
         String query =
                 "SELECT ppp.accession, ppp.value, ppp.name, ppp.cv_label " +
-                "FROM pride_experiment pe LEFT JOIN pride_reference_param ppp ON pe.experiment_id = ppp.parent_element_fk " +
-                "WHERE pe.experiment_id = ?";
+                        "FROM pride_experiment pe LEFT JOIN pride_reference_param ppp ON pe.experiment_id = ppp.parent_element_fk " +
+                        "WHERE pe.experiment_id = ?";
 
         try {
             PreparedStatement st = DBConnection.prepareStatement(query);
@@ -611,9 +627,9 @@ public class DBController {
         return cvParam;
 
     }
-    
+
     //helper method to return all accessions in the submissions
-    private List<String> getAccessions(List<Long> experimentIDs){
+    private List<String> getAccessions(List<Long> experimentIDs) {
         List<String> accessions = new ArrayList<String>();
         String query = "SELECT p.accession " +
                 "FROM pride_experiment p " +
