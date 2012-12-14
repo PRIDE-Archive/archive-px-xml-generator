@@ -198,7 +198,7 @@ public class DBController {
                 "FROM pride_experiment pe, mzdata_mz_data md LEFT JOIN mzdata_analyzer ma LEFT JOIN mzdata_analyzer_param map ON  ma.analyzer_id = map.parent_element_fk ON md.mz_data_id = ma.mz_data_id " +
                 "WHERE pe.mz_data_id = md.mz_data_id " +
                 "AND pe.experiment_id IN (%s) " +
-                "AND (map.cv_label = 'PSI' or map.cv_label = 'MS')" +
+                "AND (map.cv_label = 'PSI' or map.cv_label = 'MS' or map.cv_label = 'FIX')" +
                 "GROUP BY md.instrument_name";
         String sql = String.format(query, preparePlaceHolders(experimentIDs.size()));
         try {
