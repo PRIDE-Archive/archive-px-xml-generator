@@ -26,7 +26,9 @@ import uk.ac.ebi.pride.px.model.ProteomeXchangeDataset;
  * User: dani
  * Date: 01/05/12
  * Time: 11:32
- * To change this template use File | Settings | File Templates.
+ *
+ *
+ * todo: these tests need to be rewritten
  */
 public class testPxMessageFromFile extends TestCase {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
