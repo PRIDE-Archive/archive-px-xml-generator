@@ -345,9 +345,9 @@ public class DBController {
             //no pubmed, so no publication
             CvParam cvParam = new CvParam();
             cvParam.setCvRef("PRIDE");
-            cvParam.setName("Dataset with no associated published manuscript");
-            cvParam.setAccession("PRIDE:0000412");
-            publication.setId("PUB1");
+            cvParam.setName("Dataset with its publication pending");
+            cvParam.setAccession("PRIDE:0000432");
+            publication.setId("pending");
             publication.getCvParam().add(cvParam);
             publicationList.getPublication().add(publication);
         } else {
