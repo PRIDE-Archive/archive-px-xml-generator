@@ -180,30 +180,30 @@ public class WriteMessage {
 //        proteomeXchangeDataset.setPublicationList(publicationList);
     }
 
-    //method to extract Publication information from file
-    private static List<Publication> getPublicationParams(Submission submissionSummary) {
-        List<Publication> publications = new ArrayList<Publication>();
-        PubMedFetcher pubMedFetcher = new PubMedFetcher(NCBI_URL);
-
-        for (String pubmedID : submissionSummary.getMetaData().getPubmedIds()) {
-            Publication publication = new Publication();
-            //add pubmedID
-            publication.setId("PMID" + pubmedID);
-            publication.getCvParam().add(createCvParam("MS:1000879", pubmedID, "PubMed identifier", "MS"));
-            //and the reference
-            //get reference line using external library
-            PubMedSummary pubMedSummary = null;
-            try {
-                pubMedSummary = pubMedFetcher.getPubMedSummary(pubmedID);
-            } catch (IOException e) {
-                logger.error("Problems getting reference line from pubMed " + e.getMessage());
-            }
-            String reference_line = pubMedSummary.getReference();
-            publication.getCvParam().add(createCvParam("PRIDE:0000400", reference_line, "Reference", "PRIDE"));
-            publications.add(publication);
-        }
-        return publications;
-    }
+//    //method to extract Publication information from file
+//    private static List<Publication> getPublicationParams(Submission submissionSummary) {
+//        List<Publication> publications = new ArrayList<Publication>();
+//        PubMedFetcher pubMedFetcher = new PubMedFetcher(NCBI_URL);
+//
+//        for (String pubmedID : submissionSummary.getMetaData().getPubmedIds()) {
+//            Publication publication = new Publication();
+//            //add pubmedID
+//            publication.setId("PMID" + pubmedID);
+//            publication.getCvParam().add(createCvParam("MS:1000879", pubmedID, "PubMed identifier", "MS"));
+//            //and the reference
+//            //get reference line using external library
+//            PubMedSummary pubMedSummary = null;
+//            try {
+//                pubMedSummary = pubMedFetcher.getPubMedSummary(pubmedID);
+//            } catch (IOException e) {
+//                logger.error("Problems getting reference line from pubMed " + e.getMessage());
+//            }
+//            String reference_line = pubMedSummary.getReference();
+//            publication.getCvParam().add(createCvParam("PRIDE:0000400", reference_line, "Reference", "PRIDE"));
+//            publications.add(publication);
+//        }
+//        return publications;
+//    }
 
     //method to extract modifications from summary file
     private static List<CvParam> getModificationCvParams(Submission submissionSummary) {
