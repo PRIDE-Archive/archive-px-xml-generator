@@ -240,8 +240,8 @@ public class DBController {
                 "WHERE pi.experiment_id IN (%s) " +
                 "AND pi.identification_id = pp.identification_id " +
                 "AND pm.peptide_id=pp.peptide_id " +
-                "AND ppm.parent_element_fk = pm.modification_id" +
-                "AND ppm.cv_label IS NOT NULL";
+                "AND ppm.parent_element_fk = pm.modification_id " +
+                "AND ppm.cv_label is not NULL";
         String sql = String.format(query, preparePlaceHolders(experimentIDs.size()));
         try {
 
