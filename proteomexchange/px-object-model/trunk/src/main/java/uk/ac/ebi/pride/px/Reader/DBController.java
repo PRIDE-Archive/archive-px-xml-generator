@@ -15,6 +15,8 @@ import java.io.InputStream;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by IntelliJ IDEA.
@@ -311,12 +313,22 @@ public class DBController {
                 if (rs.getString(3) != null) {
                     //if that email is already in the summary file, do not include this contact
                     if (contactEmails.contains(rs.getString(3))) continue;
+                    String email = extractEmail(rs.getString(3));
+                    //there was no email, or the string contains more than an email, add the info param
                     CvParam cvParam = new CvParam();
                     cvParam.setValue(rs.getString(3));
                     cvParam.setCvRef("MS");
-                    cvParam.setAccession("MS:1000589"); //MS param for contact email
-                    cvParam.setName("contact email");
+                    cvParam.setAccession("MS:1000585"); //MS param for contact email
+                    cvParam.setName("contact attribute");
                     contact.getCvParam().add(cvParam);
+                    if (email != null) {
+                        CvParam cvParamEmail = new CvParam();
+                        cvParamEmail.setValue(email);
+                        cvParamEmail.setCvRef("MS");
+                        cvParamEmail.setAccession("MS:1000589"); //MS param for contact email
+                        cvParamEmail.setName("contact email");
+                        contact.getCvParam().add(cvParamEmail);
+                    }
                 }
                 contactList.getContact().add(contact);
             }
@@ -325,6 +337,14 @@ public class DBController {
             logger.error(e.getMessage(), e);
         }
         return contactList;
+    }
+
+    public static String extractEmail(String email) {
+        Pattern emailPattern = Pattern.compile(
+                "([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)");
+        Matcher matcher = emailPattern.matcher(email);
+        if (matcher.find()) return matcher.group();
+        else return "";
     }
 
     public String getPubmedID(String pxAccession) throws SQLException {
@@ -338,6 +358,7 @@ public class DBController {
         rs.next();
         return rs.getString(1);
     }
+
     public PublicationList getPublicationList(String pxAccession) throws SQLException {
         PublicationList publicationList = new PublicationList();
         Publication publication = new Publication();
@@ -368,9 +389,9 @@ public class DBController {
             publication.getCvParam().add(createCvParam("PRIDE:0000400", reference_line, "Reference", "PRIDE"));
             publicationList.getPublication().add(publication);
         }
-        publicationMap.put(pxAccession ,publication);
+        publicationMap.put(pxAccession, publication);
         return publicationList;
-      }
+    }
 
     private static CvParam createCvParam(String accession, String value, String name, String cvRef) {
 
@@ -500,11 +521,12 @@ public class DBController {
         return fullDatasetLink;
     }
 
-    public Ref getPublicationRef(String pxAccession){
+    public Ref getPublicationRef(String pxAccession) {
         Ref ref = new Ref();
         ref.setRef(publicationMap.get(pxAccession));
         return ref;
     }
+
     //helper method, will return a Ref for a certain type of elements (right now only publication or instrument)
     public Ref getRef(String type, long experimentID) {
         Ref ref = new Ref();
