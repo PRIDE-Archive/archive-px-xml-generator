@@ -207,10 +207,11 @@ public class DBController {
             PreparedStatement st = DBConnection.prepareStatement(sql);
             setValues(st, experimentIDs.toArray());
             ResultSet rs = st.executeQuery();
-
+            int counter = 1;
             while (rs.next()) {
-                String id = rs.getString(1);
-
+//                String id = rs.getString(1);
+                String id = "INSTRUMENT_" + counter;
+                counter++;
                 //instrumentMap.put(rs.getLong(5), id); //add it to the map for latter reference
                 Instrument instrument = new Instrument();
                 instrument.setId(id.replaceAll(" ", "_"));
