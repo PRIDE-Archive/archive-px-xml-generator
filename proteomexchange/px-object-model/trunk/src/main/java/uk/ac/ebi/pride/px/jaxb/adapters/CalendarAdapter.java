@@ -1,6 +1,8 @@
 package uk.ac.ebi.pride.px.jaxb.adapters;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 /**
@@ -12,15 +14,19 @@ import java.util.Calendar;
  */
 public class CalendarAdapter extends XmlAdapter<String, Calendar> {
 
-    public Calendar unmarshal(String value) {
-        return (javax.xml.bind.DatatypeConverter.parseDate(value));
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+    public Calendar unmarshal(String value) throws ParseException {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(dateFormat.parse(value));
+        return calendar;
     }
 
     public String marshal(Calendar value) {
         if (value == null) {
             return null;
         }
-        return (javax.xml.bind.DatatypeConverter.printDate(value));
+        return dateFormat.format(value.getTime());
     }
 
 }
