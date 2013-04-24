@@ -32,11 +32,21 @@
             <email>dani@ebi.ac.uk</email>
             <organization>European Bioinformatics Institute</organization>
         </developer>
+        <developer>
+            <id>jadianes</id>
+            <name>Jose A. Dianes</name>
+            <email>jdianes@ebi.ac.uk</email>
+            <organization>European Bioinformatics Institute</organization>
+        </developer>
     </developers>
     <organization>
         <name>European Bioinformatics Institute</name>
         <url>http://www.ebi.ac.uk</url>
     </organization>
+
+    <properties>
+        <prider.repo.version>0.1.1-SNAPSHOT</prider.repo.version>
+    </properties>
 
     <build>
         <resources>
@@ -169,6 +179,14 @@
             <artifactId>peppubmed</artifactId>
             <version>0.3-SNAPSHOT</version>
         </dependency>
+
+        <!-- pride repo -->
+        <dependency>
+            <groupId>uk.ac.ebi.pride.prider</groupId>
+            <artifactId>prider-repo</artifactId>
+            <version>${prider.repo.version}</version>
+        </dependency>
+
     </dependencies>
 
 

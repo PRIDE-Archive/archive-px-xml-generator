@@ -3,6 +3,15 @@ package uk.ac.ebi.pride.px.Reader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.data.exception.SubmissionFileException;
+import uk.ac.ebi.pride.prider.repo.assay.Assay;
+import uk.ac.ebi.pride.prider.repo.assay.AssayPTM;
+import uk.ac.ebi.pride.prider.repo.assay.AssayRepository;
+import uk.ac.ebi.pride.prider.repo.assay.AssaySampleCvParam;
+import uk.ac.ebi.pride.prider.repo.param.CvParamRepository;
+import uk.ac.ebi.pride.prider.repo.project.ProjectPTM;
+import uk.ac.ebi.pride.prider.repo.project.ProjectRepository;
+import uk.ac.ebi.pride.prider.repo.project.ProjectSampleCvParam;
+import uk.ac.ebi.pride.prider.repo.user.User;
 import uk.ac.ebi.pride.pubmed.PubMedFetcher;
 import uk.ac.ebi.pride.pubmed.model.PubMedSummary;
 import uk.ac.ebi.pride.px.model.*;
@@ -19,17 +28,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by IntelliJ IDEA.
- * User: dani
- * Date: 11/10/11
- * Time: 15:25
- * To change this template use File | Settings | File Templates.
+ * @author Dani Rios
+ * @author Jose A. Dianes (PRIDE-R updates and refactoring)
+ * @version $Id$
+ *
  */
 public class DBController {
+
+    ProjectRepository projectRepository;
+    AssayRepository assayRepository;
+    CvParamRepository cvParamRepository;
+
     /**
      * Database connection object
      */
-    public static final String PRIDE_URL = "http://www.ebi.ac.uk/pride/simpleSearch.do?simpleSearchValue=";
+    public static final String PRIDE_URL = "http://www.ebi.ac.uk/pride/simpleSearch.do?simpleSearchValue="; // TODO - Update this with final PRIDE-R, put it as a parameter as well
     private static final String NCBI_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
 
     //will use that map to store the relation between String->publication_ref
@@ -75,27 +88,233 @@ public class DBController {
         }
     }
 
-    //helper method, for a pxAccession will return all the experimentIds to report
-    public List<Long> getExperimentIds(String pxAccession) {
-        List<Long> expIds = new ArrayList<Long>();
-        try {
-            String query = "SELECT parent_element_fk " +
-                    "FROM pride_experiment_param " +
-                    "WHERE value = ? ";
-
-            PreparedStatement st = DBConnection.prepareStatement(query);
-            st.setString(1, pxAccession);
-
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                expIds.add(rs.getLong(1));
-            }
-            rs.close();
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return expIds;
+    public void setProjectRepository(ProjectRepository projectRepository) {
+        this.projectRepository = projectRepository;
     }
+
+    public void setAssayRepository(AssayRepository assayRepository) {
+        this.assayRepository = assayRepository;
+    }
+
+    public void setCvParamRepository(CvParamRepository cvParamRepository) {
+        this.cvParamRepository = cvParamRepository;
+    }
+
+
+    /**
+     * Get all the assay IDs for a given project accession
+     *
+     * @param projectAccession
+     * @return
+     */
+    public List<Long> getAssayIds(String projectAccession) {
+        List<Long> assayIds = new ArrayList<Long>();
+
+        Long projectId = projectRepository.findByAccession(projectAccession).getId();
+
+        for (Assay assay: assayRepository.findAllByProjectId(projectId)) {
+            assayIds.add(assay.getId());
+        }
+
+        return assayIds;
+    }
+
+    /**
+     * Get the list of instruments for a given collection of assay IDs
+     *
+     * @param assayIds
+     * @return
+     */
+    public InstrumentList getInstrumentList(Collection<Long> assayIds) {
+        InstrumentList instrumentList = new InstrumentList();
+
+        for (Long assayId: assayIds) {
+            Collection<uk.ac.ebi.pride.prider.repo.assay.instrument.Instrument> priderInstruments = assayRepository.findOne(assayId).getInstruments();
+            int i = 1;
+            for (uk.ac.ebi.pride.prider.repo.assay.instrument.Instrument priderInstrument: priderInstruments) {
+                String id = "INSTRUMENT_" + i;
+                i++;
+                uk.ac.ebi.pride.px.model.Instrument instrument = new uk.ac.ebi.pride.px.model.Instrument();
+                instrument.setId(id);
+
+                //and add the params
+                CvParam cvParam = new CvParam();
+                cvParam.setCvRef(priderInstrument.getCvParam().getCvLabel());
+                cvParam.setName(priderInstrument.getCvParam().getName());
+                cvParam.setAccession(priderInstrument.getCvParam().getAccession());
+                // add the param to the instrument
+                instrument.getCvParam().add(cvParam);
+                //helper method to add the instrument to all the assay
+                addKeysMap(instrumentMap, instrument, assayId);
+                instrumentList.getInstrument().add(instrument);
+            }
+        }
+//        //TODO:: how can we get the right description for the instrument ??
+
+        return instrumentList;
+    }
+
+
+
+
+    /**
+     * Get list of species for a given project accession
+     * @param projectAccession
+     * @return
+     */
+    public SpeciesList getSpecies(String projectAccession) {
+        SpeciesList speciesList = new SpeciesList();
+
+
+        Collection<ProjectSampleCvParam> priderSampleCvParams = projectRepository.findByAccession(projectAccession).getSamples();
+        for (ProjectSampleCvParam priderSampleCvParam: priderSampleCvParams) {
+            if ("NEWT".equals(priderSampleCvParam.getAccession()))  {
+                uk.ac.ebi.pride.px.model.Species species = new uk.ac.ebi.pride.px.model.Species();
+
+                //and add the params
+                CvParam cvParam = new CvParam();
+                cvParam.setCvRef(priderSampleCvParam.getCvParam().getCvLabel());
+                cvParam.setName(priderSampleCvParam.getCvParam().getName());
+                cvParam.setAccession(priderSampleCvParam.getCvParam().getAccession());
+
+//                    The old code
+//                CvParam cvParam = new CvParam();
+//                cvParam.setCvRef("PSI-MS");
+//                cvParam.setName("taxonomy: scientific name");
+//                cvParam.setAccession("MS:1001469");
+//                cvParam.setValue(name);
+//                species.getCvParam().add(cvParam);
+//                CvParam cvParam2 = new CvParam();
+//                cvParam2.setCvRef("PSI-MS");
+//                cvParam2.setName("taxonomy: NCBI TaxID");
+//                cvParam2.setAccession("MS:1001467");
+//                cvParam2.setValue(taxonomyID);
+//                species.getCvParam().add(cvParam2);
+
+                // add the param to the instrument
+                species.getCvParam().add(cvParam);
+
+                speciesList.setSpecies(species);
+            }
+        }
+
+        return speciesList;
+    }
+
+    /**
+     * Get a ModificationList for a given project accession
+     * @param projectAccession
+     * @return
+     */
+    public ModificationList getModificationList(String projectAccession) {
+        ModificationList modificationList = new ModificationList();
+
+        Collection<ProjectPTM> priderProjectPtms = projectRepository.findByAccession(projectAccession).getPtms();
+
+        for (ProjectPTM prideProjectPtm: priderProjectPtms) {
+            //and add the params
+            CvParam cvParam = new CvParam();
+            cvParam.setAccession(prideProjectPtm.getAccession());
+            cvParam.setName(prideProjectPtm.getName());
+            cvParam.setCvRef(prideProjectPtm.getCvLabel());
+            cvParam.setValue(prideProjectPtm.getValue());
+            modificationList.getCvParam().add(cvParam);
+        }
+
+        if (modificationList.getCvParam().isEmpty()) {
+            //if there are no modifications, add new CV param
+            CvParam cvParam = new CvParam();
+            cvParam.setAccession("PRIDE:0000398");
+            cvParam.setName("No applicable mass modifications");
+            cvParam.setCvRef("PRIDE");
+            modificationList.getCvParam().add(cvParam);
+        }
+
+        return modificationList;
+    }
+
+    /**
+     * Get a ModificationList for a given assay id
+     * @param assayId
+     * @return
+     */
+    public ModificationList getAssayModificationList(Long assayId) {
+        ModificationList modificationList = new ModificationList();
+
+        Collection<AssayPTM> assayPtms = assayRepository.findOne(assayId).getPtms();
+
+        for (AssayPTM assayPtm: assayPtms) {
+            //and add the params
+            CvParam cvParam = new CvParam();
+            cvParam.setAccession(assayPtm.getAccession());
+            cvParam.setName(assayPtm.getName());
+            cvParam.setCvRef(assayPtm.getCvLabel());
+            cvParam.setValue(assayPtm.getValue());
+            modificationList.getCvParam().add(cvParam);
+        }
+
+        if (modificationList.getCvParam().isEmpty()) {
+            //if there are no modifications, add new CV param
+            CvParam cvParam = new CvParam();
+            cvParam.setAccession("PRIDE:0000398");
+            cvParam.setName("No applicable mass modifications");
+            cvParam.setCvRef("PRIDE");
+            modificationList.getCvParam().add(cvParam);
+        }
+
+        return modificationList;
+    }
+
+    /**
+     * Get a contact list for a given project accession, excluding those included in contactEmails
+     *
+     * @param projectAccession
+     * @param contactEmails
+     * @return
+     */
+    public ContactList getContactList(String projectAccession, Set<String> contactEmails) {
+        ContactList contactList = new ContactList();
+
+        Collection<User> prideProjectUsers = projectRepository.findByAccession(projectAccession).getUsers();
+
+        for (User user: prideProjectUsers) {
+            if (!contactEmails.contains(user.getEmail())) {
+                Contact contact = new Contact();
+                contact.setId(user.getEmail());
+                // add name as a CV param
+                if (user.getFirstName() != null & user.getLastName()!= null) {
+                    CvParam nameParam = new CvParam();
+                    nameParam.setValue(user.getFirstName() + " " + user.getLastName());
+                    nameParam.setCvRef("MS"); //MS cv for contact address
+                    nameParam.setAccession("MS:1000586");
+                    nameParam.setName("contact name");
+                    contact.getCvParam().add(nameParam);
+                }
+                // add affiliation as a CV param
+                if (user.getAffiliation() != null) {
+                    CvParam cvParam = new CvParam();
+                    cvParam.setValue(user.getAffiliation());
+                    cvParam.setCvRef("MS"); //will use CV for contact organization as the affiliation
+                    cvParam.setAccession("MS:1000590");
+                    cvParam.setName("contact affiliation");
+                    contact.getCvParam().add(cvParam);
+                }
+                // add email as a CV param
+                CvParam cvParamEmail = new CvParam();
+                cvParamEmail.setValue(user.getEmail());
+                cvParamEmail.setCvRef("MS");
+                cvParamEmail.setAccession("MS:1000589"); //MS param for contact email
+                cvParamEmail.setName("contact email");
+                contact.getCvParam().add(cvParamEmail);
+
+                // add the contact to the list
+                contactList.getContact().add(contact);
+            }
+        }
+
+        return contactList;
+    }
+
 
     //private method that will convert a List<String> of accessions
     //in a String separating accessions with commas for the SQL
@@ -116,11 +335,11 @@ public class DBController {
     }
 
 
-    //helper method that will add all the experimentId, separated by comma, to the Map for that particular id
-    private static void addKeysMap(Map<Long, PXObject> idMap, PXObject object, String experimentIDs) {
-        String[] expIds = experimentIDs.split(",");
-        for (String expId : expIds) {
-            idMap.put(new Long(expId), object);
+    //helper method that will add all the assayId to the Map for that particular id
+    private static void addKeysMap(Map<Long, PXObject> idMap, PXObject object, Long assayId) {
+        if (idMap.containsKey(assayId)) {
+
+            idMap.put(assayId, object);
         }
     }
 
@@ -151,194 +370,13 @@ public class DBController {
 //        return datasetSummary;
 //    }
 
-    //returns SpeciesList for this experiment
-    public SpeciesList getSpecies(List<Long> experimentIDs) {
-        SpeciesList speciesList = new SpeciesList();
-        Species species = new Species();
-        String query = "SELECT DISTINCT (ms.name), ms.accession " +
-                "from pride_experiment pe, mzdata_sample_param ms " +
-                "where ms.cv_label = 'NEWT' and " +
-                "ms.parent_element_fk = pe.mz_data_id and " +
-                "pe.experiment_id IN (%s)";
-        String sql = String.format(query, preparePlaceHolders(experimentIDs.size()));
-        try {
-            PreparedStatement st = DBConnection.prepareStatement(sql);
-            setValues(st, experimentIDs.toArray());
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                String name = rs.getString(1);
-                String taxonomyID = rs.getString(2);
-                // we create 2 Params for the Species: one with the scientific name, the other with the taxonomyID
-                //     <cvParam accession="MS:1001469" name="taxonomy: scientific name" cvRef="PSI-MS" value="Manduca sexta"/>
-                //     <cvParam accession="MS:1001467" name="taxonomy: NCBI TaxID" cvRef="PSI-MS" value="7130"/>
 
-                CvParam cvParam = new CvParam();
-                cvParam.setCvRef("PSI-MS");
-                cvParam.setName("taxonomy: scientific name");
-                cvParam.setAccession("MS:1001469");
-                cvParam.setValue(name);
-                species.getCvParam().add(cvParam);
-                CvParam cvParam2 = new CvParam();
-                cvParam2.setCvRef("PSI-MS");
-                cvParam2.setName("taxonomy: NCBI TaxID");
-                cvParam2.setAccession("MS:1001467");
-                cvParam2.setValue(taxonomyID);
-                species.getCvParam().add(cvParam2);
-            }
-            rs.close();
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-        }
-        speciesList.setSpecies(species);
-        return speciesList;
-    }
 
-    public InstrumentList getInstrumentList(List<Long> experimentIDs) {
-        InstrumentList instrumentList = new InstrumentList();
-        //TODO:: how can we get the right description for the instrument ??
-        String query = "SELECT md.instrument_name, map.name, map.accession, map.cv_label, GROUP_CONCAT(DISTINCT(pe.experiment_id)) " +
-                "FROM pride_experiment pe, mzdata_mz_data md LEFT JOIN mzdata_analyzer ma LEFT JOIN mzdata_analyzer_param map ON  ma.analyzer_id = map.parent_element_fk ON md.mz_data_id = ma.mz_data_id " +
-                "WHERE pe.mz_data_id = md.mz_data_id " +
-                "AND pe.experiment_id IN (%s) " +
-                "AND (map.cv_label = 'PSI' or map.cv_label = 'MS' or map.cv_label = 'FIX')" +
-                "GROUP BY md.instrument_name";
-        String sql = String.format(query, preparePlaceHolders(experimentIDs.size()));
-        try {
-            PreparedStatement st = DBConnection.prepareStatement(sql);
-            setValues(st, experimentIDs.toArray());
-            ResultSet rs = st.executeQuery();
-            int counter = 1;
-            while (rs.next()) {
-//                String id = rs.getString(1);
-                String id = "INSTRUMENT_" + counter;
-                counter++;
-                //instrumentMap.put(rs.getLong(5), id); //add it to the map for latter reference
-                Instrument instrument = new Instrument();
-                instrument.setId(id.replaceAll(" ", "_"));
-                String name = rs.getString(2);
-                String accession = rs.getString(3);
-                String cvRef = rs.getString(4);
 
-                //and add the params
-                CvParam cvParam = new CvParam();
-                cvParam.setCvRef(cvRef);
-                cvParam.setName(name);
-                cvParam.setAccession(accession);
-                instrument.getCvParam().add(cvParam);
-                //helper method to add the instrument to all the experiments
-                addKeysMap(instrumentMap, instrument, rs.getString(5));
-                instrumentList.getInstrument().add(instrument);
-            }
-            rs.close();
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return instrumentList;
-    }
 
-    public ModificationList getModificationList(List<Long> experimentIDs) {
-        ModificationList modificationList = new ModificationList();
-        String query = "SELECT distinct(ppm.accession), ppm.name, ppm.cv_label, ppm.value " +
-                "FROM pride_identification pi, pride_peptide pp, pride_modification pm, pride_modification_param ppm " +
-                "WHERE pi.experiment_id IN (%s) " +
-                "AND pi.identification_id = pp.identification_id " +
-                "AND pm.peptide_id=pp.peptide_id " +
-                "AND ppm.parent_element_fk = pm.modification_id " +
-                "AND ppm.cv_label is not NULL";
-        String sql = String.format(query, preparePlaceHolders(experimentIDs.size()));
-        try {
 
-            PreparedStatement st = DBConnection.prepareStatement(sql);
-            setValues(st, experimentIDs.toArray());
 
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                //and add the params
-                CvParam cvParam = new CvParam();
-                cvParam.setAccession(rs.getString(1));
-                cvParam.setName(rs.getString(2));
-                cvParam.setCvRef(rs.getString(3));
-                cvParam.setValue(rs.getString(4));
-                modificationList.getCvParam().add(cvParam);
-            }
-            rs.close();
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-        }
-        if (modificationList.getCvParam().isEmpty()) {
-            //if there are no modifications, add new CV param
-            CvParam cvParam = new CvParam();
-            cvParam.setAccession("PRIDE:0000398");
-            cvParam.setName("No applicable mass modifications");
-            cvParam.setCvRef("PRIDE");
-            modificationList.getCvParam().add(cvParam);
-        }
-        return modificationList;
-    }
 
-    public ContactList getContactList(List<Long> experimentIDs, Set<String> contactEmails) {
-        ContactList contactList = new ContactList();
-        String query = "SELECT DISTINCT(c.contact_name), c.institution, c.contact_info  " +
-                "FROM pride_experiment pe, mzdata_contact c, mzdata_mz_data m " +
-                "WHERE pe.experiment_id IN (%s) " +
-                "AND m.accession_number = pe.accession " +
-                "AND m.mz_data_id = c.mz_data_id";
-        String sql = String.format(query, preparePlaceHolders(experimentIDs.size()));
-        try {
-            PreparedStatement st = DBConnection.prepareStatement(sql);
-            setValues(st, experimentIDs.toArray());
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                Contact contact = new Contact();
-                //set contact name as the ID
-                contact.setId(rs.getString(1).replaceAll(" ", "_"));
-                //and add it as a Param as well....
-                CvParam nameParam = new CvParam();
-                nameParam.setValue(rs.getString(1));
-                nameParam.setCvRef("MS"); //MS cv for contact address
-                nameParam.setAccession("MS:1000586");
-                nameParam.setName("contact name");
-                contact.getCvParam().add(nameParam);
-                //and add the params, if email and institution present
-                if (rs.getString(2) != null) {
-                    //TODO: no cvparam for affiliation
-                    //TODO: where is the address, role and URL ??
-                    //add the institution as cvParam
-                    CvParam cvParam = new CvParam();
-                    cvParam.setValue(rs.getString(2));
-                    cvParam.setCvRef("MS"); //will use CV for contact organization as the affiliation
-                    cvParam.setAccession("MS:1000590");
-                    cvParam.setName("contact affiliation");
-                    contact.getCvParam().add(cvParam);
-                }
-                if (rs.getString(3) != null) {
-                    //if that email is already in the summary file, do not include this contact
-                    if (contactEmails.contains(rs.getString(3))) continue;
-                    String email = extractEmail(rs.getString(3));
-                    //there was no email, or the string contains more than an email, add the info param
-                    CvParam cvParam = new CvParam();
-                    cvParam.setValue(rs.getString(3));
-                    cvParam.setCvRef("MS");
-                    cvParam.setAccession("MS:1000585"); //MS param for contact email
-                    cvParam.setName("contact attribute");
-                    contact.getCvParam().add(cvParam);
-                    if (email != null) {
-                        CvParam cvParamEmail = new CvParam();
-                        cvParamEmail.setValue(email);
-                        cvParamEmail.setCvRef("MS");
-                        cvParamEmail.setAccession("MS:1000589"); //MS param for contact email
-                        cvParamEmail.setName("contact email");
-                        contact.getCvParam().add(cvParamEmail);
-                    }
-                }
-                contactList.getContact().add(contact);
-            }
-            rs.close();
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return contactList;
-    }
 
     public static String extractEmail(String email) {
         Pattern emailPattern = Pattern.compile(
@@ -360,10 +398,10 @@ public class DBController {
         return rs.getString(1);
     }
 
-    public PublicationList getPublicationList(String pxAccession) throws SQLException {
+    public PublicationList getPublicationList(String projectAccession) throws SQLException {
         PublicationList publicationList = new PublicationList();
         Publication publication = new Publication();
-        String pubmedID = getPubmedID(pxAccession);
+        String pubmedID = getPubmedID(projectAccession);
         if (pubmedID == null) {
             //no pubmed, so no publication
             CvParam cvParam = new CvParam();
@@ -390,7 +428,7 @@ public class DBController {
             publication.getCvParam().add(createCvParam("PRIDE:0000400", reference_line, "Reference", "PRIDE"));
             publicationList.getPublication().add(publication);
         }
-        publicationMap.put(pxAccession, publication);
+        publicationMap.put(projectAccession, publication);
         return publicationList;
     }
 
@@ -453,56 +491,45 @@ public class DBController {
         return datasetLinkList;
     }
 
-    public RepositoryRecord getRepositoryRecord(long experimentID) {
+    public RepositoryRecord getRepositoryRecord(long assayId) {
         RepositoryRecord repositoryRecord = new RepositoryRecord();
-        String query = "SELECT p.accession, p.short_label, p.title " +
-                "FROM pride_experiment p  " +
-                "WHERE p.experiment_id = ? ";
-        try {
-            PreparedStatement st = DBConnection.prepareStatement(query);
-            st.setLong(1, experimentID);
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                repositoryRecord.setRecordID(rs.getString(1)); //set the accession
-                repositoryRecord.setRepositoryID(HostingRepositoryType.PRIDE);
-                repositoryRecord.setUri(PRIDE_URL + rs.getString(1)); //set link to experiment
-                repositoryRecord.setLabel(rs.getString(2)); //set label
-                repositoryRecord.setName(rs.getString(3));
-            }
-            rs.close();
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-        }
+
+        Assay assay = assayRepository.findOne(assayId);
+
+        repositoryRecord.setRecordID(assay.getAccession());
+        repositoryRecord.setRepositoryID(HostingRepositoryType.PRIDE);
+        repositoryRecord.setUri(PRIDE_URL + assay.getAccession()); //set link to experiment in PRIDE-R
+        repositoryRecord.setLabel(assay.getShortLabel());
+        repositoryRecord.setName(assay.getTitle());
+
         return repositoryRecord;
     }
 
-    public SampleList getSampleList(long experimentID) {
+    /**
+     * Get a Sample list for a given assay id
+     *
+     * @param assayId
+     * @return
+     */
+    public SampleList getSampleList(long assayId) {
         SampleList sampleList = new SampleList();
 
-        String query = "SELECT m.sample_name, ms.name, ms.cv_label, ms.accession " +
-                "FROM pride_experiment p, mzdata_mz_data m LEFT JOIN mzdata_sample_param ms ON m.mz_data_id=ms.parent_element_fk " +
-                "WHERE p.experiment_id = ? " +
-                "AND p.accession = m.accession_number ";
-        try {
-            PreparedStatement st = DBConnection.prepareStatement(query);
-            st.setLong(1, experimentID);
-            ResultSet rs = st.executeQuery();
+        Assay assay = assayRepository.findOne(assayId);
+
+        Collection<AssaySampleCvParam> assaySampleCvParams = assay.getSamples();
+
+        for (AssaySampleCvParam assaySampleCvParam: assaySampleCvParams) {
             Sample sample = new Sample();
-            while (rs.next()) {
-                sample.setName(rs.getString(1));
-                if (rs.getString(4) != null) {
-                    CvParam cvParam = new CvParam();
-                    cvParam.setName(rs.getString(2));
-                    cvParam.setCvRef(rs.getString(3));
-                    cvParam.setAccession(rs.getString(4));
-                    sample.getCvParam().add(cvParam);
-                }
-            }
-            rs.close();
+
+            CvParam cvParam = new CvParam();
+            cvParam.setName(assaySampleCvParam.getName());
+            cvParam.setCvRef(assaySampleCvParam.getCvLabel());
+            cvParam.setAccession(assaySampleCvParam.getAccession());
+            sample.getCvParam().add(cvParam);
+
             sampleList.getSample().add(sample);
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
         }
+
         return sampleList;
     }
 
@@ -522,28 +549,43 @@ public class DBController {
         return fullDatasetLink;
     }
 
-    public Ref getPublicationRef(String pxAccession) {
+    //helper method, will return a Ref for a certain type of elements (right now only publication or instrument)
+//    public Ref getRef(String type, long assayId) {
+//        Ref ref = new Ref();
+//
+//        if (type.equals("instrument")) {
+//            ref.setRef(instrumentMap.get(assayId));
+//        } else if (type.equals("publication")) {
+//            if (publicationMap.containsKey(assayId)) {
+//                ref.setRef(publicationMap.get(assayId));
+//            } else {
+//                //there is no publication, add the special param for that
+//                ref.setRef(publicationMap.get(new Long(0)));
+//            }
+//        } else {
+//            logger.error("Trying to return an invalid ref: allowed types \"publication\" and \"instrument\"");
+//        }
+//        return ref;
+//    }
+
+    public Ref getPublicationRef(String projectAccession) {
         Ref ref = new Ref();
-        ref.setRef(publicationMap.get(pxAccession));
+
+        if (publicationMap.containsKey(projectAccession)) {
+            ref.setRef(publicationMap.get(projectAccession));
+        } else {
+            //there is no publication, add the special param for that
+            ref.setRef(publicationMap.get(new Long(0)));
+        }
+
         return ref;
     }
 
-    //helper method, will return a Ref for a certain type of elements (right now only publication or instrument)
-    public Ref getRef(String type, long experimentID) {
+    public Ref getInstrumentRef(long assayId) {
         Ref ref = new Ref();
 
-        if (type.equals("instrument")) {
-            ref.setRef(instrumentMap.get(experimentID));
-        } else if (type.equals("publication")) {
-            if (publicationMap.containsKey(experimentID)) {
-                ref.setRef(publicationMap.get(experimentID));
-            } else {
-                //there is no publication, add the special param for that
-                ref.setRef(publicationMap.get(new Long(0)));
-            }
-        } else {
-            logger.error("Trying to return an invalid ref: allowed types \"publication\" and \"instrument\"");
-        }
+        ref.setRef(instrumentMap.get(assayId));
+
         return ref;
     }
 
