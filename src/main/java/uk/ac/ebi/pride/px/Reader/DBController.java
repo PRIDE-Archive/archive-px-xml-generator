@@ -3,10 +3,7 @@ package uk.ac.ebi.pride.px.Reader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.data.exception.SubmissionFileException;
-import uk.ac.ebi.pride.prider.repo.assay.Assay;
-import uk.ac.ebi.pride.prider.repo.assay.AssayPTM;
-import uk.ac.ebi.pride.prider.repo.assay.AssayRepository;
-import uk.ac.ebi.pride.prider.repo.assay.AssaySampleCvParam;
+import uk.ac.ebi.pride.prider.repo.assay.*;
 import uk.ac.ebi.pride.prider.repo.param.CvParamRepository;
 import uk.ac.ebi.pride.prider.repo.project.ProjectPTM;
 import uk.ac.ebi.pride.prider.repo.project.ProjectRepository;
@@ -15,6 +12,7 @@ import uk.ac.ebi.pride.prider.repo.user.User;
 import uk.ac.ebi.pride.pubmed.PubMedFetcher;
 import uk.ac.ebi.pride.pubmed.model.PubMedSummary;
 import uk.ac.ebi.pride.px.model.*;
+import uk.ac.ebi.pride.px.model.Contact;
 import uk.ac.ebi.pride.px.model.Ref;
 import uk.ac.ebi.pride.px.util.PrideInspectorUrlGenerator;
 
@@ -443,53 +441,54 @@ public class DBController {
         return cvParam;
     }
 
-    public FullDatasetLinkList getDatasetIdentifier(List<Long> experimentIDs) {
-        FullDatasetLinkList datasetLinkList = new FullDatasetLinkList();
-        //add the PRIDE URI
-        List<String> accessions = getAccessions(experimentIDs);
-        for (String accession : accessions) {
-            FullDatasetLink datasetLink = new FullDatasetLink();
-            CvParam cvParam = new CvParam();
-            cvParam.setCvRef("MS");
-            cvParam.setName("PRIDE experiment URI");
-            cvParam.setAccession("MS:1001929");
-            cvParam.setValue(PRIDE_URL + accession);
-            datasetLink.setCvParam(cvParam);
-            datasetLinkList.getFullDatasetLink().add(datasetLink);
-        }
-        //and now add the Tranche if present
-        String query = "SELECT p.accession, pe.value " +
-                "FROM pride_experiment p LEFT JOIN pride_experiment_param pe ON p.experiment_id = pe.parent_element_fk " +
-                "WHERE p.experiment_id IN (%s) " +
-                "AND pe.name = 'Tranche link to raw file'";
-        String sql = String.format(query, preparePlaceHolders(experimentIDs.size()));
-        try {
-            PreparedStatement st = DBConnection.prepareStatement(sql);
-            setValues(st, experimentIDs.toArray());
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                //add the tranche only if present
-                if (rs.getString(2) != null) {
-                    FullDatasetLink datasetLinkTranche = new FullDatasetLink();
-                    String tranche_url = rs.getString(2);
-                    //extract the hash from the url
-                    String tranche_hash = tranche_url.substring(tranche_url.indexOf("hash=") + 5, tranche_url.length());
-                    //and create the param
-                    CvParam trancheParam = new CvParam();
-                    trancheParam.setCvRef("MS");
-                    trancheParam.setName("Tranche project hash");
-                    trancheParam.setAccession("MS:1001928");
-                    trancheParam.setValue(tranche_hash);
-                    datasetLinkTranche.setCvParam(trancheParam);
-                    datasetLinkList.getFullDatasetLink().add(datasetLinkTranche);
-                }
-            }
-            rs.close();
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return datasetLinkList;
-    }
+//    public FullDatasetLinkList getDatasetIdentifier(List<Long> assayIds) {
+//        FullDatasetLinkList datasetLinkList = new FullDatasetLinkList();
+//
+//        //add the PRIDE URI
+//        List<String> accessions = getAssayAccessions(assayIds);
+//        for (String accession : accessions) {
+//            FullDatasetLink datasetLink = new FullDatasetLink();
+//            CvParam cvParam = new CvParam();
+//            cvParam.setCvRef("MS");
+//            cvParam.setName("PRIDE experiment URI");
+//            cvParam.setAccession("MS:1001929");
+//            cvParam.setValue(PRIDE_URL + accession);
+//            datasetLink.setCvParam(cvParam);
+//            datasetLinkList.getFullDatasetLink().add(datasetLink);
+//        }
+//        //and now add the Tranche if present
+//        String query = "SELECT p.accession, pe.value " +
+//                "FROM pride_experiment p LEFT JOIN pride_experiment_param pe ON p.experiment_id = pe.parent_element_fk " +
+//                "WHERE p.experiment_id IN (%s) " +
+//                "AND pe.name = 'Tranche link to raw file'";
+//        String sql = String.format(query, preparePlaceHolders(assayIds.size()));
+//        try {
+//            PreparedStatement st = DBConnection.prepareStatement(sql);
+//            setValues(st, assayIds.toArray());
+//            ResultSet rs = st.executeQuery();
+//            while (rs.next()) {
+//                //add the tranche only if present
+//                if (rs.getString(2) != null) {
+//                    FullDatasetLink datasetLinkTranche = new FullDatasetLink();
+//                    String tranche_url = rs.getString(2);
+//                    //extract the hash from the url
+//                    String tranche_hash = tranche_url.substring(tranche_url.indexOf("hash=") + 5, tranche_url.length());
+//                    //and create the param
+//                    CvParam trancheParam = new CvParam();
+//                    trancheParam.setCvRef("MS");
+//                    trancheParam.setName("Tranche project hash");
+//                    trancheParam.setAccession("MS:1001928");
+//                    trancheParam.setValue(tranche_hash);
+//                    datasetLinkTranche.setCvParam(trancheParam);
+//                    datasetLinkList.getFullDatasetLink().add(datasetLinkTranche);
+//                }
+//            }
+//            rs.close();
+//        } catch (SQLException e) {
+//            logger.error(e.getMessage(), e);
+//        }
+//        return datasetLinkList;
+//    }
 
     public RepositoryRecord getRepositoryRecord(long assayId) {
         RepositoryRecord repositoryRecord = new RepositoryRecord();
@@ -535,7 +534,7 @@ public class DBController {
 
     //method to return a datasetlink to point to PrideInspector url for given experiments
     public FullDatasetLink generatePrideInspectorURL(List<Long> experimentIDs) throws SubmissionFileException {
-        List<String> accessions = getAccessions(experimentIDs);
+        List<String> accessions = getAssayAccessions(experimentIDs);
         Set<String> accessionsSet = new HashSet<String>(accessions);
         PrideInspectorUrlGenerator prideInspectorUrlGenerator = new PrideInspectorUrlGenerator();
         String tinyURL = prideInspectorUrlGenerator.generate(accessionsSet);
@@ -605,40 +604,33 @@ public class DBController {
     }
 
     //   at the moment keyword list will always come from the submission file
-//   public KeywordList getKeywordList(List<Long> experimentIDs) {
+//   public KeywordList getKeywordList(List<Long> assayIds) {
 //        KeywordList keywordList = new KeywordList();
-//        String[] accessions = new String[]{"MS:1001923", "MS:1001924", "MS:1001925", "MS:1001926"};
-//        keywordList.getCvParam().addAll(getExperimentParams(experimentIDs, Arrays.asList(accessions)));
+//        String[] paramAccessions = new String[]{"MS:1001923", "MS:1001924", "MS:1001925", "MS:1001926"};
+//        keywordList.getCvParam().addAll(getExperimentParams(assayIds, Arrays.asList(paramAccessions)));
 //        return keywordList;
 //    }
 //
-    //helper method, for a list pf experiments and accessions, will get from the pride_experiment_param all the Params
+    //helper method, for a list pf experiments and paramAccessions, will get from the pride_experiment_param all the Params
     // associated. Very useful in ProteomeXchange, most data stored in that table
-    private Set<CvParam> getExperimentParams(List<Long> experimentIDs, List<String> accessions) {
+    private Set<CvParam> getExperimentParams(List<Long> assayIds, List<String> paramAccessions) {
         Set<CvParam> cvParams = new HashSet<CvParam>();
-        String query = "SELECT ppp.accession, ppp.value, ppp.name, ppp.cv_label " +
-                "FROM pride_experiment pe LEFT JOIN pride_experiment_param ppp ON pe.experiment_id = ppp.parent_element_fk " +
-                "WHERE pe.experiment_id IN (%s) and " +
-                "ppp.accession IN (%s)";
-        String sql = String.format(query, preparePlaceHolders(experimentIDs.size()), preparePlaceHolders(accessions.size()));
-        try {
-            PreparedStatement st = DBConnection.prepareStatement(sql);
-            //copy both arrays, experimentIds and accession in a single Object array for method to work
-            setValues(st, concatArrays(experimentIDs.toArray(), accessions.toArray()));
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                //a keyword list is nothing but a list of CvParam
-                CvParam cvParam = new CvParam();
-                cvParam.setAccession(rs.getString(1));
-                cvParam.setValue(rs.getString(2));
-                cvParam.setName(rs.getString(3));
-                cvParam.setCvRef(rs.getString(4));
-                cvParams.add(cvParam);
+
+        for (Long assayId: assayIds) {
+            Assay assay = assayRepository.findOne(assayId);
+            Collection<AssayGroupCvParam> assayCvParams = assay.getAssayGroupCvParams();
+            for (AssayGroupCvParam assayGroupCvParam: assayCvParams) {
+                if (paramAccessions.contains(assayGroupCvParam.getAccession())) {
+                    CvParam cvParam = new CvParam();
+                    cvParam.setAccession(assayGroupCvParam.getAccession());
+                    cvParam.setValue(assayGroupCvParam.getValue());
+                    cvParam.setName(assayGroupCvParam.getName());
+                    cvParam.setCvRef(assayGroupCvParam.getCvLabel());
+                    cvParams.add(cvParam);
+                }
             }
-            rs.close();
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
         }
+
         return cvParams;
     }
 
@@ -665,54 +657,48 @@ public class DBController {
         return datasetIdentifierList;
     }
 
-    public CvParam getLdcFtpLink(long experimentID) {
-        CvParam cvParam = null;
+//    public CvParam getLdcFtpLink(long experimentID) {
+//        CvParam cvParam = null;
+//
+//        String query =
+//                "SELECT ppp.accession, ppp.value, ppp.name, ppp.cv_label " +
+//                        "FROM pride_experiment pe LEFT JOIN pride_reference_param ppp ON pe.experiment_id = ppp.parent_element_fk " +
+//                        "WHERE pe.experiment_id = ?";
+//
+//        try {
+//            PreparedStatement st = DBConnection.prepareStatement(query);
+//            st.setLong(1, experimentID);
+//            ResultSet rs = st.executeQuery();
+//            // process results
+//            if (rs.next()) {
+//                cvParam = new CvParam();
+//                cvParam.setAccession(rs.getString(1));
+//                cvParam.setValue(rs.getString(2));
+//                cvParam.setName(rs.getString(3));
+//                cvParam.setCvRef(rs.getString(4));
+//            }
+//            rs.close();
+//        } catch (SQLException e) {
+//            logger.error(e.getMessage(), e);
+//        }
+//
+//        return cvParam;
+//
+//    }
 
-        String query =
-                "SELECT ppp.accession, ppp.value, ppp.name, ppp.cv_label " +
-                        "FROM pride_experiment pe LEFT JOIN pride_reference_param ppp ON pe.experiment_id = ppp.parent_element_fk " +
-                        "WHERE pe.experiment_id = ?";
-
-        try {
-            PreparedStatement st = DBConnection.prepareStatement(query);
-            st.setLong(1, experimentID);
-            ResultSet rs = st.executeQuery();
-            // process results
-            if (rs.next()) {
-                cvParam = new CvParam();
-                cvParam.setAccession(rs.getString(1));
-                cvParam.setValue(rs.getString(2));
-                cvParam.setName(rs.getString(3));
-                cvParam.setCvRef(rs.getString(4));
-            }
-            rs.close();
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-        }
-
-        return cvParam;
-
-    }
-
-    //helper method to return all accessions in the submissions
-    private List<String> getAccessions(List<Long> experimentIDs) {
+    /**
+     * Helper method to get assay accessions from assay IDs
+     *
+     * @param assayIds
+     * @return
+     */
+    private List<String> getAssayAccessions(List<Long> assayIds) {
         List<String> accessions = new ArrayList<String>();
-        String query = "SELECT p.accession " +
-                "FROM pride_experiment p " +
-                "WHERE p.experiment_id IN (%s) ";
 
-        String sql = String.format(query, preparePlaceHolders(experimentIDs.size()));
-        try {
-            PreparedStatement st = DBConnection.prepareStatement(sql);
-            setValues(st, experimentIDs.toArray());
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                accessions.add(rs.getString(1));
-            }
-            rs.close();
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
+        for (Long assayId: assayIds) {
+            accessions.add(assayRepository.findOne(assayId).getAccession());
         }
+
         return accessions;
     }
 }
