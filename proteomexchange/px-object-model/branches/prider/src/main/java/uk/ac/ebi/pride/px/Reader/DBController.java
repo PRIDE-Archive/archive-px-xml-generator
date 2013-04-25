@@ -8,6 +8,7 @@ import uk.ac.ebi.pride.prider.repo.param.CvParamRepository;
 import uk.ac.ebi.pride.prider.repo.project.ProjectPTM;
 import uk.ac.ebi.pride.prider.repo.project.ProjectRepository;
 import uk.ac.ebi.pride.prider.repo.project.ProjectSampleCvParam;
+import uk.ac.ebi.pride.prider.repo.project.Reference;
 import uk.ac.ebi.pride.prider.repo.user.User;
 import uk.ac.ebi.pride.pubmed.PubMedFetcher;
 import uk.ac.ebi.pride.pubmed.model.PubMedSummary;
@@ -384,16 +385,27 @@ public class DBController {
         else return "";
     }
 
-    public String getPubmedID(String pxAccession) throws SQLException {
-
-        String query = "SELECT pubmed_id from px_submission where px_accession = ?";
-
-        PreparedStatement st = DBConnection.prepareStatement(query);
-        st.setString(1, pxAccession);
-
-        ResultSet rs = st.executeQuery();
-        rs.next();
-        return rs.getString(1);
+    /**
+     * Returns the PubMedId for the first project reference or NULL if no references
+     *
+     * @param projectAccession
+     * @return
+     * @throws SQLException
+     */
+    public String getPubmedID(String projectAccession) throws SQLException {
+        Iterator<Reference> referencesId = projectRepository.findByAccession(projectAccession).getReferences().iterator();
+        if (referencesId.hasNext())
+            return ""+referencesId.next().getPubmedId();
+        else
+            return null;
+//        String query = "SELECT pubmed_id from px_submission where px_accession = ?";
+//
+//        PreparedStatement st = DBConnection.prepareStatement(query);
+//        st.setString(1, projectAccession);
+//
+//        ResultSet rs = st.executeQuery();
+//        rs.next();
+//        return rs.getString(1);
     }
 
     public PublicationList getPublicationList(String projectAccession) throws SQLException {
@@ -582,25 +594,12 @@ public class DBController {
 
     public Ref getInstrumentRef(long assayId) {
         Ref ref = new Ref();
-
         ref.setRef(instrumentMap.get(assayId));
-
         return ref;
     }
 
-    public Date getPublicationDate(String pxAccession) {
-        Date date = new Date();
-        String query = "SELECT publication_date FROM px_submission WHERE px_accession = ?";
-        try {
-            PreparedStatement st = DBConnection.prepareStatement(query);
-            st.setString(1, pxAccession);
-            ResultSet rs = st.executeQuery();
-            rs.next();
-            date = rs.getDate(1);
-        } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return date;
+    public Date getPublicationDate(String projectAccession) {
+        return projectRepository.findByAccession(projectAccession).getPublicationDate();
     }
 
     //   at the moment keyword list will always come from the submission file
