@@ -12,17 +12,14 @@ import uk.ac.ebi.pride.prider.repo.project.Reference;
 import uk.ac.ebi.pride.prider.repo.user.User;
 import uk.ac.ebi.pride.pubmed.PubMedFetcher;
 import uk.ac.ebi.pride.pubmed.model.PubMedSummary;
-import uk.ac.ebi.pride.px.model.*;
 import uk.ac.ebi.pride.px.model.Contact;
-import uk.ac.ebi.pride.px.model.Ref;
+import uk.ac.ebi.pride.px.model.*;
 import uk.ac.ebi.pride.px.util.PrideInspectorUrlGenerator;
 
-import javax.sql.DataSource;
 import java.io.IOException;
-import java.io.InputStream;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,7 +44,7 @@ public class DBController {
     //will use that map to store the relation between String->publication_ref
     private Map<String, PXObject> publicationMap = new HashMap<String, PXObject>();
     private Map<Long, PXObject> instrumentMap = new HashMap<Long, PXObject>();
-    private Connection DBConnection = null;
+//    private Connection DBConnection = null;
 
     //    Logger object
     Logger logger = LoggerFactory.getLogger(DBController.class);
@@ -55,37 +52,37 @@ public class DBController {
     //counter for publication ID
     private int publicationCounter = 1;
 
-    public DBController(DataSource dataSource) throws SQLException {
-
-        DBConnection = dataSource.getConnection();
-
-    }
-
-    public DBController() {
-//        get properties file
-        Properties properties = new Properties();
-        InputStream is = this.getClass().getClassLoader().getResourceAsStream("database.properties");
-        try {
-            properties.load(is);
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-        }
-        //create connection
-        //load driver
-
-        try {
-            Class.forName(properties.getProperty("driver"));
-        } catch (ClassNotFoundException e) {
-            logger.error(e.getMessage(), e);
-        }
-        String url_connection = properties.getProperty("protocol") + ':' + properties.getProperty("subprotocol") + ':' + properties.getProperty("alias");
-        logger.debug("Connecting to " + url_connection);
-        try {
-            DBConnection = DriverManager.getConnection(url_connection, properties.getProperty("user"), properties.getProperty("password"));
-        } catch (SQLException err) {
-            logger.error(err.getMessage(), err);
-        }
-    }
+//    public DBController(DataSource dataSource) throws SQLException {
+//
+//        DBConnection = dataSource.getConnection();
+//
+//    }
+//
+//    public DBController() {
+////        get properties file
+//        Properties properties = new Properties();
+//        InputStream is = this.getClass().getClassLoader().getResourceAsStream("database.properties");
+//        try {
+//            properties.load(is);
+//        } catch (IOException e) {
+//            logger.error(e.getMessage(), e);
+//        }
+//        //create connection
+//        //load driver
+//
+//        try {
+//            Class.forName(properties.getProperty("driver"));
+//        } catch (ClassNotFoundException e) {
+//            logger.error(e.getMessage(), e);
+//        }
+//        String url_connection = properties.getProperty("protocol") + ':' + properties.getProperty("subprotocol") + ':' + properties.getProperty("alias");
+//        logger.debug("Connecting to " + url_connection);
+//        try {
+//            DBConnection = DriverManager.getConnection(url_connection, properties.getProperty("user"), properties.getProperty("password"));
+//        } catch (SQLException err) {
+//            logger.error(err.getMessage(), err);
+//        }
+//    }
 
     public void setProjectRepository(ProjectRepository projectRepository) {
         this.projectRepository = projectRepository;
