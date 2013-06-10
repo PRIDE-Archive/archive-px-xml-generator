@@ -7,7 +7,6 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.data.exception.SubmissionFileException;
-import uk.ac.ebi.pride.util.NumberUtilities;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -70,15 +69,9 @@ public class PrideInspectorUrlGenerator {
         // create an integer list based the input accession list
         List<Integer> accsInt = new ArrayList<Integer>();
         for (String acc : accs) {
-            if (!NumberUtilities.isInteger(acc)) {
-                String msg = "String cannot be converted to integer: " + acc;
-                logger.error(msg);
-                throw new NumberFormatException(msg);
-            } else {
-                int a = Integer.parseInt(acc);
-                if (!accsInt.contains(a)) {
-                    accsInt.add(a);
-                }
+            int a = Integer.parseInt(acc);
+            if (!accsInt.contains(a)) {
+                accsInt.add(a);
             }
         }
 
