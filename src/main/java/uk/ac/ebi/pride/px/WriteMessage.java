@@ -320,7 +320,7 @@ public class WriteMessage {
         ModificationList modificationList = dbac.getModificationList(projectAccession);
         proteomeXchangeDataset.setModificationList(modificationList);
         //extract contact list that are not present already in the file
-        ContactList newContactList = dbac.getContactList(projectAccession, contactEmails);
+        ContactList newContactList = dbac.getContactList(projectAccession);
         ContactList contactList = proteomeXchangeDataset.getContactList();
         //add contacts from DB
         contactList.getContact().addAll(newContactList.getContact());
