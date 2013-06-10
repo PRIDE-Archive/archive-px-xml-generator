@@ -5,10 +5,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.data.exception.SubmissionFileException;
 import uk.ac.ebi.pride.prider.repo.assay.*;
 import uk.ac.ebi.pride.prider.repo.param.CvParamRepository;
-import uk.ac.ebi.pride.prider.repo.project.ProjectPTM;
-import uk.ac.ebi.pride.prider.repo.project.ProjectRepository;
-import uk.ac.ebi.pride.prider.repo.project.ProjectSampleCvParam;
-import uk.ac.ebi.pride.prider.repo.project.Reference;
+import uk.ac.ebi.pride.prider.repo.project.*;
 import uk.ac.ebi.pride.prider.repo.user.User;
 import uk.ac.ebi.pride.pubmed.PubMedFetcher;
 import uk.ac.ebi.pride.pubmed.model.PubMedSummary;
@@ -42,15 +39,15 @@ public class DBController {
     private static final String NCBI_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
 
     //will use that map to store the relation between String->publication_ref
-    private Map<String, PXObject> publicationMap = new HashMap<String, PXObject>();
-    private Map<Long, PXObject> instrumentMap = new HashMap<Long, PXObject>();
+    private Map<String, Publication> publicationMap = new HashMap<String, Publication>();
+    private Map<Long, Instrument> instrumentMap = new HashMap<Long, Instrument>();
 //    private Connection DBConnection = null;
 
     //    Logger object
     Logger logger = LoggerFactory.getLogger(DBController.class);
 
     //counter for publication ID
-    private int publicationCounter = 1;
+//    private int publicationCounter = 1;
 
 //    public DBController(DataSource dataSource) throws SQLException {
 //
@@ -100,8 +97,8 @@ public class DBController {
     /**
      * Get all the assay IDs for a given project accession
      *
-     * @param projectAccession
-     * @return
+     * @param projectAccession the accession for the project
+     * @return a List<Long> containing the assay accessions belonging to the specified project.
      */
     public List<Long> getAssayIds(String projectAccession) {
         List<Long> assayIds = new ArrayList<Long>();
@@ -161,34 +158,31 @@ public class DBController {
     public SpeciesList getSpecies(String projectAccession) {
         SpeciesList speciesList = new SpeciesList();
 
-
+        logger.info("Retrieving species information for project: " + projectAccession);
         Collection<ProjectSampleCvParam> priderSampleCvParams = projectRepository.findByAccession(projectAccession).getSamples();
         for (ProjectSampleCvParam priderSampleCvParam: priderSampleCvParams) {
-            if ("NEWT".equals(priderSampleCvParam.getAccession()))  {
-                uk.ac.ebi.pride.px.model.Species species = new uk.ac.ebi.pride.px.model.Species();
+            if ("NEWT".equals(priderSampleCvParam.getCvLabel()))  {
+                Species species = new Species();
 
-                //and add the params
+                // and add the params
+                // The guidelines for PX XML specifiy that a species has to be represented with the following MS terms:
+                // MS:1001469; "taxonomy: scientific name" and
+                // MS:1001467; "taxonomy: NCBI TaxID"
                 CvParam cvParam = new CvParam();
-                cvParam.setCvRef(priderSampleCvParam.getCvParam().getCvLabel());
-                cvParam.setName(priderSampleCvParam.getCvParam().getName());
-                cvParam.setAccession(priderSampleCvParam.getCvParam().getAccession());
-
-//                    The old code
-//                CvParam cvParam = new CvParam();
-//                cvParam.setCvRef("PSI-MS");
-//                cvParam.setName("taxonomy: scientific name");
-//                cvParam.setAccession("MS:1001469");
-//                cvParam.setValue(name);
-//                species.getCvParam().add(cvParam);
-//                CvParam cvParam2 = new CvParam();
-//                cvParam2.setCvRef("PSI-MS");
-//                cvParam2.setName("taxonomy: NCBI TaxID");
-//                cvParam2.setAccession("MS:1001467");
-//                cvParam2.setValue(taxonomyID);
-//                species.getCvParam().add(cvParam2);
-
-                // add the param to the instrument
+                cvParam.setCvRef("MS");
+                cvParam.setName("taxonomy: scientific name");
+                cvParam.setAccession("MS:1001469");
+                cvParam.setValue(priderSampleCvParam.getName());
                 species.getCvParam().add(cvParam);
+                CvParam cvParam2 = new CvParam();
+                cvParam2.setCvRef("MS");
+                cvParam2.setName("taxonomy: NCBI TaxID");
+                cvParam2.setAccession("MS:1001467");
+                cvParam2.setValue(priderSampleCvParam.getAccession());
+
+                // add the params defining the species
+                species.getCvParam().add(cvParam);
+                species.getCvParam().add(cvParam2);
 
                 speciesList.setSpecies(species);
             }
@@ -265,48 +259,48 @@ public class DBController {
      * Get a contact list for a given project accession, excluding those included in contactEmails
      *
      * @param projectAccession
-     * @param contactEmails
      * @return
      */
-    public ContactList getContactList(String projectAccession, Set<String> contactEmails) {
+    public ContactList getContactList(String projectAccession) {
+        //ToDo: check where the filter for contactEmails is used
         ContactList contactList = new ContactList();
 
-        Collection<User> prideProjectUsers = projectRepository.findByAccession(projectAccession).getUsers();
+        User submitter = projectRepository.findByAccession(projectAccession).getSubmitter();
 
-        for (User user: prideProjectUsers) {
-            if (!contactEmails.contains(user.getEmail())) {
-                Contact contact = new Contact();
-                contact.setId(user.getEmail());
-                // add name as a CV param
-                if (user.getFirstName() != null & user.getLastName()!= null) {
-                    CvParam nameParam = new CvParam();
-                    nameParam.setValue(user.getFirstName() + " " + user.getLastName());
-                    nameParam.setCvRef("MS"); //MS cv for contact address
-                    nameParam.setAccession("MS:1000586");
-                    nameParam.setName("contact name");
-                    contact.getCvParam().add(nameParam);
-                }
-                // add affiliation as a CV param
-                if (user.getAffiliation() != null) {
-                    CvParam cvParam = new CvParam();
-                    cvParam.setValue(user.getAffiliation());
-                    cvParam.setCvRef("MS"); //will use CV for contact organization as the affiliation
-                    cvParam.setAccession("MS:1000590");
-                    cvParam.setName("contact affiliation");
-                    contact.getCvParam().add(cvParam);
-                }
-                // add email as a CV param
-                CvParam cvParamEmail = new CvParam();
-                cvParamEmail.setValue(user.getEmail());
-                cvParamEmail.setCvRef("MS");
-                cvParamEmail.setAccession("MS:1000589"); //MS param for contact email
-                cvParamEmail.setName("contact email");
-                contact.getCvParam().add(cvParamEmail);
-
-                // add the contact to the list
-                contactList.getContact().add(contact);
-            }
+        // create submitter contact cvparam
+        Contact contact = new Contact();
+        contact.setId(submitter.getEmail());
+        // add name as a CV param
+        if (submitter.getFirstName() != null & submitter.getLastName()!= null) {
+            CvParam nameParam = new CvParam();
+            nameParam.setValue(submitter.getFirstName() + " " + submitter.getLastName());
+            nameParam.setCvRef("MS"); //MS cv for contact address
+            nameParam.setAccession("MS:1000586");
+            nameParam.setName("contact name");
+            contact.getCvParam().add(nameParam);
         }
+        // add affiliation as a CV param
+        if (submitter.getAffiliation() != null) {
+            CvParam cvParam = new CvParam();
+            cvParam.setValue(submitter.getAffiliation());
+            cvParam.setCvRef("MS"); //will use CV for contact organization as the affiliation
+            cvParam.setAccession("MS:1000590");
+            cvParam.setName("contact affiliation");
+            contact.getCvParam().add(cvParam);
+        }
+        // add email as a CV param
+        CvParam cvParamEmail = new CvParam();
+        cvParamEmail.setValue(submitter.getEmail());
+        cvParamEmail.setCvRef("MS");
+        cvParamEmail.setAccession("MS:1000589"); //MS param for contact email
+        cvParamEmail.setName("contact email");
+        contact.getCvParam().add(cvParamEmail);
+
+
+        // ToDo: once available repeat for other contacts like the Lab-Head
+
+        // add the contact to the list
+        contactList.getContact().add(contact);
 
         return contactList;
     }
@@ -332,7 +326,7 @@ public class DBController {
 
 
     //helper method that will add all the assayId to the Map for that particular id
-    private static void addKeysMap(Map<Long, PXObject> idMap, PXObject object, Long assayId) {
+    private static <T extends PXObject> void addKeysMap(Map<Long, T> idMap, T object, Long assayId) {
         if (idMap.containsKey(assayId)) {
 
             idMap.put(assayId, object);
@@ -521,21 +515,20 @@ public class DBController {
      */
     public SampleList getSampleList(long assayId) {
         SampleList sampleList = new SampleList();
+        // in PRIDE we only have one sample per assay
+        Sample sample = new Sample();
+        sample.setName("sample_" + assayId);
+        sampleList.getSample().add(sample);
 
+        // now populate the sample with the cvparams describing it
         Assay assay = assayRepository.findOne(assayId);
-
         Collection<AssaySampleCvParam> assaySampleCvParams = assay.getSamples();
-
         for (AssaySampleCvParam assaySampleCvParam: assaySampleCvParams) {
-            Sample sample = new Sample();
-
             CvParam cvParam = new CvParam();
             cvParam.setName(assaySampleCvParam.getName());
             cvParam.setCvRef(assaySampleCvParam.getCvLabel());
             cvParam.setAccession(assaySampleCvParam.getAccession());
             sample.getCvParam().add(cvParam);
-
-            sampleList.getSample().add(sample);
         }
 
         return sampleList;
@@ -591,7 +584,9 @@ public class DBController {
 
     public Ref getInstrumentRef(long assayId) {
         Ref ref = new Ref();
-        ref.setRef(instrumentMap.get(assayId));
+        Instrument instrument = instrumentMap.get(assayId);
+        logger.info("Setting instrument reference for Assay " + assayId + " and instrument: " + instrument.getId());
+        ref.setRef(instrument);
         return ref;
     }
 
