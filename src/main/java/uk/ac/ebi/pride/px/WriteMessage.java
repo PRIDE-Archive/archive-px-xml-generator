@@ -4,9 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.data.exception.SubmissionFileException;
 import uk.ac.ebi.pride.data.io.SubmissionFileParser;
-import uk.ac.ebi.pride.data.model.Submission;
+import uk.ac.ebi.pride.data.model.*;
+import uk.ac.ebi.pride.prider.dataprovider.project.SubmissionType;
 import uk.ac.ebi.pride.px.Reader.DBController;
 import uk.ac.ebi.pride.px.model.*;
+import uk.ac.ebi.pride.px.model.Contact;
+import uk.ac.ebi.pride.px.model.CvParam;
 import uk.ac.ebi.pride.px.xml.PxMarshaller;
 
 import java.io.File;
@@ -92,10 +95,6 @@ public class WriteMessage {
 
     private ProteomeXchangeDataset createProteomeXchangeDataset(String projectAccession, File submissionFile, String changeLog) throws SubmissionFileException, SQLException {
         Submission submissionSummary = SubmissionFileParser.parse(submissionFile);
-        //will return if submission contains only supported files
-        //to extract info from database or not supported files
-        //and extract info from the metadata file
-        boolean submissionSupported = submissionSummary.getMetaData().isSupported();
 
         ProteomeXchangeDataset proteomeXchangeDataset = new ProteomeXchangeDataset();
         //extract DatasetSummary: this information will always come from Summary object
@@ -124,7 +123,11 @@ public class WriteMessage {
         proteomeXchangeDataset.setPublicationList(publicationList);
 
         // populate dataset
-        if (!submissionSupported) {
+        //will return if submission contains only supported files
+        //to extract info from database or not supported files
+        //and extract info from the metadata file
+        SubmissionType type = submissionSummary.getProjectMetaData().getSubmissionType();
+        if (type != SubmissionType.COMPLETE) {
             populatePxSubmissionFromFile(proteomeXchangeDataset, submissionSummary, projectAccession);
             //not relevant now, maybe in the future will be added PrideInspector URL
         } else {
@@ -158,7 +161,7 @@ public class WriteMessage {
      */
     private static KeywordList getKeywordList(Submission submissionSummary) {
         KeywordList keywordList = new KeywordList();
-        keywordList.getCvParam().add(createCvParam("MS:1001925", submissionSummary.getMetaData().getKeywords(), "submitter keyword", "MS"));
+        keywordList.getCvParam().add(createCvParam("MS:1001925", submissionSummary.getProjectMetaData().getKeywords(), "submitter keyword", "MS"));
         return keywordList;
     }
 
@@ -175,7 +178,7 @@ public class WriteMessage {
         proteomeXchangeDataset.setSpeciesList(speciesList);
         //add instrument from file
         InstrumentList instrumentList = new InstrumentList();
-        instrumentList.getInstrument().addAll(getInstrument(submissionSummary));
+        instrumentList.getInstrument().addAll(getInstruments(submissionSummary));
         proteomeXchangeDataset.setInstrumentList(instrumentList);
         //add modification
         ModificationList modificationList = new ModificationList();
@@ -228,24 +231,23 @@ public class WriteMessage {
     //method to extract modifications from summary file
     private static List<CvParam> getModificationCvParams(Submission submissionSummary) {
         List<CvParam> cvParams = new ArrayList<CvParam>();
-        for (uk.ac.ebi.pride.data.model.CvParam cvParam : submissionSummary.getMetaData().getModifications()) {
+        for (uk.ac.ebi.pride.data.model.CvParam cvParam : submissionSummary.getProjectMetaData().getModifications()) {
             cvParams.add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), cvParam.getCvLabel()));
         }
         return cvParams;
     }
 
     //method to extract instrument information from summary file
-    private static List<Instrument> getInstrument(Submission submissionSummary) {
+    private static List<Instrument> getInstruments(Submission submissionSummary) {
         List<Instrument> instruments = new ArrayList<Instrument>();
         int instrumentNum = 1;
         //convert CvParam into px CvParam
-        for (List<uk.ac.ebi.pride.data.model.CvParam> cvParams : submissionSummary.getMetaData().getInstruments()) {
+        Set<uk.ac.ebi.pride.data.model.CvParam> auxInstruments = submissionSummary.getProjectMetaData().getInstruments();
+        for (uk.ac.ebi.pride.data.model.CvParam auxInstrument : auxInstruments) {
             Instrument instrument = new Instrument();
             instrument.setId("Instrument_" + instrumentNum);
             instrumentNum++;
-            for (uk.ac.ebi.pride.data.model.CvParam cvParam : cvParams) {
-                instrument.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), cvParam.getCvLabel()));
-            }
+            instrument.getCvParam().add(createCvParam(auxInstrument.getAccession(), auxInstrument.getValue(), auxInstrument.getName(), auxInstrument.getCvLabel()));
             instruments.add(instrument);
         }
         return instruments;
@@ -255,7 +257,7 @@ public class WriteMessage {
     private static Species getSpecies(Submission submissionSummary) {
         Species species = new Species();
         //need to create 2 cvParam: one with the NEWT code and one with the name
-        for (uk.ac.ebi.pride.data.model.CvParam cvParam : submissionSummary.getMetaData().getSpecies()) {
+        for (uk.ac.ebi.pride.data.model.CvParam cvParam : submissionSummary.getProjectMetaData().getSpecies()) {
             species.getCvParam().add(createCvParam("MS:1001469", cvParam.getName(), "taxonomy: scientific name", "PSI-MS"));
             species.getCvParam().add(createCvParam("MS:1001467", cvParam.getAccession(), "taxonomy: NCBI TaxID", "PSI-MS"));
         }
@@ -271,7 +273,8 @@ public class WriteMessage {
         px.getCvParam().add(createCvParam("MS:1001919", projectAccession, "ProteomeXchange accession number", "MS"));
         datasetIdentifierList.getDatasetIdentifier().add(px);
         //add DOI from if is supported
-        if (submissionSummary.getMetaData().isSupported()) {
+        SubmissionType type = submissionSummary.getProjectMetaData().getSubmissionType();
+        if (type != SubmissionType.COMPLETE) {
             DatasetIdentifier DOI = new DatasetIdentifier();
             //add DOI value
             DOI.getCvParam().add(createCvParam("MS:1001922", DOI_PREFFIX + "/" + projectAccession, "Digital Object Identifier (DOI)", "MS"));
@@ -415,8 +418,8 @@ public class WriteMessage {
     //this information will come from the summary file
     private static DatasetSummary getDatasetSummary(Submission submissionSummary, String projectAccession) throws SQLException {
         DatasetSummary datasetSummary = new DatasetSummary();
-        datasetSummary.setTitle(submissionSummary.getMetaData().getTitle());
-        datasetSummary.setDescription(submissionSummary.getMetaData().getDescription());
+        datasetSummary.setTitle(submissionSummary.getProjectMetaData().getTitle());
+        datasetSummary.setDescription(submissionSummary.getProjectMetaData().getProjectDescription());
         datasetSummary.setAnnounceDate(Calendar.getInstance());
         datasetSummary.setHostingRepository(HostingRepositoryType.PRIDE);
         //add Review level, depending wether has a pubmed or not
@@ -432,7 +435,9 @@ public class WriteMessage {
     private static RepositorySupportType addRepositorySupport(Submission submissionSummary) {
         RepositorySupportType repositorySupportType = new RepositorySupportType();
         CvParam repositorySupport;
-        if (submissionSummary.getMetaData().isSupported()) {
+
+        SubmissionType type = submissionSummary.getProjectMetaData().getSubmissionType();
+        if (type != SubmissionType.COMPLETE) {
             repositorySupport = createCvParam("PRIDE:0000416", null, "Supported dataset by repository", "PRIDE");
         } else {
             repositorySupport = createCvParam("PRIDE:0000417", null, "Unsupported dataset by repository", "PRIDE");
@@ -461,11 +466,12 @@ public class WriteMessage {
     private static ContactList getContactList(Submission submissionSummary) {
         ContactList contactList = new ContactList();
         Contact contact = new Contact();
-        contact.setId(submissionSummary.getContact().getName().replace(' ', '_'));
-        contact.getCvParam().add(createCvParam("MS:1000586", submissionSummary.getContact().getName(), "contact name", "MS"));
-        contact.getCvParam().add(createCvParam("MS:1000589", submissionSummary.getContact().getEmail(), "contact email", "MS"));
-        contactEmails.add(submissionSummary.getContact().getEmail());
-        contact.getCvParam().add(createCvParam("MS:1000590", submissionSummary.getContact().getAffiliation(), "contact affiliation", "MS"));
+        uk.ac.ebi.pride.data.model.Contact aux = submissionSummary.getProjectMetaData().getContact();
+        contact.setId(aux.getName().replace(' ', '_'));
+        contact.getCvParam().add(createCvParam("MS:1000586", aux.getName(), "contact name", "MS"));
+        contact.getCvParam().add(createCvParam("MS:1000589", aux.getEmail(), "contact email", "MS"));
+        contactEmails.add(aux.getEmail());
+        contact.getCvParam().add(createCvParam("MS:1000590", aux.getAffiliation(), "contact affiliation", "MS"));
         contactList.getContact().add(contact);
         return contactList;
     }
