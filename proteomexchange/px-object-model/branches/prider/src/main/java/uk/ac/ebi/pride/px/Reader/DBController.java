@@ -264,10 +264,9 @@ public class DBController {
      * @param projectAccession
      * @return
      */
-    public ContactList getContactList(String projectAccession) {
+    public List<Contact> getContactList(String projectAccession) {
         //ToDo: check where the filter for contactEmails is used
-        ContactList contactList = new ContactList();
-
+        List<Contact> list = new ArrayList<Contact>();
         User submitter = projectRepository.findByAccession(projectAccession).getSubmitter();
 
         // create submitter contact cvparam
@@ -299,13 +298,11 @@ public class DBController {
         cvParamEmail.setName("contact email");
         contact.getCvParam().add(cvParamEmail);
 
-
         // ToDo: once available repeat for other contacts like the Lab-Head
-
         // add the contact to the list
-        contactList.getContact().add(contact);
+        list.add(contact);
 
-        return contactList;
+        return list;
     }
 
 

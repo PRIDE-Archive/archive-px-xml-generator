@@ -30,9 +30,11 @@ public class WriteMessage {
 
     private static final String FORMAT_VERSION = "1.0.0";
     private static final String DOI_PREFFIX = "10.6019";
-    private static final String NCBI_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
+//    private static final String NCBI_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
     private static final String FTP = "ftp://ftp.pride.ebi.ac.uk";
-    private static final String PRIVATE_DIR = "/nfs/pride/private/data";
+//    private static final String PRIVATE_DIR = "/nfs/pride/private/data";
+    private static final String CONTACT_ID_PREFIX = "CONTACT_";
+    private int contactCounter = 1;
 
     private static final Logger logger = LoggerFactory.getLogger(WriteMessage.class);
 
@@ -101,9 +103,15 @@ public class WriteMessage {
         DatasetSummary datasetSummary = getDatasetSummary(submissionSummary, projectAccession);
         proteomeXchangeDataset.setDatasetSummary(datasetSummary);
 
-        //extract ContactList: this information comes from summary file
-        ContactList contactList = getContactList(submissionSummary);
+        // extract contacts from summary file
+        ContactList contactList = new ContactList();
         proteomeXchangeDataset.setContactList(contactList);
+        // add contacts to the PX ContactList assuring they get a unique ID
+        List<Contact> cList = getContactList(submissionSummary);
+        for (Contact contact : cList) {
+            contact.setId(CONTACT_ID_PREFIX + contactCounter++);
+            contactList.getContact().add(contact);
+        }
 
         //extract Keyword List from file
         KeywordList keywordList = getKeywordList(submissionSummary);
@@ -297,7 +305,7 @@ public class WriteMessage {
 
     //method will get all information for a specific submission from the database and populate
     //the ProteomeXchangeDataset object with it
-    private static void populatePxSubmissionFromDB(ProteomeXchangeDataset proteomeXchangeDataset, String projectAccession) throws SubmissionFileException {
+    private void populatePxSubmissionFromDB(ProteomeXchangeDataset proteomeXchangeDataset, String projectAccession) throws SubmissionFileException {
         //get all experiments in the project
         List<Long> assayIds = dbac.getAssayIds(projectAccession);
         if (assayIds.isEmpty()) {
@@ -320,11 +328,15 @@ public class WriteMessage {
         ModificationList modificationList = dbac.getModificationList(projectAccession);
         proteomeXchangeDataset.setModificationList(modificationList);
         //extract contact list that are not present already in the file
-        ContactList newContactList = dbac.getContactList(projectAccession);
+        List<Contact> newContacts = dbac.getContactList(projectAccession);
         ContactList contactList = proteomeXchangeDataset.getContactList();
         //add contacts from DB
-        contactList.getContact().addAll(newContactList.getContact());
-        proteomeXchangeDataset.setContactList(contactList);
+        for (Contact newContact : newContacts) {
+            newContact.setId(CONTACT_ID_PREFIX + contactCounter++);
+            contactList.getContact().add(newContact);
+        }
+//        contactList.getContact().addAll(newContactList.getContact());
+//        proteomeXchangeDataset.setContactList(contactList);
 //        //extract publicationList
 //        PublicationList publicationList = dbac.getPublicationList(experimentIDs);
 //        proteomeXchangeDataset.setPublicationList(publicationList);
@@ -463,17 +475,19 @@ public class WriteMessage {
     }
 
     //private method to extract the contact list from the summary file
-    private static ContactList getContactList(Submission submissionSummary) {
-        ContactList contactList = new ContactList();
+    private static List<Contact> getContactList(Submission submissionSummary) {
+        List<Contact> list = new ArrayList<Contact>(1);
         Contact contact = new Contact();
         uk.ac.ebi.pride.data.model.Contact aux = submissionSummary.getProjectMetaData().getContact();
-        contact.setId(aux.getName().replace(' ', '_'));
+        // assign a contact ID.
+        // the ID will have to be unique across the whole PX XML
+        contact.setId("project_contact");
         contact.getCvParam().add(createCvParam("MS:1000586", aux.getName(), "contact name", "MS"));
         contact.getCvParam().add(createCvParam("MS:1000589", aux.getEmail(), "contact email", "MS"));
         contactEmails.add(aux.getEmail());
         contact.getCvParam().add(createCvParam("MS:1000590", aux.getAffiliation(), "contact affiliation", "MS"));
-        contactList.getContact().add(contact);
-        return contactList;
+        list.add(contact);
+        return list;
     }
 
 }
