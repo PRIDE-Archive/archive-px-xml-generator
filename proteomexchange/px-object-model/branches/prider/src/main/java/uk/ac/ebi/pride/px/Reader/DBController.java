@@ -40,7 +40,7 @@ public class DBController {
 
     //will use that map to store the relation between String->publication_ref
     private Map<String, Publication> publicationMap = new HashMap<String, Publication>();
-    private Map<Long, Instrument> instrumentMap = new HashMap<Long, Instrument>();
+    private Map<Long, Instrument> instrumentMap = new HashMap<Long, Instrument>(); // map to keep track of the instruments per assay
 //    private Connection DBConnection = null;
 
     //    Logger object
@@ -121,9 +121,9 @@ public class DBController {
     public InstrumentList getInstrumentList(Collection<Long> assayIds) {
         InstrumentList instrumentList = new InstrumentList();
 
+        int i = 1; // counter of all instruments across all assays
         for (Long assayId: assayIds) {
             Collection<uk.ac.ebi.pride.prider.repo.assay.instrument.Instrument> priderInstruments = assayRepository.findOne(assayId).getInstruments();
-            int i = 1;
             for (uk.ac.ebi.pride.prider.repo.assay.instrument.Instrument priderInstrument: priderInstruments) {
                 String id = "INSTRUMENT_" + i;
                 i++;
@@ -137,13 +137,16 @@ public class DBController {
                 cvParam.setAccession(priderInstrument.getCvParam().getAccession());
                 // add the param to the instrument
                 instrument.getCvParam().add(cvParam);
-                //helper method to add the instrument to all the assay
-                addKeysMap(instrumentMap, instrument, assayId);
+
+                // keep track of the instrument for this assay
+                // ToDo: decide what to do if there are multiple instrument annotations for one assay
+                instrumentMap.put(assayId, instrument);
+
+
+//                addKeysMap(instrumentMap, instrument, assayId);
                 instrumentList.getInstrument().add(instrument);
             }
         }
-//        //TODO:: how can we get the right description for the instrument ??
-
         return instrumentList;
     }
 
@@ -325,14 +328,14 @@ public class DBController {
     }
 
 
-    //helper method that will add all the assayId to the Map for that particular id
-    private static <T extends PXObject> void addKeysMap(Map<Long, T> idMap, T object, Long assayId) {
-        if (idMap.containsKey(assayId)) {
-
-            idMap.put(assayId, object);
-        }
-    }
-
+//    //helper method that will add all the assayId to the Map for that particular id
+//    private static <T extends PXObject> void addKeysMap(Map<Long, T> idMap, T object, Long assayId) {
+//        if (idMap.containsKey(assayId)) {
+//
+//            idMap.put(assayId, object);
+//        }
+//    }
+//
     //this information comes from summary file at the moment
 //    public DatasetSummary getDatasetSummary(long experimentID) {
 //        DatasetSummary datasetSummary = new DatasetSummary();
@@ -585,7 +588,11 @@ public class DBController {
     public Ref getInstrumentRef(long assayId) {
         Ref ref = new Ref();
         Instrument instrument = instrumentMap.get(assayId);
-        logger.info("Setting instrument reference for Assay " + assayId + " and instrument: " + instrument.getId());
+        if (instrument != null) {
+            logger.info("Setting instrument reference for Assay " + assayId + " and instrument: " + instrument.getId());
+        } else {
+            logger.info("No instrument for Assay: " + assayId);
+        }
         ref.setRef(instrument);
         return ref;
     }
