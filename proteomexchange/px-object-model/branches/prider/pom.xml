@@ -44,10 +44,6 @@
         <url>http://www.ebi.ac.uk</url>
     </organization>
 
-    <properties>
-        <prider.repo.version>0.1.1-SNAPSHOT</prider.repo.version>
-    </properties>
-
     <build>
         <resources>
             <resource>
@@ -177,18 +173,17 @@
         <dependency>
             <groupId>uk.ac.ebi.pride.pubmed</groupId>
             <artifactId>peppubmed</artifactId>
-            <version>0.3-SNAPSHOT</version>
+            <version>0.3</version>
         </dependency>
 
         <!-- pride repo -->
         <dependency>
             <groupId>uk.ac.ebi.pride.prider</groupId>
             <artifactId>prider-repo</artifactId>
-            <version>${prider.repo.version}</version>
+            <version>0.1.4</version>
         </dependency>
 
     </dependencies>
-
 
     <repositories>
         <repository>
@@ -219,6 +214,7 @@
             <url>http://repo1.maven.org/maven2/</url>
         </repository>
     </repositories>
+
     <distributionManagement>
         <!-- EBI repo -->
         <repository>
