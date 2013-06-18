@@ -4,7 +4,7 @@
 
     <groupId>uk.ac.ebi.pride.px</groupId>
     <artifactId>px-xml-generator-prider</artifactId>
-    <version>0.1.2</version>
+    <version>0.1.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>ProteomeXchange XML message</name>
