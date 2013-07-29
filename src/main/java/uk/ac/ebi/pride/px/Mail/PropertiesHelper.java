@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashSet;
 import java.util.Properties;
 
 /**
@@ -13,8 +12,9 @@ import java.util.Properties;
  * User: javizca
  * Date: Oct 28, 2008
  * Time: 2:36:18 PM
- * To change this template use File | Settings | File Templates.
+ * ToDo: chould not be in this package!
  */
+@Deprecated
 public class PropertiesHelper {
 
 	/**

@@ -19,7 +19,9 @@ import java.util.*;
  *
  * @author Rui Wang
  * @version $Id$
+ * ToDo: should not be in this package!
  */
+@Deprecated
 public class PrideInspectorUrlGenerator {
     public static final Logger logger = LoggerFactory.getLogger(PrideInspectorUrlGenerator.class);
     public static final String RANGE_SEPARATOR = "-";

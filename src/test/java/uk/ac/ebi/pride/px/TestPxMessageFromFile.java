@@ -1,12 +1,13 @@
+package uk.ac.ebi.pride.px;
+
 import junit.framework.TestCase;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import uk.ac.ebi.pride.data.exception.SubmissionFileException;
-import uk.ac.ebi.pride.px.Reader.DBController;
-import uk.ac.ebi.pride.px.WriteMessage;
+import uk.ac.ebi.pride.px.model.CvParam;
+import uk.ac.ebi.pride.px.model.ProteomeXchangeDataset;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -16,24 +17,19 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-import uk.ac.ebi.pride.px.model.CvParam;
-import uk.ac.ebi.pride.px.model.ProteomeXchangeDataset;
-
 
 /**
- * Created with IntelliJ IDEA.
- * User: dani
+ * @author dani@ebi.ac.uk
+ * @author florian@ebi.ac.uk
  * Date: 01/05/12
- * Time: 11:32
  *
- *
- * todo: these tests need to be rewritten
+ * ToDo: test PARTIAL and COMPLETE cases!
+ * ToDo: change name of class!
  */
-public class testPxMessageFromFile extends TestCase {
+public class TestPxMessageFromFile extends TestCase {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    public DBController dbController;
+//    public DBController dbController;
     public File directory;
     public File submissionFile;
     public ProteomeXchangeDataset proteomeXchangeDataset;
@@ -41,18 +37,19 @@ public class testPxMessageFromFile extends TestCase {
     @Before
     public void setUp() throws Exception {
         //initialize resources: Dbcontroller and File
-        dbController = new DBController();
+//        dbController = new DBController();
         directory = temporaryFolder.newFolder("pxMessage");
         submissionFile = new File("src/test/resources/submission.px");
-        WriteMessage messageWriter = new WriteMessage(dbController);
-        File file = messageWriter.createXMLMessage("PXDTEST1", directory, submissionFile);
+        WriteMessage messageWriter = new WriteMessage();
+//        File file = messageWriter.createXMLMessage("PXDTEST1", directory, submissionFile);
+        File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXT000001", "/2013/07/PXT000001/");
         //and unmarshal XML file
         proteomeXchangeDataset = unmarshalFile(file);
     }
 
     @Test
     public void testPxContactFromFile(){
-        assertEquals(proteomeXchangeDataset.getContactList().getContact().get(0).getId(),"John_Arthur_Smith");
+        assertEquals(proteomeXchangeDataset.getContactList().getContact().get(0).getId(),"project_contact");
         assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(), "MS:1000586"),"John Arthur Smith");
         assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(),"MS:1000589"),"john.smith@cam.edu");
         assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(),"MS:1000590"),"University of Cambridge");
@@ -68,16 +65,16 @@ public class testPxMessageFromFile extends TestCase {
 
     @Test
     public void testPxSpeciesFromFile(){
-        assertEquals(proteomeXchangeDataset.getSpeciesList().getSpecies().getCvParam().size(), 4);
-        assertEquals(getAccessionCvParam(proteomeXchangeDataset.getSpeciesList().getSpecies().getCvParam(),"9606"),"MS:1001467");
-        assertEquals(getAccessionCvParam(proteomeXchangeDataset.getSpeciesList().getSpecies().getCvParam(),"Homo sp. Altai"),"MS:1001469");
+        assertEquals(proteomeXchangeDataset.getSpeciesList().getSpecies().getCvParam().size(), 2);
+        assertEquals(getAccessionCvParamValue(proteomeXchangeDataset.getSpeciesList().getSpecies().getCvParam(), "9606"),"MS:1001467");
+        assertEquals(getAccessionCvParamValue(proteomeXchangeDataset.getSpeciesList().getSpecies().getCvParam(), "Homo sapiens (Human)"),"MS:1001469");
     }
 
     @Test
     public void testPxInstrumentFromFile(){
         assertEquals(proteomeXchangeDataset.getInstrumentList().getInstrument().get(0).getId(),"Instrument_1");
         assertEquals(proteomeXchangeDataset.getInstrumentList().getInstrument().size(),1);
-        assertEquals(getNameCvParam(proteomeXchangeDataset.getInstrumentList().getInstrument().get(0).getCvParam(),"MS:1000122"),"AB SCIEX instrument test model");
+        assertEquals(getNameCvParam(proteomeXchangeDataset.getInstrumentList().getInstrument().get(0).getCvParam(),"MS:1000121"),"AB SCIEX instrument model");
     }
 
     @Test
@@ -88,7 +85,7 @@ public class testPxMessageFromFile extends TestCase {
 
     @Test
     public void testPxPubMedFromFile(){
-        assertEquals(proteomeXchangeDataset.getPublicationList().getPublication().size(),2);
+        assertEquals(proteomeXchangeDataset.getPublicationList().getPublication().size(),1);
         assertEquals(proteomeXchangeDataset.getPublicationList().getPublication().get(0).getId(),"PMID12345");
         assertEquals(getValueCvParam(proteomeXchangeDataset.getPublicationList().getPublication().get(0).getCvParam(),"MS:1000879"),"12345");
     }
@@ -100,20 +97,20 @@ public class testPxMessageFromFile extends TestCase {
 
     @Test
     public void testPxRepositorySupportFromFile(){
-        assertEquals(proteomeXchangeDataset.getDatasetSummary().getRepositorySupport().getCvParam().getAccession(),"PRIDE:0000417");
+        assertEquals(proteomeXchangeDataset.getDatasetSummary().getRepositorySupport().getCvParam().getAccession(),"PRIDE:0000416");
     }
 
     @Test
     public void testPxFullDatasetLinkListFromFile(){
         assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getAccession(),"PRIDE:0000411");
-        assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getValue(),"/path/to/result/files/result-1.xml");
+        assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getValue(),"ftp://ftp.pride.ebi.ac.uk/2013/07/PXT000001/");
     }
 
     //helper method to retrieve accession for a specific value
-    private String getAccessionCvParam(List<CvParam> cvParams, String value){
+    private String getAccessionCvParamValue(List<CvParam> cvParams, String value){
         String accession = null;
         for (CvParam cvParam : cvParams) {
-            if (cvParam.getValue().equals(value)) accession = cvParam.getAccession();
+            if (cvParam.getValue().equalsIgnoreCase(value)) accession = cvParam.getAccession();
         }
         return accession;
     }
