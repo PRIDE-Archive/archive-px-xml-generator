@@ -22,7 +22,9 @@ import java.util.*;
  * Date: Oct 28, 2008
  * Time: 11:36:40 AM
  * To change this template use File | Settings | File Templates.
+ * ToDo: this should not be in this package!
  */
+@Deprecated
 public class Emailer {
 
     private static final Logger logger = LoggerFactory.getLogger(Emailer.class);

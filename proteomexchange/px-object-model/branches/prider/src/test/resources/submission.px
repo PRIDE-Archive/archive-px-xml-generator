@@ -4,14 +4,19 @@ MTD	affiliation	University of Cambridge
 MTD	title	Human proteome
 MTD	description	An experiment about human proteome
 MTD	keywords	human, proteome
-MTD	type	supported
-MTD	pubmed	12345
-MTD	pubmed	23456
-MTD	px	10.1000/182
-MTD	px	10.1000/183
+MTD	species	[NEWT, 9606, Homo Sapiens (Human),]
+MTD	instrument	[PSI-MS, MS:1000121, AB SCIEX instrument model,]
+MTD	modification	[PSI-MOD, MOD:00198, D-alanine,]
+MTD	modification	[PSI-MOD, MOD:00199, D-alanine-1,]
+MTD	experiment_type	[PRIDE, PRIDE:0000429, Shotgun proteomics, ]
+MTD	submission_type	COMPLETE
+MTD	pubmed_id	12345
 MTD	pride_login	pride_user
 
 FMH	file_id	file_type	file_path 	file_mapping	pride_accession
 FME	1	result	/path/to/pride/xml/files/pride_1.xml	2	2472
 FME	2	raw	/path/to/pride/xml/files/pride_2.xml
+
+SMH	file_id	species	tissue	cell_type	disease	instrument	quantification	experimental_factor
+SME	1	[NEWT, 9606, Homo sapiens (Human), ]	[BTO, BTO:0000089, blood, ]			[MS, MS:1000447, LTQ, ]		experimental factor
 

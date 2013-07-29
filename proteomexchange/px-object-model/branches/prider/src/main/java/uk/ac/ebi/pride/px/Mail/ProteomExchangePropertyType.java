@@ -5,8 +5,9 @@ package uk.ac.ebi.pride.px.Mail;
  * User: javizca
  * Date: Oct 28, 2008
  * Time: 2:26:46 PM
- * To change this template use File | Settings | File Templates.
+ * ToDo: chould not be in this package!
  */
+@Deprecated
 public enum ProteomExchangePropertyType {
 
     EMAIL_SEND_AUTOMATIC_EMAILS			("email.send.automatic.emails"),
