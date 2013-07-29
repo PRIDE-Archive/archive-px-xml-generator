@@ -35,10 +35,12 @@ public class WriteMessage {
     private static final String DOI_PREFFIX = "10.6019";
     private static final String NCBI_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
     private static final String FTP = "ftp://ftp.pride.ebi.ac.uk";
-    private static final String PRIDE_REPO_PROJECT_BASE_URL = "http://www.ebi.ac.uk/pride/repo/projects/";
+    private static final String PRIDE_REPO_PROJECT_BASE_URL = "http://wwwdev.ebi.ac.uk/pride/repo/projects/"; // ToDo: URL does not exist, PRIDE repo web needs to be defined!
     // ToDo: check PXST summary file definition with regards to PARTIAL/COMPLETE differences
     // ToDo (general): extract CV params to global util package?
     // ToDo (general): perhaps change to non-static implementation and keep certain data in the instance (px accession, datasetPathFragment, counters...)
+    // ToDo (version upgrade): adapt to new PX XML schema, take into account mandatory elements
+    // ToDo (version upgrade): adapt to new submission summary file specification, take into account mandatory fields
 
 
     public WriteMessage() {
