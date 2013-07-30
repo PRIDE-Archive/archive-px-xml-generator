@@ -1,8 +1,6 @@
 package uk.ac.ebi.pride.px;
 
 import junit.framework.TestCase;
-import uk.ac.ebi.pride.px.Reader.DBController;
-import uk.ac.ebi.pride.px.WriteMessage;
 
 import java.io.File;
 
@@ -21,7 +19,8 @@ public class TestWriteMessage extends TestCase{
         WriteMessage messageWriter = new WriteMessage();
         File directory = new File(System.getProperty("user.dir"));
         File submissionFile = new File("src/test/resources/submission.px");
-        File file = messageWriter.createXMLMessage("PXD000002", directory, submissionFile);
+//        File file = messageWriter.createXMLMessage("PXD000002", directory, submissionFile);
+        File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXT000002", "/2013/07/PXT000002/");
         System.out.println("File created: " + file.getAbsolutePath());
     }
 }

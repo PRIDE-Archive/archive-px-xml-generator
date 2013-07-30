@@ -112,7 +112,7 @@
                     <extension>true</extension>
                     <schemaDirectory>src/main/resources</schemaDirectory>
                     <schemaIncludes>
-                        <include>proteomeXchange-draft-07.xsd</include>
+                        <include>proteomeXchange-1.1.0.xsd</include>
                     </schemaIncludes>
                     <bindingDirectory>src/main/resources</bindingDirectory>
                     <bindingIncludes>

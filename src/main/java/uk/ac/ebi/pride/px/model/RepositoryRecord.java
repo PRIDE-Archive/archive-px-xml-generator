@@ -1,15 +1,10 @@
 
 package uk.ac.ebi.pride.px.model;
 
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
 
 
 /**
@@ -24,8 +19,8 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;sequence>
  *         &lt;element name="SourceFileRef" type="{}RefType" maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;element name="PublicationRef" type="{}RefType" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="InstrumentRef" type="{}RefType" maxOccurs="unbounded"/>
- *         &lt;element name="SampleList" type="{}SampleListType" maxOccurs="unbounded"/>
+ *         &lt;element name="InstrumentRef" type="{}RefType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="SampleList" type="{}SampleListType" minOccurs="0"/>
  *         &lt;element name="ModificationList" type="{}ModificationListType" minOccurs="0"/>
  *         &lt;element name="AnnotationList" type="{}AdditionalInformationType" minOccurs="0"/>
  *       &lt;/sequence>
@@ -59,10 +54,10 @@ public class RepositoryRecord
     protected List<Ref> sourceFileRef;
     @XmlElement(name = "PublicationRef")
     protected List<Ref> publicationRef;
-    @XmlElement(name = "InstrumentRef", required = true)
+    @XmlElement(name = "InstrumentRef")
     protected List<Ref> instrumentRef;
-    @XmlElement(name = "SampleList", required = true)
-    protected List<SampleList> sampleList;
+    @XmlElement(name = "SampleList")
+    protected SampleList sampleList;
     @XmlElement(name = "ModificationList")
     protected ModificationList modificationList;
     @XmlElement(name = "AnnotationList")
@@ -169,30 +164,25 @@ public class RepositoryRecord
     /**
      * Gets the value of the sampleList property.
      * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the sampleList property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getSampleList().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link SampleList }
-     * 
-     * 
+     * @return
+     *     possible object is
+     *     {@link SampleList }
+     *     
      */
-    public List<SampleList> getSampleList() {
-        if (sampleList == null) {
-            sampleList = new ArrayList<SampleList>();
-        }
-        return this.sampleList;
+    public SampleList getSampleList() {
+        return sampleList;
+    }
+
+    /**
+     * Sets the value of the sampleList property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link SampleList }
+     *     
+     */
+    public void setSampleList(SampleList value) {
+        this.sampleList = value;
     }
 
     /**

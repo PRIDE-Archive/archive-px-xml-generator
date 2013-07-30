@@ -1,8 +1,8 @@
 
 package uk.ac.ebi.pride.px.model;
 
-import java.io.Serializable;
 import javax.xml.bind.annotation.*;
+import java.io.Serializable;
 
 
 /**
@@ -15,6 +15,7 @@ import javax.xml.bind.annotation.*;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
+ *         &lt;element name="CvList" type="{}CvListType"/>
  *         &lt;element name="ChangeLog" type="{}ChangeLogType" minOccurs="0"/>
  *         &lt;element name="DatasetSummary" type="{}DatasetSummaryType"/>
  *         &lt;element name="DatasetIdentifierList" type="{}DatasetIdentifierListType"/>
@@ -42,6 +43,7 @@ import javax.xml.bind.annotation.*;
 @XmlRootElement(name = "ProteomeXchangeDataset")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ProteomeXchangeDatasetType", propOrder = {
+    "cvList",
     "changeLog",
     "datasetSummary",
     "datasetIdentifierList",
@@ -62,6 +64,8 @@ public class ProteomeXchangeDataset
 {
 
     private final static long serialVersionUID = 100L;
+    @XmlElement(name = "CvList", required = true)
+    protected CvList cvList;
     @XmlElement(name = "ChangeLog")
     protected ChangeLogType changeLog;
     @XmlElement(name = "DatasetSummary", required = true)
@@ -94,6 +98,30 @@ public class ProteomeXchangeDataset
     protected String id;
     @XmlAttribute(required = true)
     protected String formatVersion;
+
+    /**
+     * Gets the value of the cvList property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link CvList }
+     *     
+     */
+    public CvList getCvList() {
+        return cvList;
+    }
+
+    /**
+     * Sets the value of the cvList property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link CvList }
+     *     
+     */
+    public void setCvList(CvList value) {
+        this.cvList = value;
+    }
 
     /**
      * Gets the value of the changeLog property.

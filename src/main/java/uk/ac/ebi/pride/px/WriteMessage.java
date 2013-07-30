@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 public class WriteMessage {
 
     private static final Logger logger = LoggerFactory.getLogger(WriteMessage.class);
-    private static final String FORMAT_VERSION = "1.0.0";
+    private static final String FORMAT_VERSION = "1.1.0";
     private static final String DOI_PREFFIX = "10.6019";
     private static final String NCBI_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
     private static final String FTP = "ftp://ftp.pride.ebi.ac.uk";
@@ -41,6 +41,33 @@ public class WriteMessage {
     // ToDo (general): perhaps change to non-static implementation and keep certain data in the instance (px accession, datasetPathFragment, counters...)
     // ToDo (version upgrade): adapt to new PX XML schema, take into account mandatory elements
     // ToDo (version upgrade): adapt to new submission summary file specification, take into account mandatory fields
+
+    private static Cv MS_CV;
+    private static Cv PRIDE_CV;
+    private static Cv MOD_CV;
+    private static Cv UNIMOD_CV;
+
+    static {
+        MS_CV = new Cv();
+        MS_CV.setFullName("PSI-MS");
+        MS_CV.setId("MS");
+        MS_CV.setUri("http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo");
+
+        PRIDE_CV = new Cv();
+        PRIDE_CV.setFullName("PRIDE");
+        PRIDE_CV.setId("PRIDE");
+        PRIDE_CV.setUri("http://code.google.com/p/ebi-pride/source/browse/trunk/pride-core/schema/pride_cv.obo");
+
+        MOD_CV = new Cv();
+        MOD_CV.setFullName("PSI-MOD");
+        MOD_CV.setId("MOD");
+        MOD_CV.setUri("http://psidev.cvs.sourceforge.net/psidev/psi/mod/data/PSI-MOD.obo");
+
+        UNIMOD_CV = new Cv();
+        UNIMOD_CV.setFullName("UNIMOD");
+        UNIMOD_CV.setId("UNIMOD");
+        UNIMOD_CV.setUri("http://www.unimod.org/obo/unimod.obo");
+    }
 
 
     public WriteMessage() {
@@ -211,14 +238,15 @@ public class WriteMessage {
         DatasetFileList datasetFileList = createDatasetFileList(submissionSummary, datasetPathFragment);
         pxXml.setDatasetFileList(datasetFileList);
 
-        // ToDo: RepositoryRecordList omitted due to missing information
         // add the repository record list (optional XML element)
-//        RepositoryRecordList repositoryRecordList = createRepositoryRecordList(submissionSummary, pxAccession);
-//        pxXml.setRepositoryRecordList(repositoryRecordList);
+        RepositoryRecordList repositoryRecordList = createRepositoryRecordList(submissionSummary, pxAccession);
+        pxXml.setRepositoryRecordList(repositoryRecordList);
 
         return  pxXml;
     }
 
+    // ToDo (add publication pipeline): to be used for updates of the PX XML
+    @SuppressWarnings("unused")
     private ProteomeXchangeDataset replacePrimaryReference(ProteomeXchangeDataset pxXml, Long pmid) {
         Assert.notNull(pxXml, "The PX XML object cannot be null!");
         Assert.notNull(pmid, "The PMID for the publication cannot be null!");
@@ -231,6 +259,8 @@ public class WriteMessage {
 
         return pxXml;
     }
+    // ToDo (add publication pipeline): to be used for updates of the PX XML
+    @SuppressWarnings("unused")
     private ProteomeXchangeDataset replacePrimaryReference(ProteomeXchangeDataset pxXml, String refLine) {
         Assert.notNull(pxXml, "The PX XML object cannot be null!");
         Assert.notNull(refLine, "The ref line for the publication cannot be null!");
@@ -358,7 +388,7 @@ public class WriteMessage {
             // no pubmed ID, so no publication, we assume it is pending
             Publication publication = new Publication();
             CvParam cvParam = new CvParam();
-            cvParam.setCvRef("PRIDE");
+            cvParam.setCvRef(PRIDE_CV.getId());
             cvParam.setName("Dataset with its publication pending");
             cvParam.setAccession("PRIDE:0000432");
             publication.setId("pending");
@@ -385,7 +415,7 @@ public class WriteMessage {
 
         Publication publication = new Publication();
         publication.setId("PUBLICATION"); // ToDo: this should be unique!
-        publication.getCvParam().add(createCvParam("PRIDE:0000400", refLine, "Reference", "PRIDE"));
+        publication.getCvParam().add(createCvParam("PRIDE:0000400", refLine, "Reference", PRIDE_CV.getId()));
         return publication;
     }
     private static Publication getPublication(Long pmid) {
@@ -397,7 +427,7 @@ public class WriteMessage {
 
         // add the PMID
         publication.setId("PMID" + pmid);
-        publication.getCvParam().add(createCvParam("MS:1000879", pmid.toString(), "PubMed identifier", "MS"));
+        publication.getCvParam().add(createCvParam("MS:1000879", pmid.toString(), "PubMed identifier", MS_CV.getId()));
 
         // try to get the ref line using an external service
         String refLine;
@@ -410,7 +440,7 @@ public class WriteMessage {
                 refLine = ""; // ToDo: specify a better default value?
             }
         // ToDo: is there no MS term for this? Is this the cv param we are supposed to use?
-        publication.getCvParam().add(createCvParam("PRIDE:0000400", refLine, "Reference", "PRIDE"));
+        publication.getCvParam().add(createCvParam("PRIDE:0000400", refLine, "Reference", PRIDE_CV.getId()));
         return publication;
     }
 
@@ -422,7 +452,7 @@ public class WriteMessage {
      */
     private static KeywordList getKeywordList(Submission submissionSummary) {
         KeywordList keywordList = new KeywordList();
-        keywordList.getCvParam().add(createCvParam("MS:1001925", submissionSummary.getProjectMetaData().getKeywords(), "submitter keyword", "MS"));
+        keywordList.getCvParam().add(createCvParam("MS:1001925", submissionSummary.getProjectMetaData().getKeywords(), "submitter keyword", MS_CV.getId()));
         return keywordList;
     }
 
@@ -471,7 +501,18 @@ public class WriteMessage {
 
         // ToDo: take new PX summary format into account (sample meta-data section)? mods currently not required!
         for (uk.ac.ebi.pride.data.model.CvParam cvParam : submissionSummary.getProjectMetaData().getModifications()) {
-            list.getCvParam().add(convertCvParam(cvParam));
+            // check if we have PSI-MOD or UNIMOD ontology terms
+            if (cvParam.getCvLabel().equalsIgnoreCase("psi-mod") || cvParam.getCvLabel().equalsIgnoreCase("mod")) {
+                list.getCvParam().add( createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), MOD_CV.getId()) );
+            } else if (cvParam.getCvLabel().equalsIgnoreCase("unimod")) {
+                list.getCvParam().add( createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), UNIMOD_CV.getId()) );
+            } else {
+                // That should never happen, since the validation pipeline should have checked this before.
+                String msg = "Found unknown modification CV: " + cvParam.getCvLabel();
+                logger.error(msg);
+                throw new IllegalStateException(msg);
+            }
+
         }
 
         return list;
@@ -501,10 +542,10 @@ public class WriteMessage {
         for (uk.ac.ebi.pride.data.model.CvParam cvParam : submissionSummary.getProjectMetaData().getSpecies()) {
             Species species = new Species();
             // PX guidelines state that each species has to be represented with two CV parameters: one for the name and one for the taxonomy ID
-            species.getCvParam().add(createCvParam("MS:1001469", cvParam.getName(), "taxonomy: scientific name", "MS"));
-            species.getCvParam().add(createCvParam("MS:1001467", cvParam.getAccession(), "taxonomy: NCBI TaxID", "MS"));
+            species.getCvParam().add(createCvParam("MS:1001469", cvParam.getName(), "taxonomy: scientific name", MS_CV.getId()));
+            species.getCvParam().add(createCvParam("MS:1001467", cvParam.getAccession(), "taxonomy: NCBI TaxID", MS_CV.getId()));
             // ToDo: WARNING! this will change! The PX XML will allow multiple species, so this species will have to be added to a list as soon as the model is updated! Now we'll overwrite in case of multiple species!
-            list.setSpecies(species);
+            list.getSpecies().add(species);
         }
 
         return list;
@@ -517,13 +558,13 @@ public class WriteMessage {
 
         // add the PX accession
         DatasetIdentifier px = new DatasetIdentifier();
-        px.getCvParam().add(createCvParam("MS:1001919", projectAccession, "ProteomeXchange accession number", "MS"));
+        px.getCvParam().add(createCvParam("MS:1001919", projectAccession, "ProteomeXchange accession number", MS_CV.getId()));
         datasetIdentifierList.getDatasetIdentifier().add(px);
 
         // add a corresponding DOI record if requested
         if (withDOI) {
             DatasetIdentifier DOI = new DatasetIdentifier();
-            DOI.getCvParam().add(createCvParam("MS:1001922", DOI_PREFFIX + "/" + projectAccession, "Digital Object Identifier (DOI)", "MS"));
+            DOI.getCvParam().add(createCvParam("MS:1001922", DOI_PREFFIX + "/" + projectAccession, "Digital Object Identifier (DOI)", MS_CV.getId()));
             datasetIdentifierList.getDatasetIdentifier().add(DOI);
         }
 
@@ -554,7 +595,7 @@ public class WriteMessage {
             String fileName = dataFile.getFile().getName();
             df.setName(fileName);
             String fileUri = FTP + datasetPathFragment + fileName;
-            CvParam param = createCvParam("PRIDE:0000403", fileUri, "Associated file URI", "MS");
+            CvParam param = createCvParam("PRIDE:0000403", fileUri, "Associated file URI", PRIDE_CV.getId());
             df.getCvParam().add(param);
             // ToDo (future): calculate and add checksum for file
             list.getDatasetFile().add(df);
@@ -574,14 +615,7 @@ public class WriteMessage {
         record.setName(submissionSummary.getProjectMetaData().getTitle());
         record.setRecordID(pxAccession);
 
-        // ToDo: instrument ref is mandatory, but on project level we may have more than one...
-
-        // ToDo: there is no sample information in the current PX summary file, take the new format into account!
-
-        // ToDo: add list of modifications
-
         list.getRepositoryRecord().add(record);
-
 
         // ToDo (future): create a PRIDE repository link for each assay of the project?
 
@@ -595,7 +629,7 @@ public class WriteMessage {
         CvParam cvParam = new CvParam();
         cvParam.setAccession("PRIDE:0000402");
         cvParam.setName("Original data");
-        cvParam.setCvRef("PRIDE");
+        cvParam.setCvRef(PRIDE_CV.getId());
         DatasetOrigin prideOrigin = new DatasetOrigin();
         prideOrigin.getCvParam().add(cvParam);
         list.setDatasetOrigin(prideOrigin);
@@ -607,11 +641,11 @@ public class WriteMessage {
     private static FullDatasetLinkList createFullDatasetLinkList(String datasetPathFragment, String pxAccession)  {
         FullDatasetLinkList fullDatasetLinkList = new FullDatasetLinkList();
         FullDatasetLink prideFtpLink = new FullDatasetLink();
-        CvParam ftpParam = createCvParam("PRIDE:0000411", FTP + datasetPathFragment, "Dataset FTP location", "PRIDE");
+        CvParam ftpParam = createCvParam("PRIDE:0000411", FTP + datasetPathFragment, "Dataset FTP location", PRIDE_CV.getId());
         prideFtpLink.setCvParam(ftpParam);
 
         FullDatasetLink prideRepoLink = new FullDatasetLink();
-        CvParam repoParam = createCvParam("MS:1001930", PRIDE_REPO_PROJECT_BASE_URL + pxAccession, "PRIDE project URI", "MS");
+        CvParam repoParam = createCvParam("MS:1001930", PRIDE_REPO_PROJECT_BASE_URL + pxAccession, "PRIDE project URI", MS_CV.getId());
         prideRepoLink.setCvParam(repoParam);
 
         fullDatasetLinkList.getFullDatasetLink().add(prideFtpLink);
@@ -646,9 +680,9 @@ public class WriteMessage {
         CvParam cvparam;
 
         if (type == SubmissionType.COMPLETE) {
-            cvparam = createCvParam("PRIDE:0000416", null, "Supported dataset by repository", "PRIDE");
+            cvparam = createCvParam("PRIDE:0000416", null, "Supported dataset by repository", PRIDE_CV.getId());
         } else if (type == SubmissionType.PARTIAL) {
-            cvparam = createCvParam("PRIDE:0000417", null, "Unsupported dataset by repository", "PRIDE");
+            cvparam = createCvParam("PRIDE:0000417", null, "Unsupported dataset by repository", PRIDE_CV.getId());
         } else {
             logger.error("Encoutered unexpected submission type: " + type.name());
             return null;
@@ -664,9 +698,9 @@ public class WriteMessage {
 
         CvParam cvparam ;
         if (peerReviewed) {
-            cvparam = createCvParam("PRIDE:0000414", null, "Peer-reviewed dataset", "PRIDE");
+            cvparam = createCvParam("PRIDE:0000414", null, "Peer-reviewed dataset", PRIDE_CV.getId());
         } else {
-            cvparam = createCvParam("PRIDE:0000415", null, "Non peer-reviewed dataset", "PRIDE");
+            cvparam = createCvParam("PRIDE:0000415", null, "Non peer-reviewed dataset", PRIDE_CV.getId());
         }
         reviewLevel.setCvParam(cvparam);
 
@@ -681,9 +715,9 @@ public class WriteMessage {
         uk.ac.ebi.pride.data.model.Contact aux = submissionSummary.getProjectMetaData().getContact();
         Contact submitter = new Contact();
         submitter.setId("project_contact"); // assign a unique ID to this contact
-        submitter.getCvParam().add(createCvParam("MS:1000586", aux.getName(), "contact name", "MS"));
-        submitter.getCvParam().add(createCvParam("MS:1000589", aux.getEmail(), "contact email", "MS"));
-        submitter.getCvParam().add(createCvParam("MS:1000590", aux.getAffiliation(), "contact affiliation", "MS"));
+        submitter.getCvParam().add(createCvParam("MS:1000586", aux.getName(), "contact name", MS_CV.getId()));
+        submitter.getCvParam().add(createCvParam("MS:1000589", aux.getEmail(), "contact email", MS_CV.getId()));
+        submitter.getCvParam().add(createCvParam("MS:1000590", aux.getAffiliation(), "contact affiliation", MS_CV.getId()));
         list.getContact().add(submitter);
 
         // ToDo: this will have to be updated to include the 'Lab Head' once the new version of the PX XML is used
