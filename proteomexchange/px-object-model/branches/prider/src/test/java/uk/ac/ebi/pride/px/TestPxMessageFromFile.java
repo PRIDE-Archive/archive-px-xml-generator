@@ -65,9 +65,9 @@ public class TestPxMessageFromFile extends TestCase {
 
     @Test
     public void testPxSpeciesFromFile(){
-        assertEquals(proteomeXchangeDataset.getSpeciesList().getSpecies().getCvParam().size(), 2);
-        assertEquals(getAccessionCvParamValue(proteomeXchangeDataset.getSpeciesList().getSpecies().getCvParam(), "9606"),"MS:1001467");
-        assertEquals(getAccessionCvParamValue(proteomeXchangeDataset.getSpeciesList().getSpecies().getCvParam(), "Homo sapiens (Human)"),"MS:1001469");
+        assertEquals(proteomeXchangeDataset.getSpeciesList().getSpecies().get(0).getCvParam().size(), 2);
+        assertEquals(getAccessionCvParamValue(proteomeXchangeDataset.getSpeciesList().getSpecies().get(0).getCvParam(), "9606"),"MS:1001467");
+        assertEquals(getAccessionCvParamValue(proteomeXchangeDataset.getSpeciesList().getSpecies().get(0).getCvParam(), "Homo sapiens (Human)"),"MS:1001469");
     }
 
     @Test
