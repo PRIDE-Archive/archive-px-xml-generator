@@ -20,7 +20,7 @@ public class TestWriteMessage extends TestCase{
         File directory = new File(System.getProperty("user.dir"));
         File submissionFile = new File("src/test/resources/submission.px");
 //        File file = messageWriter.createXMLMessage("PXD000002", directory, submissionFile);
-        File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXT000002", "/2013/07/PXT000002/");
+        File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXT000002", "2013/07/PXT000002");
         System.out.println("File created: " + file.getAbsolutePath());
     }
 }

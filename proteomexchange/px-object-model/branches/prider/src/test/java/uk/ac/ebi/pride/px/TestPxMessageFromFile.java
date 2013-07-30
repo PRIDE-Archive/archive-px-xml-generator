@@ -42,9 +42,19 @@ public class TestPxMessageFromFile extends TestCase {
         submissionFile = new File("src/test/resources/submission.px");
         WriteMessage messageWriter = new WriteMessage();
 //        File file = messageWriter.createXMLMessage("PXDTEST1", directory, submissionFile);
-        File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXT000001", "/2013/07/PXT000001/");
+        File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXT000001", "2013/07/PXT000001");
         //and unmarshal XML file
         proteomeXchangeDataset = unmarshalFile(file);
+    }
+
+    @Test
+    public void testPxCvListFromFile(){
+        assertEquals(proteomeXchangeDataset.getCvList().getCV().size(), 4);
+        assertEquals(proteomeXchangeDataset.getCvList().getCV().get(0).getId(), "MS");
+        assertEquals(proteomeXchangeDataset.getCvList().getCV().get(1).getId(), "PRIDE");
+        assertEquals(proteomeXchangeDataset.getCvList().getCV().get(2).getId(), "MOD");
+        assertEquals(proteomeXchangeDataset.getCvList().getCV().get(3).getId(), "UNIMOD");
+
     }
 
     @Test
@@ -103,7 +113,7 @@ public class TestPxMessageFromFile extends TestCase {
     @Test
     public void testPxFullDatasetLinkListFromFile(){
         assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getAccession(),"PRIDE:0000411");
-        assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getValue(),"ftp://ftp.pride.ebi.ac.uk/2013/07/PXT000001/");
+        assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getValue(),"ftp://ftp.pride.ebi.ac.uk/2013/07/PXT000001");
     }
 
     //helper method to retrieve accession for a specific value
