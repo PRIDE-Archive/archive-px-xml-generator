@@ -187,6 +187,9 @@ public class WriteMessage {
         pxXml.setId(pxAccession);
         pxXml.setFormatVersion(FORMAT_VERSION);
 
+        CvList cvList = getCvList();
+        pxXml.setCvList(cvList);
+
         // ToDo: move to version 1.1.0
         // ToDo (for version 1.1.0): add CV list!
 
@@ -351,7 +354,7 @@ public class WriteMessage {
     }
 
     private static boolean isValidPathFragment(String datasetPathFragment, String pxAccession) {
-        Pattern p = Pattern.compile("/201./[0,1][0-9]/"+pxAccession+"/");
+        Pattern p = Pattern.compile("201./[0,1][0-9]/"+pxAccession);
         Matcher m = p.matcher(datasetPathFragment);
         if (!m.matches()) {
             logger.info("The dataset path fragment '" + datasetPathFragment + "' is not valid for PX accession: " + pxAccession );
@@ -444,6 +447,17 @@ public class WriteMessage {
         return publication;
     }
 
+    private static CvList getCvList() {
+        CvList list = new CvList();
+
+        list.getCV().add(MS_CV);
+        list.getCV().add(PRIDE_CV);
+        list.getCV().add(MOD_CV);
+        list.getCV().add(UNIMOD_CV);
+
+        return list;
+    }
+
     /**
      * method to retrieve keyword list from the summary file
      *
@@ -503,7 +517,7 @@ public class WriteMessage {
         for (uk.ac.ebi.pride.data.model.CvParam cvParam : submissionSummary.getProjectMetaData().getModifications()) {
             // check if we have PSI-MOD or UNIMOD ontology terms
             if (cvParam.getCvLabel().equalsIgnoreCase("psi-mod") || cvParam.getCvLabel().equalsIgnoreCase("mod")) {
-                list.getCvParam().add( createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), MOD_CV.getId()) );
+                list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), MOD_CV.getId()));
             } else if (cvParam.getCvLabel().equalsIgnoreCase("unimod")) {
                 list.getCvParam().add( createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), UNIMOD_CV.getId()) );
             } else {
@@ -594,7 +608,7 @@ public class WriteMessage {
             df.setId("FILE_"+cnt++); // artificial ID to uniquely identify the DatasetFile
             String fileName = dataFile.getFile().getName();
             df.setName(fileName);
-            String fileUri = FTP + datasetPathFragment + fileName;
+            String fileUri = FTP + "/" + datasetPathFragment + "/" + fileName;
             CvParam param = createCvParam("PRIDE:0000403", fileUri, "Associated file URI", PRIDE_CV.getId());
             df.getCvParam().add(param);
             // ToDo (future): calculate and add checksum for file
@@ -641,7 +655,7 @@ public class WriteMessage {
     private static FullDatasetLinkList createFullDatasetLinkList(String datasetPathFragment, String pxAccession)  {
         FullDatasetLinkList fullDatasetLinkList = new FullDatasetLinkList();
         FullDatasetLink prideFtpLink = new FullDatasetLink();
-        CvParam ftpParam = createCvParam("PRIDE:0000411", FTP + datasetPathFragment, "Dataset FTP location", PRIDE_CV.getId());
+        CvParam ftpParam = createCvParam("PRIDE:0000411", FTP + "/" + datasetPathFragment, "Dataset FTP location", PRIDE_CV.getId());
         prideFtpLink.setCvParam(ftpParam);
 
         FullDatasetLink prideRepoLink = new FullDatasetLink();
