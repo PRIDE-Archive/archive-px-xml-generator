@@ -36,10 +36,9 @@ public class WriteMessage {
     private static final String NCBI_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
     private static final String FTP = "ftp://ftp.pride.ebi.ac.uk";
     private static final String PRIDE_REPO_PROJECT_BASE_URL = "http://wwwdev.ebi.ac.uk/pride/repo/projects/"; // ToDo: URL does not exist, PRIDE repo web needs to be defined!
-    // ToDo: check PXST summary file definition with regards to PARTIAL/COMPLETE differences
+    // ToDo (general): check PXST summary file definition with regards to PARTIAL/COMPLETE differences
     // ToDo (general): extract CV params to global util package?
     // ToDo (general): perhaps change to non-static implementation and keep certain data in the instance (px accession, datasetPathFragment, counters...)
-    // ToDo (version upgrade): adapt to new PX XML schema, take into account mandatory elements
     // ToDo (version upgrade): adapt to new submission summary file specification, take into account mandatory fields
 
     private static Cv MS_CV;
@@ -84,18 +83,6 @@ public class WriteMessage {
         return createXMLMessage(pxAccession, directory, submissionFile, publicationDate, null);
     }
 
-    /**
-     * the pxSummaryLocation will indicate where in the filesystem is stored the summary file to extract some of
-     * the information
-     *
-     * @param pxAccession the PX accession number of the submission.
-     * @param directory the output directory, where to generate the PX XML file.
-     * @param submissionFile the submission summary file of the submission.
-     * @param changeLog a change log message.
-     * @return The File reference to the PX XML file generated.
-     * @throws IOException
-     * @throws SubmissionFileException
-     */
     @Deprecated
     public File createXMLMessage(String pxAccession, File directory, File submissionFile, Date publicationDate, String changeLog) throws IOException, SubmissionFileException {
         //first, extract submission file object
@@ -470,8 +457,6 @@ public class WriteMessage {
         return keywordList;
     }
 
-    // method to populate all information in the proteomeXchange dataset from the
-    // summary file
     @Deprecated
     private static void populatePxSubmissionFromFile(ProteomeXchangeDataset proteomeXchangeDataset, Submission submissionSummary, String projectAccession) {
         //add Dataset origin info (this is constant right now: PRIDE)
@@ -513,8 +498,10 @@ public class WriteMessage {
     private static ModificationList getModificationList(Submission submissionSummary) {
         ModificationList list = new ModificationList();
 
-        // ToDo: take new PX summary format into account (sample meta-data section)? mods currently not required!
-        for (uk.ac.ebi.pride.data.model.CvParam cvParam : submissionSummary.getProjectMetaData().getModifications()) {
+        // the modification annotation is mandatory in the submission summary file AND the PX XML
+        Set<uk.ac.ebi.pride.data.model.CvParam> modificationSet = submissionSummary.getProjectMetaData().getModifications();
+        Assert.notNull(modificationSet, "Modification annotation is mandatory in the submission summary file!");
+        for (uk.ac.ebi.pride.data.model.CvParam cvParam : modificationSet) {
             // check if we have PSI-MOD or UNIMOD ontology terms
             if (cvParam.getCvLabel().equalsIgnoreCase("psi-mod") || cvParam.getCvLabel().equalsIgnoreCase("mod")) {
                 list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), MOD_CV.getId()));
@@ -536,9 +523,11 @@ public class WriteMessage {
     private static InstrumentList getInstrumentList(Submission submissionSummary) {
         InstrumentList list = new InstrumentList();
 
+        // the instrument annotation is mandatory in the submission summary file AND the PX XML
         int instrumentNum = 1; // artificial counter to give each instrument a unique id
-        // ToDo: take new PX summary format into account (sample meta-data section)?
-        for (uk.ac.ebi.pride.data.model.CvParam auxInstrument : submissionSummary.getProjectMetaData().getInstruments()) {
+        Set<uk.ac.ebi.pride.data.model.CvParam> instrumentSet = submissionSummary.getProjectMetaData().getInstruments();
+        Assert.notNull(instrumentSet, "Instrument annotation is mandatory in the submission summary file!");
+        for (uk.ac.ebi.pride.data.model.CvParam auxInstrument : instrumentSet) {
             Instrument instrument = new Instrument();
             instrument.setId("Instrument_" + instrumentNum++);
             instrument.getCvParam().add(convertCvParam(auxInstrument));
@@ -552,13 +541,14 @@ public class WriteMessage {
     private static SpeciesList getSpeciesList(Submission submissionSummary) {
         SpeciesList list = new SpeciesList();
 
-        // ToDo: take new PX summary format into account (sample meta-data section)?
-        for (uk.ac.ebi.pride.data.model.CvParam cvParam : submissionSummary.getProjectMetaData().getSpecies()) {
+        // the species annotation is mandatory in the submission summary file AND the PX XML
+        Set<uk.ac.ebi.pride.data.model.CvParam> speciesSet = submissionSummary.getProjectMetaData().getSpecies();
+        Assert.notNull(speciesSet, "Species annotation is mandatory in the submission summary file!");
+        for (uk.ac.ebi.pride.data.model.CvParam cvParam : speciesSet) {
             Species species = new Species();
-            // PX guidelines state that each species has to be represented with two CV parameters: one for the name and one for the taxonomy ID
+            // PX guidelines state that each species has to be represented with two MS CV parameters: one for the name and one for the taxonomy ID
             species.getCvParam().add(createCvParam("MS:1001469", cvParam.getName(), "taxonomy: scientific name", MS_CV.getId()));
             species.getCvParam().add(createCvParam("MS:1001467", cvParam.getAccession(), "taxonomy: NCBI TaxID", MS_CV.getId()));
-            // ToDo: WARNING! this will change! The PX XML will allow multiple species, so this species will have to be added to a list as soon as the model is updated! Now we'll overwrite in case of multiple species!
             list.getSpecies().add(species);
         }
 
