@@ -177,9 +177,6 @@ public class WriteMessage {
         CvList cvList = getCvList();
         pxXml.setCvList(cvList);
 
-        // ToDo: move to version 1.1.0
-        // ToDo (for version 1.1.0): add CV list!
-
         // no change log, since initial PX XML generation
 
         // extract DatasetSummary (
@@ -235,7 +232,18 @@ public class WriteMessage {
         return  pxXml;
     }
 
-    // ToDo (add publication pipeline): to be used for updates of the PX XML
+
+    /**
+     * This method clears the publication list of the PX XML and adds a record for the provided PubMed ID.
+     * Note: the initial PX XML is generally generated without knowledge of a publication and therefore
+     *       will carry a default annotation. That is the reason, why this method clears the publication
+     *       list before adding a new reference.
+     *
+     * @param pxXml the object representing the PX XML.
+     * @param pmid the PubMed ID of the publication to be added.
+     * @return the updated object reflecting the updated PX XML.
+     */
+    // ToDo (add-publication pipeline): to be used for updates of the PX XML
     @SuppressWarnings("unused")
     private ProteomeXchangeDataset replacePrimaryReference(ProteomeXchangeDataset pxXml, Long pmid) {
         Assert.notNull(pxXml, "The PX XML object cannot be null!");
@@ -249,7 +257,17 @@ public class WriteMessage {
 
         return pxXml;
     }
-    // ToDo (add publication pipeline): to be used for updates of the PX XML
+    /**
+     * This method clears the publication list of the PX XML and adds a record for the provided PubMed ID.
+     * Note: the initial PX XML is generally generated without knowledge of a publication and therefore
+     *       will carry a default annotation. That is the reason, why this method clears the publication
+     *       list before adding a new reference.
+     *
+     * @param pxXml the object representing the PX XML.
+     * @param refLine the reference line of the publication to be added (in case no PubMed ID can be provided).
+     * @return the updated object reflecting the updated PX XML.
+     */
+    // ToDo (add-publication pipeline): to be used for updates of the PX XML
     @SuppressWarnings("unused")
     private ProteomeXchangeDataset replacePrimaryReference(ProteomeXchangeDataset pxXml, String refLine) {
         Assert.notNull(pxXml, "The PX XML object cannot be null!");
@@ -257,6 +275,7 @@ public class WriteMessage {
         // we remove any old entry (which we assume to be out-dated)
         pxXml.getPublicationList().getPublication().clear();
         // and add the new record
+        // ToDo: getPublication uses a static ID, if multiple publication are added this will have to me made unique!
         pxXml.getPublicationList().getPublication().add(getPublication(refLine));
         // add a change log entry
         addChangeLogEntry(pxXml, "Replaced publication reference with ref line: " + refLine);
@@ -304,14 +323,11 @@ public class WriteMessage {
         //and extract info from the metadata file
         SubmissionType type = submissionSummary.getProjectMetaData().getSubmissionType();
 
-        // ToDo: check what is the difference between the two cases!
         if (type != SubmissionType.COMPLETE) {
             populatePxSubmissionFromFile(proteomeXchangeDataset, submissionSummary, projectAccession);
             //not relevant now, maybe in the future will be added PrideInspector URL
         } else {
             //if it is supported, need to add prideInspectorURL to datasetLink
-            // ToDo: do we need to generate the PX XML from the DB?? This should be possible only from the PX submission summary file!
-            // ToDo: investigate and change (if possible)!
 //            populatePxSubmissionFromDB(proteomeXchangeDataset, projectAccession);
 
         }
@@ -320,7 +336,6 @@ public class WriteMessage {
         proteomeXchangeDataset.setFormatVersion(FORMAT_VERSION);
 
         // add change log if there is any
-        // ToDo: change this? (the initial PX XML will not have a change log, only subsequent updates will have, and those should probably handled by a separate 'update' method
         if (changeLog != null) {
             addChangeLogEntry(proteomeXchangeDataset, changeLog);
         }
@@ -421,14 +436,15 @@ public class WriteMessage {
 
         // try to get the ref line using an external service
         String refLine;
-            try {
-                PubMedFetcher pubMedFetcher = new PubMedFetcher(NCBI_URL);
-                PubMedSummary pubMedSummary = pubMedFetcher.getPubMedSummary(pmid.toString());
-                refLine = pubMedSummary.getReference();
-            } catch (IOException e) {
-                logger.error("Problems getting reference line from PubMed " + e.getMessage());
-                refLine = ""; // ToDo: specify a better default value?
-            }
+        try {
+            PubMedFetcher pubMedFetcher = new PubMedFetcher(NCBI_URL);
+            PubMedSummary pubMedSummary = pubMedFetcher.getPubMedSummary(pmid.toString());
+            refLine = pubMedSummary.getReference();
+        } catch (IOException e) {
+            logger.error("Problems getting r eference line from PubMed " + e.getMessage());
+            refLine = "no refLine for PMID: " + pmid; // ToDo: better default value?
+        }
+
         // ToDo: is there no MS term for this? Is this the cv param we are supposed to use?
         publication.getCvParam().add(createCvParam("PRIDE:0000400", refLine, "Reference", PRIDE_CV.getId()));
         return publication;
@@ -616,12 +632,12 @@ public class WriteMessage {
         record.setRepositoryID(HostingRepositoryType.PRIDE);
         record.setUri(PRIDE_REPO_PROJECT_BASE_URL + pxAccession);
         record.setLabel("PRIDE project");
-        record.setName(submissionSummary.getProjectMetaData().getTitle());
+        record.setName(submissionSummary.getProjectMetaData().getProjectTitle());
         record.setRecordID(pxAccession);
 
         list.getRepositoryRecord().add(record);
 
-        // ToDo (future): create a PRIDE repository link for each assay of the project?
+        // ToDo (future): create a PRIDE repository link for each assay of the project? (the project link already allows navigation to the assays...)
 
         return list;
     }
@@ -661,7 +677,7 @@ public class WriteMessage {
     private static DatasetSummary getDatasetSummary(Submission submissionSummary) {
 
         DatasetSummary datasetSummary = new DatasetSummary();
-        datasetSummary.setTitle(submissionSummary.getProjectMetaData().getTitle());
+        datasetSummary.setTitle(submissionSummary.getProjectMetaData().getProjectTitle());
         datasetSummary.setDescription(submissionSummary.getProjectMetaData().getProjectDescription());
         datasetSummary.setAnnounceDate(Calendar.getInstance());
         datasetSummary.setHostingRepository(HostingRepositoryType.PRIDE);
@@ -715,16 +731,26 @@ public class WriteMessage {
     private ContactList getContactList(Submission submissionSummary) {
         ContactList list = new ContactList();
 
-        //handle the primary contact
-        uk.ac.ebi.pride.data.model.Contact aux = submissionSummary.getProjectMetaData().getContact();
+        // handle the primary contact: submitter
+        uk.ac.ebi.pride.data.model.Contact auxSubmitter = submissionSummary.getProjectMetaData().getSubmitterContact();
         Contact submitter = new Contact();
-        submitter.setId("project_contact"); // assign a unique ID to this contact
-        submitter.getCvParam().add(createCvParam("MS:1000586", aux.getName(), "contact name", MS_CV.getId()));
-        submitter.getCvParam().add(createCvParam("MS:1000589", aux.getEmail(), "contact email", MS_CV.getId()));
-        submitter.getCvParam().add(createCvParam("MS:1000590", aux.getAffiliation(), "contact affiliation", MS_CV.getId()));
+        submitter.setId("project_submitter"); // assign a unique ID to this contact
+        submitter.getCvParam().add(createCvParam("MS:1000586", auxSubmitter.getName(), "contact name", MS_CV.getId()));
+        submitter.getCvParam().add(createCvParam("MS:1000589", auxSubmitter.getEmail(), "contact email", MS_CV.getId()));
+        submitter.getCvParam().add(createCvParam("MS:1000590", auxSubmitter.getAffiliation(), "contact affiliation", MS_CV.getId()));
+        submitter.getCvParam().add(createCvParam("MS:1002037", null, "dataset submitter", MS_CV.getId()));
         list.getContact().add(submitter);
 
-        // ToDo: this will have to be updated to include the 'Lab Head' once the new version of the PX XML is used
+        // then also add the lab head
+        uk.ac.ebi.pride.data.model.Contact auxLabHead = submissionSummary.getProjectMetaData().getLabHeadContact();
+        Contact labHead = new Contact();
+        labHead.setId("project_lab_head"); // assign a unique ID to this contact
+        labHead.getCvParam().add(createCvParam("MS:1000586", auxLabHead.getName(), "contact name", MS_CV.getId()));
+        labHead.getCvParam().add(createCvParam("MS:1000589", auxLabHead.getEmail(), "contact email", MS_CV.getId()));
+        labHead.getCvParam().add(createCvParam("MS:1000590", auxLabHead.getAffiliation(), "contact affiliation", MS_CV.getId()));
+        labHead.getCvParam().add(createCvParam("MS:???????", null, "Lab Head", MS_CV.getId()));
+        list.getContact().add(labHead);
+
 
         return list;
     }

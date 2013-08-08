@@ -152,15 +152,10 @@
             <artifactId>log4j</artifactId>
             <version>1.2.16</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>mysql</groupId>-->
-            <!--<artifactId>mysql-connector-java</artifactId>-->
-            <!--<version>5.0.5</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>uk.ac.ebi.pride</groupId>
             <artifactId>px-submission-core</artifactId>
-            <version>1.10</version>
+            <version>1.12-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>javax.mail</groupId>
@@ -183,13 +178,6 @@
             <artifactId>peppubmed</artifactId>
             <version>0.3</version>
         </dependency>
-
-        <!-- pride repo -->
-        <!--<dependency>-->
-            <!--<groupId>uk.ac.ebi.pride.prider</groupId>-->
-            <!--<artifactId>prider-repo</artifactId>-->
-            <!--<version>0.1.4</version>-->
-        <!--</dependency>-->
 
     </dependencies>
 
