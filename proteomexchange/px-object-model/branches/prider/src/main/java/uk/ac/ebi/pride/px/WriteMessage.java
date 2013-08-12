@@ -177,6 +177,8 @@ public class WriteMessage {
         CvList cvList = getCvList();
         pxXml.setCvList(cvList);
 
+        // ToDo: add project 'tag' (check how we annotate that in the PX XML)
+
         // no change log, since initial PX XML generation
 
         // extract DatasetSummary (
@@ -748,7 +750,8 @@ public class WriteMessage {
         labHead.getCvParam().add(createCvParam("MS:1000586", auxLabHead.getName(), "contact name", MS_CV.getId()));
         labHead.getCvParam().add(createCvParam("MS:1000589", auxLabHead.getEmail(), "contact email", MS_CV.getId()));
         labHead.getCvParam().add(createCvParam("MS:1000590", auxLabHead.getAffiliation(), "contact affiliation", MS_CV.getId()));
-        labHead.getCvParam().add(createCvParam("MS:???????", null, "Lab Head", MS_CV.getId()));
+        // ToDo: the following accession is not yet confirmed! Check with next MS release!
+        labHead.getCvParam().add(createCvParam("MS:1002334", null, "Lab Head", MS_CV.getId()));
         list.getContact().add(labHead);
 
 
