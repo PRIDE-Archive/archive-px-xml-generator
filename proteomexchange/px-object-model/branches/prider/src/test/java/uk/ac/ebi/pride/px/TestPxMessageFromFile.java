@@ -59,7 +59,7 @@ public class TestPxMessageFromFile extends TestCase {
 
     @Test
     public void testPxContactFromFile(){
-        assertEquals(proteomeXchangeDataset.getContactList().getContact().get(0).getId(),"project_contact");
+        assertEquals(proteomeXchangeDataset.getContactList().getContact().get(0).getId(),"project_submitter");
         assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(), "MS:1000586"),"John Arthur Smith");
         assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(),"MS:1000589"),"john.smith@cam.edu");
         assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(),"MS:1000590"),"University of Cambridge");
