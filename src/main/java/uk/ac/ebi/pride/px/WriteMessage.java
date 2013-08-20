@@ -5,12 +5,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 import uk.ac.ebi.pride.data.exception.SubmissionFileException;
 import uk.ac.ebi.pride.data.io.SubmissionFileParser;
-import uk.ac.ebi.pride.data.model.DataFile;
-import uk.ac.ebi.pride.data.model.Submission;
+import uk.ac.ebi.pride.data.model.*;
 import uk.ac.ebi.pride.prider.dataprovider.project.SubmissionType;
 import uk.ac.ebi.pride.pubmed.PubMedFetcher;
 import uk.ac.ebi.pride.pubmed.model.PubMedSummary;
 import uk.ac.ebi.pride.px.model.*;
+import uk.ac.ebi.pride.px.model.Contact;
+import uk.ac.ebi.pride.px.model.CvParam;
 import uk.ac.ebi.pride.px.xml.PxMarshaller;
 
 import java.io.File;
@@ -18,6 +19,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -513,12 +515,31 @@ public class WriteMessage {
     }
 
     // method to extract modifications from summary file
+    // Note: this will primarily look at project level, and only look at result file level if no annotation was found
     private static ModificationList getModificationList(Submission submissionSummary) {
         ModificationList list = new ModificationList();
 
+        // ToDo: take into account that modifications on project level are not mandatory for complete submissions
+
+
         // the modification annotation is mandatory in the submission summary file AND the PX XML
+        // however, in the summary file modifications can be annotated at project level or for each result file (in case of complete submissions)
         Set<uk.ac.ebi.pride.data.model.CvParam> modificationSet = submissionSummary.getProjectMetaData().getModifications();
-        Assert.notNull(modificationSet, "Modification annotation is mandatory in the submission summary file!");
+        if (modificationSet == null) {
+            modificationSet = new HashSet<uk.ac.ebi.pride.data.model.CvParam>();
+        }
+        if (modificationSet.isEmpty()) {
+            // maybe we are dealing with a complete submission and the modifications have not been gathered at project level
+            // so we are looking at the per result file sample data level
+            for (DataFile dataFile : submissionSummary.getDataFiles()) {
+                Set<uk.ac.ebi.pride.data.model.CvParam> mods = dataFile.getSampleMetaData().getMetaData(SampleMetaData.Type.MODIFICATION);
+                modificationSet.addAll(mods);
+            }
+        }
+
+        // at this stage we have to have at least one modification CvParam
+        Assert.isTrue(!modificationSet.isEmpty(), "Modification annotation is mandatory!");
+
         for (uk.ac.ebi.pride.data.model.CvParam cvParam : modificationSet) {
             // check if we have PSI-MOD or UNIMOD ontology terms
             if (cvParam.getCvLabel().equalsIgnoreCase("psi-mod") || cvParam.getCvLabel().equalsIgnoreCase("mod")) {
