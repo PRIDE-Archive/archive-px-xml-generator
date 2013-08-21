@@ -21,6 +21,7 @@ import javax.xml.namespace.QName;
  * provided in this class.
  * 
  */
+@SuppressWarnings("unused")
 @XmlRegistry
 public class ObjectFactory {
 
