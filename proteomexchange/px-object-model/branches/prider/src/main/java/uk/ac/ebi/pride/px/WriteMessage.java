@@ -40,7 +40,7 @@ public class WriteMessage {
     private static final String PRIDE_REPO_PROJECT_BASE_URL = "http://wwwdev.ebi.ac.uk/pride/repo/projects/"; // ToDo: URL does not exist, PRIDE repo web needs to be defined!
     // ToDo (general): check PXST summary file definition with regards to PARTIAL/COMPLETE differences
     // ToDo (general): extract CV params to global util package?
-    // ToDo (general): perhaps change to non-static implementation and keep certain data in the instance (px accession, datasetPathFragment, counters...)
+    // ToDo (general): perhaps change to non-static implementation and keep certain data in the instance (px accession, datasetPathFragment, counters...)?
     // ToDo (version upgrade): adapt to new submission summary file specification, take into account mandatory fields
 
     private static Cv MS_CV;
@@ -760,7 +760,7 @@ public class WriteMessage {
         submitter.setId("project_submitter"); // assign a unique ID to this contact
         submitter.getCvParam().add(createCvParam("MS:1000586", auxSubmitter.getName(), "contact name", MS_CV.getId()));
         submitter.getCvParam().add(createCvParam("MS:1000589", auxSubmitter.getEmail(), "contact email", MS_CV.getId()));
-        submitter.getCvParam().add(createCvParam("MS:1000590", auxSubmitter.getAffiliation(), "contact affiliation", MS_CV.getId()));
+        submitter.getCvParam().add(createCvParam("MS:1000590", auxSubmitter.getAffiliation(), "contact organization", MS_CV.getId()));
         submitter.getCvParam().add(createCvParam("MS:1002037", null, "dataset submitter", MS_CV.getId()));
         list.getContact().add(submitter);
 
@@ -771,8 +771,7 @@ public class WriteMessage {
         labHead.getCvParam().add(createCvParam("MS:1000586", auxLabHead.getName(), "contact name", MS_CV.getId()));
         labHead.getCvParam().add(createCvParam("MS:1000589", auxLabHead.getEmail(), "contact email", MS_CV.getId()));
         labHead.getCvParam().add(createCvParam("MS:1000590", auxLabHead.getAffiliation(), "contact affiliation", MS_CV.getId()));
-        // ToDo: the following accession is not yet confirmed! Check with next MS release!
-        labHead.getCvParam().add(createCvParam("MS:1002334", null, "Lab Head", MS_CV.getId()));
+        labHead.getCvParam().add(createCvParam("MS:1002332", null, "lab head", MS_CV.getId()));
         list.getContact().add(labHead);
 
 
