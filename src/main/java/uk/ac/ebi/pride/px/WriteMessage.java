@@ -532,8 +532,10 @@ public class WriteMessage {
             // maybe we are dealing with a complete submission and the modifications have not been gathered at project level
             // so we are looking at the per result file sample data level
             for (DataFile dataFile : submissionSummary.getDataFiles()) {
-                Set<uk.ac.ebi.pride.data.model.CvParam> mods = dataFile.getSampleMetaData().getMetaData(SampleMetaData.Type.MODIFICATION);
-                modificationSet.addAll(mods);
+                if (dataFile.getSampleMetaData() != null) {
+                    Set<uk.ac.ebi.pride.data.model.CvParam> mods = dataFile.getSampleMetaData().getMetaData(SampleMetaData.Type.MODIFICATION);
+                    modificationSet.addAll(mods);
+                }
             }
         }
 
