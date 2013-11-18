@@ -619,10 +619,10 @@ public class WriteMessage {
     private static CvParam createCvParam(String accession, String value, String name, String cvRef) {
 
         CvParam cvParam = new CvParam();
-        cvParam.setAccession(accession);
-        cvParam.setValue(value);
-        cvParam.setName(name);
-        cvParam.setCvRef(cvRef);
+        cvParam.setAccession(accession.trim());
+        cvParam.setValue(value.trim());
+        cvParam.setName(name.trim());
+        cvParam.setCvRef(cvRef.trim());
 
         return cvParam;
     }
@@ -762,7 +762,7 @@ public class WriteMessage {
         submitter.setId("project_submitter"); // assign a unique ID to this contact
         submitter.getCvParam().add(createCvParam("MS:1000586", auxSubmitter.getName(), "contact name", MS_CV.getId()));
         submitter.getCvParam().add(createCvParam("MS:1000589", auxSubmitter.getEmail(), "contact email", MS_CV.getId()));
-        submitter.getCvParam().add(createCvParam("MS:1000590", auxSubmitter.getAffiliation(), "contact organization", MS_CV.getId()));
+        submitter.getCvParam().add(createCvParam("MS:1000590", auxSubmitter.getAffiliation(), "contact affiliation", MS_CV.getId()));
         submitter.getCvParam().add(createCvParam("MS:1002037", null, "dataset submitter", MS_CV.getId()));
         list.getContact().add(submitter);
 

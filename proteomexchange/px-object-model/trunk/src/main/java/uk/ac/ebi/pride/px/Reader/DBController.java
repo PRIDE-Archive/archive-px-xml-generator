@@ -269,7 +269,7 @@ public class DBController {
             //if there are no modifications, add new CV param
             CvParam cvParam = new CvParam();
             cvParam.setAccession("PRIDE:0000398");
-            cvParam.setName("No applicable mass modifications");
+            cvParam.setName("No PTMs are included in the dataset");
             cvParam.setCvRef("PRIDE");
             modificationList.getCvParam().add(cvParam);
         }
