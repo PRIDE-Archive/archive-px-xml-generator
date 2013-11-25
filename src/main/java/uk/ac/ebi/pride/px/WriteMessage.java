@@ -547,7 +547,9 @@ public class WriteMessage {
             if (cvParam.getCvLabel().equalsIgnoreCase("psi-mod") || cvParam.getCvLabel().equalsIgnoreCase("mod")) {
                 list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), MOD_CV.getId()));
             } else if (cvParam.getCvLabel().equalsIgnoreCase("unimod")) {
-                list.getCvParam().add( createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), UNIMOD_CV.getId()) );
+                list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), UNIMOD_CV.getId()));
+            } else if (modificationSet.size()==1 && cvParam.getCvLabel().equalsIgnoreCase("pride") && cvParam.getAccession().equalsIgnoreCase("PRIDE:0000398")) {
+                list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), PRIDE_CV.getId()));
             } else {
                 // That should never happen, since the validation pipeline should have checked this before.
                 String msg = "Found unknown modification CV: " + cvParam.getCvLabel();
