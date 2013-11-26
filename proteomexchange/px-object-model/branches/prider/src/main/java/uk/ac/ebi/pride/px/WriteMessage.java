@@ -622,7 +622,7 @@ public class WriteMessage {
 
         CvParam cvParam = new CvParam();
         cvParam.setAccession(accession.trim());
-        cvParam.setValue(value.trim());
+        cvParam.setValue(value == null ? null : value.trim());
         cvParam.setName(name.trim());
         cvParam.setCvRef(cvRef.trim());
 
@@ -777,7 +777,6 @@ public class WriteMessage {
         labHead.getCvParam().add(createCvParam("MS:1000590", auxLabHead.getAffiliation(), "contact affiliation", MS_CV.getId()));
         labHead.getCvParam().add(createCvParam("MS:1002332", null, "lab head", MS_CV.getId()));
         list.getContact().add(labHead);
-
 
         return list;
     }
