@@ -5,20 +5,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 import uk.ac.ebi.pride.data.exception.SubmissionFileException;
 import uk.ac.ebi.pride.data.io.SubmissionFileParser;
-import uk.ac.ebi.pride.data.model.*;
+import uk.ac.ebi.pride.data.model.DataFile;
+import uk.ac.ebi.pride.data.model.SampleMetaData;
+import uk.ac.ebi.pride.data.model.Submission;
 import uk.ac.ebi.pride.prider.dataprovider.project.SubmissionType;
 import uk.ac.ebi.pride.pubmed.PubMedFetcher;
 import uk.ac.ebi.pride.pubmed.model.PubMedSummary;
 import uk.ac.ebi.pride.px.model.*;
-import uk.ac.ebi.pride.px.model.Contact;
-import uk.ac.ebi.pride.px.model.CvParam;
 import uk.ac.ebi.pride.px.xml.PxMarshaller;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -33,7 +32,7 @@ import java.util.regex.Pattern;
 public class WriteMessage {
 
     private static final Logger logger = LoggerFactory.getLogger(WriteMessage.class);
-    private static final String FORMAT_VERSION = "1.1.0";
+    private static final String FORMAT_VERSION = "1.2.0";
     private static final String DOI_PREFFIX = "10.6019";
     private static final String NCBI_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
     private static final String FTP = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive";
@@ -74,35 +73,6 @@ public class WriteMessage {
 
     public WriteMessage() {
 
-    }
-
-    @Deprecated
-    public File createXMLMessage(String pxAccession, File directory, File submissionFile) throws IOException, SubmissionFileException {
-        return createXMLMessage(pxAccession, directory, submissionFile, Calendar.getInstance().getTime());
-    }
-
-    @Deprecated
-    public File createXMLMessage(String pxAccession, File directory, File submissionFile, Date publicationDate) throws IOException, SubmissionFileException {
-        return createXMLMessage(pxAccession, directory, submissionFile, publicationDate, null);
-    }
-
-    @Deprecated
-    public File createXMLMessage(String pxAccession, File directory, File submissionFile, Date publicationDate, String changeLog) throws IOException, SubmissionFileException {
-        //first, extract submission file object
-        if (!submissionFile.isFile() || !submissionFile.exists()) {
-            throw new IllegalArgumentException("No submission file in " + submissionFile.getAbsolutePath());
-        }
-
-        String fileName = directory.getAbsolutePath() + File.separator + pxAccession + ".xml";
-        File file = new File(fileName);
-        FileWriter fw = new FileWriter(file);
-
-        ProteomeXchangeDataset proteomeXchangeDataset = createProteomeXchangeDataset(pxAccession, submissionFile, publicationDate, changeLog);
-
-        //and marshal it
-        new PxMarshaller().marshall(proteomeXchangeDataset, fw);
-
-        return file;
     }
 
 
@@ -288,66 +258,6 @@ public class WriteMessage {
         return pxXml;
     }
 
-    @Deprecated
-    private ProteomeXchangeDataset createProteomeXchangeDataset(String projectAccession, File submissionFile, Date publicationDate, String changeLog) throws SubmissionFileException {
-        Submission submissionSummary = SubmissionFileParser.parse(submissionFile);
-
-        ProteomeXchangeDataset proteomeXchangeDataset = new ProteomeXchangeDataset();
-
-        //extract DatasetSummary: this information will always come from Summary object
-        DatasetSummary datasetSummary = getDatasetSummary(submissionSummary);
-        proteomeXchangeDataset.setDatasetSummary(datasetSummary);
-
-        // extract contacts from summary file
-        ContactList contactList = getContactList(submissionSummary);
-        proteomeXchangeDataset.setContactList(contactList);
-
-        //extract Keyword List from file
-        KeywordList keywordList = getKeywordList(submissionSummary);
-        proteomeXchangeDataset.setKeywordList(keywordList);
-
-        //add FTP DatasetLink
-
-
-//        FullDatasetLinkList fullDatasetLinkList = createFTPDatasetLink(publicationDate, projectAccession);
-//        proteomeXchangeDataset.setFullDatasetLinkList(fullDatasetLinkList);
-
-        //add DatasetIdentifier
-//        DatasetIdentifierList datasetIdentifierList = getDatasetIdentifierList(submissionSummary, projectAccession);
-//        proteomeXchangeDataset.setDatasetIdentifierList(datasetIdentifierList);
-
-        //the dataset will in most cases not yet carry a publication reference
-        PublicationList publicationList = getPublicationList(submissionSummary);
-        if ( publicationList != null ) {
-            proteomeXchangeDataset.setPublicationList(publicationList);
-        }
-
-        // populate dataset
-        //will return if submission contains only supported files
-        //to extract info from database or not supported files
-        //and extract info from the metadata file
-        SubmissionType type = submissionSummary.getProjectMetaData().getSubmissionType();
-
-        if (type != SubmissionType.COMPLETE) {
-            populatePxSubmissionFromFile(proteomeXchangeDataset, submissionSummary, projectAccession);
-            //not relevant now, maybe in the future will be added PrideInspector URL
-        } else {
-            //if it is supported, need to add prideInspectorURL to datasetLink
-//            populatePxSubmissionFromDB(proteomeXchangeDataset, projectAccession);
-
-        }
-        //and add the attributes
-        proteomeXchangeDataset.setId(projectAccession);
-        proteomeXchangeDataset.setFormatVersion(FORMAT_VERSION);
-
-        // add change log if there is any
-        if (changeLog != null) {
-            addChangeLogEntry(proteomeXchangeDataset, changeLog);
-        }
-
-        return proteomeXchangeDataset;
-    }
-
     private static boolean isValidPXAccession(String pxAccession) {
         Pattern p = Pattern.compile("PX[D|T]\\d{6}");
         Matcher m = p.matcher(pxAccession);
@@ -478,43 +388,6 @@ public class WriteMessage {
         return keywordList;
     }
 
-    @Deprecated
-    private static void populatePxSubmissionFromFile(ProteomeXchangeDataset proteomeXchangeDataset, Submission submissionSummary, String projectAccession) {
-        //add Dataset origin info (this is constant right now: PRIDE)
-        DatasetOriginList datasetOriginList = getDatasetOriginList();
-        proteomeXchangeDataset.setDatasetOriginList(datasetOriginList);
-
-        //add species from file
-        SpeciesList speciesList = getSpeciesList(submissionSummary);
-        proteomeXchangeDataset.setSpeciesList(speciesList);
-
-        //add instrument from file
-        InstrumentList instrumentList = getInstrumentList(submissionSummary);
-        proteomeXchangeDataset.setInstrumentList(instrumentList);
-
-        //add modification
-        ModificationList modificationList = getModificationList(submissionSummary);
-        proteomeXchangeDataset.setModificationList(modificationList);
-
-//        //add pubmed information, if present
-//        PublicationList publicationList = new PublicationList();
-//        if (submissionSummary.getMetaData().hasPubmedIds()) {
-//            publicationList.getPublication().addAll(getPublicationParams(submissionSummary));
-//        }
-//        //if there is no publication, add the special no publication param
-//        else {
-//            CvParam cvParam = new CvParam();
-//            cvParam.setCvRef("PRIDE");
-//            cvParam.setName("Dataset with no associated published manuscript");
-//            cvParam.setAccession("PRIDE:0000412");
-//            Publication publication = new Publication();
-//            publication.setId("PUB1");
-//            publication.getCvParam().add(cvParam);
-//            publicationList.getPublication().add(publication);
-//        }
-//        proteomeXchangeDataset.setPublicationList(publicationList);
-    }
-
     // method to extract modifications from summary file
     // Note: this will primarily look at project level, and only look at result file level if no annotation was found
     private static ModificationList getModificationList(Submission submissionSummary) {
@@ -542,10 +415,8 @@ public class WriteMessage {
             }
         }
 
-        if (submissionSummary.getProjectMetaData().getSubmissionType() == SubmissionType.PARTIAL) {
-            // for partial submissions modification annotation is mandatory
-            Assert.isTrue(!modificationSet.isEmpty(), "Modification annotation is mandatory for partial submissions!");
-        }
+        // we should have modifications by now, since they are mandatory, we break if we have not found any
+        Assert.isTrue(!modificationSet.isEmpty(), "Modification annotation is mandatory for partial submissions!");
 
         for (uk.ac.ebi.pride.data.model.CvParam cvParam : modificationSet) {
             // check if we have PSI-MOD or UNIMOD ontology terms

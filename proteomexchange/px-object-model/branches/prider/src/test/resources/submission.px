@@ -14,6 +14,7 @@ MTD	experiment_type	[PRIDE, PRIDE:0000429, Shotgun proteomics, ]
 MTD	submission_type	COMPLETE
 MTD	species	[NEWT, 9606, Homo Sapiens (Human), ]
 MTD	tissue	[BTO, BTO:0000089, blood, ]
+MTD	modification	[PSI-MOD, MOD:00198, D-alanine,]
 MTD	instrument	[MS, MS:1001742, LTQ Orbitrap Velos, ]
 MTD	pubmed_id	12345
 
