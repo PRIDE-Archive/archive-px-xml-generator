@@ -535,13 +535,17 @@ public class WriteMessage {
             for (DataFile dataFile : submissionSummary.getDataFiles()) {
                 if (dataFile.getSampleMetaData() != null) {
                     Set<uk.ac.ebi.pride.data.model.CvParam> mods = dataFile.getSampleMetaData().getMetaData(SampleMetaData.Type.MODIFICATION);
-                    modificationSet.addAll(mods);
+                    if (mods != null) {
+                        modificationSet.addAll(mods);
+                    }
                 }
             }
         }
 
-        // at this stage we have to have at least one modification CvParam
-        Assert.isTrue(!modificationSet.isEmpty(), "Modification annotation is mandatory!");
+        if (submissionSummary.getProjectMetaData().getSubmissionType() == SubmissionType.PARTIAL) {
+            // for partial submissions modification annotation is mandatory
+            Assert.isTrue(!modificationSet.isEmpty(), "Modification annotation is mandatory for partial submissions!");
+        }
 
         for (uk.ac.ebi.pride.data.model.CvParam cvParam : modificationSet) {
             // check if we have PSI-MOD or UNIMOD ontology terms

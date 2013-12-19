@@ -155,7 +155,8 @@
         <dependency>
             <groupId>uk.ac.ebi.pride</groupId>
             <artifactId>px-submission-core</artifactId>
-            <version>1.12-SNAPSHOT</version>
+            <!--<version>1.12-SNAPSHOT</version>-->
+            <version>1.15</version>
         </dependency>
         <dependency>
             <groupId>javax.mail</groupId>
