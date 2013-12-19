@@ -52,13 +52,13 @@ public class WrtieMessageTest {
     @Test
     public void testPxContactFromFile(){
         assertEquals(proteomeXchangeDataset.getContactList().getContact().get(0).getId(),"project_submitter");
-        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(), "MS:1000586"),"PRIDE");
-        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(),"MS:1000589"),"pride-support@ebi.ac.uk");
-        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(),"MS:1000590"),"Proteomics");
-        assertEquals(proteomeXchangeDataset.getContactList().getContact().get(1).getId(),"project_lab_head");
-        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(1).getCvParam(), "MS:1000586"),"The boss");
-        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(1).getCvParam(),"MS:1000589"),"boss@ebi.ac.uk");
-        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(1).getCvParam(),"MS:1000590"),"EBI");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(), "MS:1000586"), "PRIDE");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(), "MS:1000589"), "pride-support@ebi.ac.uk");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(), "MS:1000590"), "Proteomics");
+        assertEquals(proteomeXchangeDataset.getContactList().getContact().get(1).getId(), "project_lab_head");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(1).getCvParam(), "MS:1000586"), "The boss");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(1).getCvParam(), "MS:1000589"), "boss@ebi.ac.uk");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(1).getCvParam(), "MS:1000590"), "EBI");
 
     }
 
@@ -145,14 +145,11 @@ public class WrtieMessageTest {
     }
 
     private ProteomeXchangeDataset unmarshalFile(File pxXML){
-        Unmarshaller u = null;
         ProteomeXchangeDataset proteomeXchangeDataset = null;
         try {
             JAXBContext jc = JAXBContext.newInstance(ProteomeXchangeDataset.class);
-            u = jc.createUnmarshaller();
+            Unmarshaller u = jc.createUnmarshaller();
             proteomeXchangeDataset = (ProteomeXchangeDataset) u.unmarshal(pxXML);
-
-
         } catch (UnmarshalException ue) {
             System.out.println("Caught UnmarshalException");
         } catch (JAXBException je) {
