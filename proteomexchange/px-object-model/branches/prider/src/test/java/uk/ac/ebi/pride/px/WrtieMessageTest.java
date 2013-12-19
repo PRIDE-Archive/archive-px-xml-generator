@@ -52,17 +52,17 @@ public class WrtieMessageTest {
     @Test
     public void testPxContactFromFile(){
         assertEquals(proteomeXchangeDataset.getContactList().getContact().get(0).getId(),"project_submitter");
-        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(), "MS:1000586"),"John Arthur Smith");
-        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(),"MS:1000589"),"john.smith@cam.edu");
-        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(),"MS:1000590"),"University of Cambridge");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(), "MS:1000586"),"PRIDE");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(),"MS:1000589"),"pride-support@ebi.ac.uk");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(),"MS:1000590"),"Proteomics");
 
     }
 
     @Test
     public void testPxMetadataFromFile(){
-        assertEquals(proteomeXchangeDataset.getDatasetSummary().getTitle(),"Human proteome");
-        assertEquals(proteomeXchangeDataset.getDatasetSummary().getDescription(),"An experiment about human proteome");
-        assertEquals(getValueCvParam(proteomeXchangeDataset.getKeywordList().getCvParam(),"MS:1001925"),"human, proteome");
+        assertEquals(proteomeXchangeDataset.getDatasetSummary().getTitle(),"Test project title");
+        assertEquals(proteomeXchangeDataset.getDatasetSummary().getDescription(),"Description for the test project");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getKeywordList().getCvParam(),"MS:1001925"),"test, project");
     }
 
     @Test
@@ -76,13 +76,13 @@ public class WrtieMessageTest {
     public void testPxInstrumentFromFile(){
         assertEquals(proteomeXchangeDataset.getInstrumentList().getInstrument().get(0).getId(),"Instrument_1");
         assertEquals(proteomeXchangeDataset.getInstrumentList().getInstrument().size(),1);
-        assertEquals(getNameCvParam(proteomeXchangeDataset.getInstrumentList().getInstrument().get(0).getCvParam(),"MS:1000121"),"AB SCIEX instrument model");
+        assertEquals(getNameCvParam(proteomeXchangeDataset.getInstrumentList().getInstrument().get(0).getCvParam(),"MS:1001742"),"LTQ Orbitrap Velos");
     }
 
     @Test
     public void testPxModificationFromFile(){
-        assertEquals(proteomeXchangeDataset.getModificationList().getCvParam().size(),2);
-        assertEquals(getNameCvParam(proteomeXchangeDataset.getModificationList().getCvParam(),"MOD:00198"),"D-alanine");
+        assertEquals(proteomeXchangeDataset.getModificationList().getCvParam().size(),0);
+//        assertEquals(getNameCvParam(proteomeXchangeDataset.getModificationList().getCvParam(),"MOD:00198"),"D-alanine");
     }
 
     @Test
