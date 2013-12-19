@@ -55,6 +55,10 @@ public class WrtieMessageTest {
         assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(), "MS:1000586"),"PRIDE");
         assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(),"MS:1000589"),"pride-support@ebi.ac.uk");
         assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(0).getCvParam(),"MS:1000590"),"Proteomics");
+        assertEquals(proteomeXchangeDataset.getContactList().getContact().get(1).getId(),"project_lab_head");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(1).getCvParam(), "MS:1000586"),"The boss");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(1).getCvParam(),"MS:1000589"),"boss@ebi.ac.uk");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(1).getCvParam(),"MS:1000590"),"EBI");
 
     }
 
