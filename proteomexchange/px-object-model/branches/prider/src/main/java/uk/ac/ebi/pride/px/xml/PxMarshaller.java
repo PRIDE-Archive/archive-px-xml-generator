@@ -35,7 +35,9 @@ public class PxMarshaller {
 //                if (logger.isDebugEnabled()) logger.debug("Object '" + object.getClass().getName() +
 //                                                          "' will be treated as fragment.");
 //            }
-            marshaller.setProperty(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, "proteomeXchange-1.1.0.xsd");
+            marshaller.setProperty(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, "proteomeXchange-1.2.0.xsd");
+            // ToDo: use full URL?
+            // marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "namespace schema");
 
 //            marshaller.marshal( new JAXBElement(new QName("uri","local"), object.getClass(), object), out );
              marshaller.marshal(object, out);

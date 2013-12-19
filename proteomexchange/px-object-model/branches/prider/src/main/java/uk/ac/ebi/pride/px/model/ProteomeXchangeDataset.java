@@ -6,6 +6,8 @@ import java.io.Serializable;
 
 
 /**
+ * Top-level element for a ProteomeXchange XML document describing a dataset.
+ * 
  * <p>Java class for ProteomeXchangeDatasetType complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.

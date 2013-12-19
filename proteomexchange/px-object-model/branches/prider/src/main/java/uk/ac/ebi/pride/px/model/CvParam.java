@@ -34,28 +34,33 @@ public class CvParam
 
     private final static long serialVersionUID = 100L;
     @XmlAttribute(required = true)
-    protected String cvRef;
+    @XmlIDREF
+    @XmlSchemaType(name = "IDREF")
+    protected Object cvRef;
     @XmlAttribute(required = true)
     protected String accession;
 
     /**
      * Gets the value of the cvRef property.
      * 
-     * @return the ID String of the referenced Cv.
+     * @return
+     *     possible object is
+     *     {@link Object }
+     *     
      */
-    public String getCvRef() {
+    public Object getCvRef() {
         return cvRef;
     }
 
     /**
      * Sets the value of the cvRef property.
      * 
-     * @param value the ID of the referenced Cv.
+     * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link Object }
      *     
      */
-    public void setCvRef(String value) {
+    public void setCvRef(Object value) {
         this.cvRef = value;
     }
 

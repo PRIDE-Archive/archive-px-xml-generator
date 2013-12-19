@@ -1,13 +1,13 @@
 
 package uk.ac.ebi.pride.px.model;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="CV" type="{}CvType" maxOccurs="unbounded"/>
+ *         &lt;element name="Cv" type="{}CvType" maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -40,7 +40,7 @@ public class CvList
 {
 
     private final static long serialVersionUID = 100L;
-    @XmlElement(name = "CV", required = true)
+    @XmlElement(name = "Cv", required = true)
     protected List<Cv> cv;
 
     /**
@@ -55,7 +55,7 @@ public class CvList
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getCV().add(newItem);
+     *    getCv().add(newItem);
      * </pre>
      * 
      * 
@@ -65,7 +65,7 @@ public class CvList
      * 
      * 
      */
-    public List<Cv> getCV() {
+    public List<Cv> getCv() {
         if (cv == null) {
             cv = new ArrayList<Cv>();
         }

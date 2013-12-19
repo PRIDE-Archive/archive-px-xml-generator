@@ -36,13 +36,14 @@ public class WriteMessage {
     private static final String FORMAT_VERSION = "1.1.0";
     private static final String DOI_PREFFIX = "10.6019";
     private static final String NCBI_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
-    private static final String FTP = "ftp://ftp.pride.ebi.ac.uk";
+    private static final String FTP = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive";
     private static final String PRIDE_REPO_PROJECT_BASE_URL = "http://wwwdev.ebi.ac.uk/pride/repo/projects/"; // ToDo: URL does not exist, PRIDE repo web needs to be defined!
     // ToDo (general): check PXST summary file definition with regards to PARTIAL/COMPLETE differences
     // ToDo (general): extract CV params to global util package?
     // ToDo (general): perhaps change to non-static implementation and keep certain data in the instance (px accession, datasetPathFragment, counters...)?
     // ToDo (version upgrade): adapt to new submission summary file specification, take into account mandatory fields
 
+    // all allowed CVs
     private static Cv MS_CV;
     private static Cv PRIDE_CV;
     private static Cv MOD_CV;
@@ -397,7 +398,7 @@ public class WriteMessage {
             // no pubmed ID, so no publication, we assume it is pending
             Publication publication = new Publication();
             CvParam cvParam = new CvParam();
-            cvParam.setCvRef(PRIDE_CV.getId());
+            cvParam.setCvRef(PRIDE_CV);
             cvParam.setName("Dataset with its publication pending");
             cvParam.setAccession("PRIDE:0000432");
             publication.setId("pending");
@@ -424,7 +425,7 @@ public class WriteMessage {
 
         Publication publication = new Publication();
         publication.setId("PUBLICATION"); // ToDo: this should be unique!
-        publication.getCvParam().add(createCvParam("PRIDE:0000400", refLine, "Reference", PRIDE_CV.getId()));
+        publication.getCvParam().add(createCvParam("PRIDE:0000400", refLine, "Reference", PRIDE_CV));
         return publication;
     }
     private static Publication getPublication(Long pmid) {
@@ -436,7 +437,7 @@ public class WriteMessage {
 
         // add the PMID
         publication.setId("PMID" + pmid);
-        publication.getCvParam().add(createCvParam("MS:1000879", pmid.toString(), "PubMed identifier", MS_CV.getId()));
+        publication.getCvParam().add(createCvParam("MS:1000879", pmid.toString(), "PubMed identifier", MS_CV));
 
         // try to get the ref line using an external service
         String refLine;
@@ -450,17 +451,17 @@ public class WriteMessage {
         }
 
         // ToDo: is there no MS term for this? Is this the cv param we are supposed to use?
-        publication.getCvParam().add(createCvParam("PRIDE:0000400", refLine, "Reference", PRIDE_CV.getId()));
+        publication.getCvParam().add(createCvParam("PRIDE:0000400", refLine, "Reference", PRIDE_CV));
         return publication;
     }
 
     private static CvList getCvList() {
         CvList list = new CvList();
 
-        list.getCV().add(MS_CV);
-        list.getCV().add(PRIDE_CV);
-        list.getCV().add(MOD_CV);
-        list.getCV().add(UNIMOD_CV);
+        list.getCv().add(MS_CV);
+        list.getCv().add(PRIDE_CV);
+        list.getCv().add(MOD_CV);
+        list.getCv().add(UNIMOD_CV);
 
         return list;
     }
@@ -473,7 +474,7 @@ public class WriteMessage {
      */
     private static KeywordList getKeywordList(Submission submissionSummary) {
         KeywordList keywordList = new KeywordList();
-        keywordList.getCvParam().add(createCvParam("MS:1001925", submissionSummary.getProjectMetaData().getKeywords(), "submitter keyword", MS_CV.getId()));
+        keywordList.getCvParam().add(createCvParam("MS:1001925", submissionSummary.getProjectMetaData().getKeywords(), "submitter keyword", MS_CV));
         return keywordList;
     }
 
@@ -545,11 +546,11 @@ public class WriteMessage {
         for (uk.ac.ebi.pride.data.model.CvParam cvParam : modificationSet) {
             // check if we have PSI-MOD or UNIMOD ontology terms
             if (cvParam.getCvLabel().equalsIgnoreCase("psi-mod") || cvParam.getCvLabel().equalsIgnoreCase("mod")) {
-                list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), MOD_CV.getId()));
+                list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), MOD_CV));
             } else if (cvParam.getCvLabel().equalsIgnoreCase("unimod")) {
-                list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), UNIMOD_CV.getId()));
+                list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), UNIMOD_CV));
             } else if (modificationSet.size()==1 && cvParam.getCvLabel().equalsIgnoreCase("pride") && cvParam.getAccession().equalsIgnoreCase("PRIDE:0000398")) {
-                list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), PRIDE_CV.getId()));
+                list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), PRIDE_CV));
             } else {
                 // That should never happen, since the validation pipeline should have checked this before.
                 String msg = "Found unknown modification CV: " + cvParam.getCvLabel();
@@ -590,8 +591,8 @@ public class WriteMessage {
         for (uk.ac.ebi.pride.data.model.CvParam cvParam : speciesSet) {
             Species species = new Species();
             // PX guidelines state that each species has to be represented with two MS CV parameters: one for the name and one for the taxonomy ID
-            species.getCvParam().add(createCvParam("MS:1001469", cvParam.getName(), "taxonomy: scientific name", MS_CV.getId()));
-            species.getCvParam().add(createCvParam("MS:1001467", cvParam.getAccession(), "taxonomy: NCBI TaxID", MS_CV.getId()));
+            species.getCvParam().add(createCvParam("MS:1001469", cvParam.getName(), "taxonomy: scientific name", MS_CV));
+            species.getCvParam().add(createCvParam("MS:1001467", cvParam.getAccession(), "taxonomy: NCBI TaxID", MS_CV));
             list.getSpecies().add(species);
         }
 
@@ -605,31 +606,41 @@ public class WriteMessage {
 
         // add the PX accession
         DatasetIdentifier px = new DatasetIdentifier();
-        px.getCvParam().add(createCvParam("MS:1001919", projectAccession, "ProteomeXchange accession number", MS_CV.getId()));
+        px.getCvParam().add(createCvParam("MS:1001919", projectAccession, "ProteomeXchange accession number", MS_CV));
         datasetIdentifierList.getDatasetIdentifier().add(px);
 
         // add a corresponding DOI record if requested
         if (withDOI) {
             DatasetIdentifier DOI = new DatasetIdentifier();
-            DOI.getCvParam().add(createCvParam("MS:1001922", DOI_PREFFIX + "/" + projectAccession, "Digital Object Identifier (DOI)", MS_CV.getId()));
+            DOI.getCvParam().add(createCvParam("MS:1001922", DOI_PREFFIX + "/" + projectAccession, "Digital Object Identifier (DOI)", MS_CV));
             datasetIdentifierList.getDatasetIdentifier().add(DOI);
         }
 
         return datasetIdentifierList;
     }
 
-    private static CvParam createCvParam(String accession, String value, String name, String cvRef) {
+    private static CvParam createCvParam(String accession, String value, String name, Cv cvRef) {
 
         CvParam cvParam = new CvParam();
         cvParam.setAccession(accession.trim());
         cvParam.setValue(value == null ? null : value.trim());
         cvParam.setName(name.trim());
-        cvParam.setCvRef(cvRef.trim());
+        cvParam.setCvRef(cvRef);
 
         return cvParam;
     }
     private static CvParam convertCvParam(uk.ac.ebi.pride.data.model.CvParam cvParam) {
-        return createCvParam(cvParam.getAccession(),cvParam.getValue(), cvParam.getName(), cvParam.getCvLabel());
+        if (cvParam.getCvLabel().trim().equalsIgnoreCase(MS_CV.getId()) || cvParam.getCvLabel().trim().equalsIgnoreCase("PSI-MS")) {
+            return createCvParam(cvParam.getAccession(),cvParam.getValue(), cvParam.getName(), MS_CV);
+        } else if (cvParam.getCvLabel().trim().equalsIgnoreCase(PRIDE_CV.getId())) {
+            return createCvParam(cvParam.getAccession(),cvParam.getValue(), cvParam.getName(), PRIDE_CV);
+        } else if (cvParam.getCvLabel().trim().equalsIgnoreCase(UNIMOD_CV.getId())) {
+            return createCvParam(cvParam.getAccession(),cvParam.getValue(), cvParam.getName(), UNIMOD_CV);
+        } else if (cvParam.getCvLabel().trim().equalsIgnoreCase(MOD_CV.getId())) {
+            return createCvParam(cvParam.getAccession(),cvParam.getValue(), cvParam.getName(), MOD_CV);
+        } else {
+            throw new IllegalArgumentException("Not a valid CV :" + cvParam.getCvLabel() + "! PX XML only supports the following CVs: MS, PRIDE, MOD, UNIMOD.");
+        }
     }
 
     private static DatasetFileList createDatasetFileList(Submission submissionSummary, String datasetPathFragment) {
@@ -642,7 +653,8 @@ public class WriteMessage {
             String fileName = dataFile.getFile().getName();
             df.setName(fileName);
             String fileUri = FTP + "/" + datasetPathFragment + "/" + fileName;
-            CvParam param = createCvParam("PRIDE:0000403", fileUri, "Associated file URI", PRIDE_CV.getId());
+            // ToDo: use more specific PRIDE CV Terms!
+            CvParam param = createCvParam("PRIDE:0000403", fileUri, "Associated file URI", PRIDE_CV);
             df.getCvParam().add(param);
             // ToDo (future): calculate and add checksum for file
             list.getDatasetFile().add(df);
@@ -676,7 +688,7 @@ public class WriteMessage {
         CvParam cvParam = new CvParam();
         cvParam.setAccession("PRIDE:0000402");
         cvParam.setName("Original data");
-        cvParam.setCvRef(PRIDE_CV.getId());
+        cvParam.setCvRef(PRIDE_CV);
         DatasetOrigin prideOrigin = new DatasetOrigin();
         prideOrigin.getCvParam().add(cvParam);
         list.setDatasetOrigin(prideOrigin);
@@ -688,11 +700,11 @@ public class WriteMessage {
     private static FullDatasetLinkList createFullDatasetLinkList(String datasetPathFragment, String pxAccession)  {
         FullDatasetLinkList fullDatasetLinkList = new FullDatasetLinkList();
         FullDatasetLink prideFtpLink = new FullDatasetLink();
-        CvParam ftpParam = createCvParam("PRIDE:0000411", FTP + "/" + datasetPathFragment, "Dataset FTP location", PRIDE_CV.getId());
+        CvParam ftpParam = createCvParam("PRIDE:0000411", FTP + "/" + datasetPathFragment, "Dataset FTP location", PRIDE_CV);
         prideFtpLink.setCvParam(ftpParam);
 
         FullDatasetLink prideRepoLink = new FullDatasetLink();
-        CvParam repoParam = createCvParam("MS:1001930", PRIDE_REPO_PROJECT_BASE_URL + pxAccession, "PRIDE project URI", MS_CV.getId());
+        CvParam repoParam = createCvParam("MS:1001930", PRIDE_REPO_PROJECT_BASE_URL + pxAccession, "PRIDE project URI", MS_CV);
         prideRepoLink.setCvParam(repoParam);
 
         fullDatasetLinkList.getFullDatasetLink().add(prideFtpLink);
@@ -727,9 +739,9 @@ public class WriteMessage {
         CvParam cvparam;
 
         if (type == SubmissionType.COMPLETE) {
-            cvparam = createCvParam("PRIDE:0000416", null, "Supported dataset by repository", PRIDE_CV.getId());
+            cvparam = createCvParam("PRIDE:0000416", null, "Supported dataset by repository", PRIDE_CV);
         } else if (type == SubmissionType.PARTIAL) {
-            cvparam = createCvParam("PRIDE:0000417", null, "Unsupported dataset by repository", PRIDE_CV.getId());
+            cvparam = createCvParam("PRIDE:0000417", null, "Unsupported dataset by repository", PRIDE_CV);
         } else {
             logger.error("Encoutered unexpected submission type: " + type.name());
             return null;
@@ -745,9 +757,9 @@ public class WriteMessage {
 
         CvParam cvparam ;
         if (peerReviewed) {
-            cvparam = createCvParam("PRIDE:0000414", null, "Peer-reviewed dataset", PRIDE_CV.getId());
+            cvparam = createCvParam("PRIDE:0000414", null, "Peer-reviewed dataset", PRIDE_CV);
         } else {
-            cvparam = createCvParam("PRIDE:0000415", null, "Non peer-reviewed dataset", PRIDE_CV.getId());
+            cvparam = createCvParam("PRIDE:0000415", null, "Non peer-reviewed dataset", PRIDE_CV);
         }
         reviewLevel.setCvParam(cvparam);
 
@@ -762,20 +774,20 @@ public class WriteMessage {
         uk.ac.ebi.pride.data.model.Contact auxSubmitter = submissionSummary.getProjectMetaData().getSubmitterContact();
         Contact submitter = new Contact();
         submitter.setId("project_submitter"); // assign a unique ID to this contact
-        submitter.getCvParam().add(createCvParam("MS:1000586", auxSubmitter.getName(), "contact name", MS_CV.getId()));
-        submitter.getCvParam().add(createCvParam("MS:1000589", auxSubmitter.getEmail(), "contact email", MS_CV.getId()));
-        submitter.getCvParam().add(createCvParam("MS:1000590", auxSubmitter.getAffiliation(), "contact affiliation", MS_CV.getId()));
-        submitter.getCvParam().add(createCvParam("MS:1002037", null, "dataset submitter", MS_CV.getId()));
+        submitter.getCvParam().add(createCvParam("MS:1000586", auxSubmitter.getName(), "contact name", MS_CV));
+        submitter.getCvParam().add(createCvParam("MS:1000589", auxSubmitter.getEmail(), "contact email", MS_CV));
+        submitter.getCvParam().add(createCvParam("MS:1000590", auxSubmitter.getAffiliation(), "contact affiliation", MS_CV));
+        submitter.getCvParam().add(createCvParam("MS:1002037", null, "dataset submitter", MS_CV));
         list.getContact().add(submitter);
 
         // then also add the lab head
         uk.ac.ebi.pride.data.model.Contact auxLabHead = submissionSummary.getProjectMetaData().getLabHeadContact();
         Contact labHead = new Contact();
         labHead.setId("project_lab_head"); // assign a unique ID to this contact
-        labHead.getCvParam().add(createCvParam("MS:1000586", auxLabHead.getName(), "contact name", MS_CV.getId()));
-        labHead.getCvParam().add(createCvParam("MS:1000589", auxLabHead.getEmail(), "contact email", MS_CV.getId()));
-        labHead.getCvParam().add(createCvParam("MS:1000590", auxLabHead.getAffiliation(), "contact affiliation", MS_CV.getId()));
-        labHead.getCvParam().add(createCvParam("MS:1002332", null, "lab head", MS_CV.getId()));
+        labHead.getCvParam().add(createCvParam("MS:1000586", auxLabHead.getName(), "contact name", MS_CV));
+        labHead.getCvParam().add(createCvParam("MS:1000589", auxLabHead.getEmail(), "contact email", MS_CV));
+        labHead.getCvParam().add(createCvParam("MS:1000590", auxLabHead.getAffiliation(), "contact affiliation", MS_CV));
+        labHead.getCvParam().add(createCvParam("MS:1002332", null, "lab head", MS_CV));
         list.getContact().add(labHead);
 
         return list;

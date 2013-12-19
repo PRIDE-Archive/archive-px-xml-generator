@@ -36,7 +36,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link DatasetIdentifier }
-     * 
+     *
      */
     public DatasetIdentifier createDatasetIdentifier() {
         return new DatasetIdentifier();
@@ -44,7 +44,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Instrument }
-     * 
+     *
      */
     public Instrument createInstrument() {
         return new Instrument();
@@ -52,7 +52,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link FullDatasetLink }
-     * 
+     *
      */
     public FullDatasetLink createFullDatasetLink() {
         return new FullDatasetLink();
@@ -60,7 +60,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link DatasetIdentifierList }
-     * 
+     *
      */
     public DatasetIdentifierList createDatasetIdentifierList() {
         return new DatasetIdentifierList();
@@ -68,7 +68,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link DatasetOriginList }
-     * 
+     *
      */
     public DatasetOriginList createDatasetOriginList() {
         return new DatasetOriginList();
@@ -84,7 +84,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link ContactList }
-     * 
+     *
      */
     public ContactList createContactList() {
         return new ContactList();
@@ -100,7 +100,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Cv }
-     * 
+     *
      */
     public Cv createCv() {
         return new Cv();
@@ -108,7 +108,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link ReviewLevelType }
-     * 
+     *
      */
     public ReviewLevelType createReviewLevelType() {
         return new ReviewLevelType();
@@ -116,7 +116,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link DatasetFileList }
-     * 
+     *
      */
     public DatasetFileList createDatasetFileList() {
         return new DatasetFileList();
@@ -124,7 +124,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link DatasetSummary }
-     * 
+     *
      */
     public DatasetSummary createDatasetSummary() {
         return new DatasetSummary();
@@ -132,7 +132,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link ChangeLogType }
-     * 
+     *
      */
     public ChangeLogType createChangeLogType() {
         return new ChangeLogType();
@@ -140,7 +140,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link PublicationList }
-     * 
+     *
      */
     public PublicationList createPublicationList() {
         return new PublicationList();
@@ -148,7 +148,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link ModificationList }
-     * 
+     *
      */
     public ModificationList createModificationList() {
         return new ModificationList();
@@ -156,7 +156,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link DatasetFile }
-     * 
+     *
      */
     public DatasetFile createDatasetFile() {
         return new DatasetFile();
@@ -164,7 +164,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Contact }
-     * 
+     *
      */
     public Contact createContact() {
         return new Contact();
@@ -172,7 +172,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link InstrumentList }
-     * 
+     *
      */
     public InstrumentList createInstrumentList() {
         return new InstrumentList();
@@ -180,7 +180,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link FullDatasetLinkList }
-     * 
+     *
      */
     public FullDatasetLinkList createFullDatasetLinkList() {
         return new FullDatasetLinkList();
@@ -188,7 +188,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link ProteomeXchangeDataset }
-     * 
+     *
      */
     public ProteomeXchangeDataset createProteomeXchangeDataset() {
         return new ProteomeXchangeDataset();
@@ -196,7 +196,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link AdditionalInformation }
-     * 
+     *
      */
     public AdditionalInformation createAdditionalInformation() {
         return new AdditionalInformation();
@@ -204,7 +204,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Ref }
-     * 
+     *
      */
     public Ref createRef() {
         return new Ref();
@@ -212,7 +212,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link SpeciesList }
-     * 
+     *
      */
     public SpeciesList createSpeciesList() {
         return new SpeciesList();
@@ -220,7 +220,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link ChangeLogEntryType }
-     * 
+     *
      */
     public ChangeLogEntryType createChangeLogEntryType() {
         return new ChangeLogEntryType();
@@ -228,7 +228,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Sample }
-     * 
+     *
      */
     public Sample createSample() {
         return new Sample();
@@ -236,7 +236,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Species }
-     * 
+     *
      */
     public Species createSpecies() {
         return new Species();
@@ -244,7 +244,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link CvParam }
-     * 
+     *
      */
     public CvParam createCvParam() {
         return new CvParam();
@@ -260,7 +260,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link CvList }
-     * 
+     *
      */
     public CvList createCvList() {
         return new CvList();
@@ -284,7 +284,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link RepositorySupportType }
-     * 
+     *
      */
     public RepositorySupportType createRepositorySupportType() {
         return new RepositorySupportType();
@@ -300,7 +300,7 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link RepositoryRecordList }
-     * 
+     *
      */
     public RepositoryRecordList createRepositoryRecordList() {
         return new RepositoryRecordList();
