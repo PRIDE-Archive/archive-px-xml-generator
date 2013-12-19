@@ -81,8 +81,8 @@ public class WrtieMessageTest {
 
     @Test
     public void testPxModificationFromFile(){
-        assertEquals(proteomeXchangeDataset.getModificationList().getCvParam().size(),0);
-//        assertEquals(getNameCvParam(proteomeXchangeDataset.getModificationList().getCvParam(),"MOD:00198"),"D-alanine");
+        assertEquals(proteomeXchangeDataset.getModificationList().getCvParam().size(),1);
+        assertEquals(getNameCvParam(proteomeXchangeDataset.getModificationList().getCvParam(),"MOD:00198"),"D-alanine");
     }
 
     @Test
