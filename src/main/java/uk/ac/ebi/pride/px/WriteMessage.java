@@ -521,16 +521,29 @@ public class WriteMessage {
     private static DatasetFileList createDatasetFileList(Submission submissionSummary, String datasetPathFragment) {
         DatasetFileList list = new DatasetFileList();
         // create a link to the public FTP location for each file of the dataset
-        int cnt = 1;
         for (DataFile dataFile : submissionSummary.getDataFiles()) {
             DatasetFile df = new DatasetFile();
-            df.setId("FILE_"+cnt++); // artificial ID to uniquely identify the DatasetFile
+            df.setId("FILE_"+dataFile.getFileId()); // ID to uniquely identify the DatasetFile
             String fileName = dataFile.getFile().getName();
             df.setName(fileName);
             String fileUri = FTP + "/" + datasetPathFragment + "/" + fileName;
-            // ToDo: use more specific PRIDE CV Terms!
-            CvParam param = createCvParam("PRIDE:0000403", fileUri, "Associated file URI", PRIDE_CV);
-            df.getCvParam().add(param);
+            CvParam fileParam;
+            switch (dataFile.getFileType()) {
+                case RAW    : fileParam = createCvParam("PRIDE:0000404", fileUri, "Associated raw file URI", PRIDE_CV);
+                              break;
+                case RESULT : fileParam = createCvParam("PRIDE:0000407", fileUri, "Result file URI", PRIDE_CV);
+                              break;
+                case SEARCH : fileParam = createCvParam("PRIDE:0000408", fileUri, "Search engine output file URI", PRIDE_CV);
+                              break;
+                case PEAK   : fileParam = createCvParam("PRIDE:0000409", fileUri, "Peak list file URI", PRIDE_CV);
+                              break;
+                case OTHER  : fileParam = createCvParam("PRIDE:0000410", fileUri, "'Other' type file URI", PRIDE_CV);
+                              break;
+                default     : fileParam = createCvParam("PRIDE:0000403", fileUri, "Associated file URI", PRIDE_CV);
+                              break;
+            }
+
+            df.getCvParam().add(fileParam);
             // ToDo (future): calculate and add checksum for file
             list.getDatasetFile().add(df);
         }
