@@ -668,15 +668,25 @@ public class WriteMessage {
         submitter.getCvParam().add(createCvParam("MS:1002037", null, "dataset submitter", MS_CV));
         list.getContact().add(submitter);
 
-        // then also add the lab head
+        // then also add the lab head (if there is any)
         uk.ac.ebi.pride.data.model.Contact auxLabHead = submissionSummary.getProjectMetaData().getLabHeadContact();
-        Contact labHead = new Contact();
-        labHead.setId("project_lab_head"); // assign a unique ID to this contact
-        labHead.getCvParam().add(createCvParam("MS:1000586", auxLabHead.getName(), "contact name", MS_CV));
-        labHead.getCvParam().add(createCvParam("MS:1000589", auxLabHead.getEmail(), "contact email", MS_CV));
-        labHead.getCvParam().add(createCvParam("MS:1000590", auxLabHead.getAffiliation(), "contact affiliation", MS_CV));
-        labHead.getCvParam().add(createCvParam("MS:1002332", null, "lab head", MS_CV));
-        list.getContact().add(labHead);
+        // if a lab head annotation is present (there needs to be at least a name!), then we create a contact record
+        if (auxLabHead != null && auxLabHead.getName() != null && !auxLabHead.getName().trim().isEmpty()) {
+            Contact labHead = new Contact();
+            labHead.setId("project_lab_head"); // assign a unique ID to this contact
+            labHead.getCvParam().add(createCvParam("MS:1002332", null, "lab head", MS_CV));
+            labHead.getCvParam().add(createCvParam("MS:1000586", auxLabHead.getName(), "contact name", MS_CV));
+            // check for additional lab head information
+            if (auxLabHead.getEmail() != null && !auxLabHead.getEmail().trim().isEmpty()) {
+                labHead.getCvParam().add(createCvParam("MS:1000589", auxLabHead.getEmail(), "contact email", MS_CV));
+            }
+            if (auxLabHead.getAffiliation() != null && !auxLabHead.getAffiliation().trim().isEmpty()) {
+                labHead.getCvParam().add(createCvParam("MS:1000590", auxLabHead.getAffiliation(), "contact affiliation", MS_CV));
+            }
+            list.getContact().add(labHead);
+        } else {
+            logger.warn("No lab head information found while generating PX XML!");
+        }
 
         return list;
     }
