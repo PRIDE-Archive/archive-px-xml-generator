@@ -304,7 +304,7 @@ public class WriteMessage {
 
         Set<String> pubmedIDs = submissionSummary.getProjectMetaData().getPubmedIds();
 
-        if ( pubmedIDs == null || pubmedIDs.size() < 1 ) { // no publications
+        if ( pubmedIDs == null || pubmedIDs.size() < 1 ) {
             // no pubmed ID, so no publication, we assume it is pending
             Publication publication = new Publication();
             CvParam cvParam = new CvParam();
@@ -416,7 +416,7 @@ public class WriteMessage {
         }
 
         // we should have modifications by now, since they are mandatory, we break if we have not found any
-        Assert.isTrue(!modificationSet.isEmpty(), "Modification annotation is mandatory for partial submissions!");
+        Assert.isTrue(!modificationSet.isEmpty(), "Modification annotation is mandatory submissions!");
 
         for (uk.ac.ebi.pride.data.model.CvParam cvParam : modificationSet) {
             // check if we have PSI-MOD or UNIMOD ontology terms
