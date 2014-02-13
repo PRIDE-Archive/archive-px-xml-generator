@@ -281,7 +281,7 @@ public class WriteMessage {
         return true;
     }
 
-    private static void addChangeLogEntry(ProteomeXchangeDataset pxXML, String message) {
+    static void addChangeLogEntry(ProteomeXchangeDataset pxXML, String message) {
         // create a new change log entry for the provided message
         ChangeLogEntryType entry = new ChangeLogEntryType();
         entry.setValue(message);
@@ -315,10 +315,6 @@ public class WriteMessage {
             publication.getCvParam().add(cvParam);
             list.getPublication().add(publication);
         } else { // we have already publications
-            if (pubmedIDs.size() > 1) {
-                // ToDo: why can there be more than one pubmed IDs and how should we treat them? (in PX there should be one reference per dataset)
-                logger.error("More than one PMID found on dataset! This will cause problems...");
-            }
             for (String pubmedID : pubmedIDs) {
                 Long pmid = Long.parseLong(pubmedID);
                 list.getPublication().add(getPublication(pmid));
@@ -328,7 +324,7 @@ public class WriteMessage {
         return  list;
     }
 
-    private static Publication getPublication(String refLine) {
+    static Publication getPublication(String refLine) {
         if (refLine == null) {
             throw new IllegalArgumentException("No ref line provided!");
         }
@@ -338,7 +334,7 @@ public class WriteMessage {
         publication.getCvParam().add(createCvParam("PRIDE:0000400", refLine, "Reference", PRIDE_CV));
         return publication;
     }
-    private static Publication getPublication(Long pmid) {
+    static Publication getPublication(Long pmid) {
         if (pmid == null) {
             throw new IllegalArgumentException("No PMID provided!");
         }
@@ -382,7 +378,7 @@ public class WriteMessage {
      * @param submissionSummary  the object representing the PX submission summary file content.
      * @return a KeywordList with all the keywords mentioned in the submission summary file.
      */
-    private static KeywordList getKeywordList(Submission submissionSummary) {
+    static KeywordList getKeywordList(Submission submissionSummary) {
         KeywordList keywordList = new KeywordList();
         keywordList.getCvParam().add(createCvParam("MS:1001925", submissionSummary.getProjectMetaData().getKeywords(), "submitter keyword", MS_CV));
         return keywordList;
@@ -390,7 +386,7 @@ public class WriteMessage {
 
     // method to extract modifications from summary file
     // Note: this will primarily look at project level, and only look at result file level if no annotation was found
-    private static ModificationList getModificationList(Submission submissionSummary) {
+    static ModificationList getModificationList(Submission submissionSummary) {
         ModificationList list = new ModificationList();
 
         // ToDo: take into account that modifications on project level are not mandatory for complete submissions
@@ -439,7 +435,7 @@ public class WriteMessage {
     }
 
     // method to extract instrument information from summary file
-    private static InstrumentList getInstrumentList(Submission submissionSummary) {
+    static InstrumentList getInstrumentList(Submission submissionSummary) {
         InstrumentList list = new InstrumentList();
 
         // the instrument annotation is mandatory in the submission summary file AND the PX XML
@@ -457,7 +453,7 @@ public class WriteMessage {
     }
 
     // method to get Species information from summary file
-    private static SpeciesList getSpeciesList(Submission submissionSummary) {
+    static SpeciesList getSpeciesList(Submission submissionSummary) {
         SpeciesList list = new SpeciesList();
 
         // the species annotation is mandatory in the submission summary file AND the PX XML

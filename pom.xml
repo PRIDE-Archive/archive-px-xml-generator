@@ -4,7 +4,7 @@
 
     <groupId>uk.ac.ebi.pride.px</groupId>
     <artifactId>px-xml-generator-prider</artifactId>
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.2.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>ProteomeXchange XML message</name>
@@ -36,6 +36,12 @@
             <id>jadianes</id>
             <name>Jose A. Dianes</name>
             <email>jdianes@ebi.ac.uk</email>
+            <organization>European Bioinformatics Institute</organization>
+        </developer>
+        <developer>
+            <id>tobias</id>
+            <name>Tobias Ternent</name>
+            <email>tobias@ebi.ac.uk</email>
             <organization>European Bioinformatics Institute</organization>
         </developer>
     </developers>
