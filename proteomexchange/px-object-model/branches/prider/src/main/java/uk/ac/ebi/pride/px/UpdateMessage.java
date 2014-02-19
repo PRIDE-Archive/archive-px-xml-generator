@@ -95,9 +95,7 @@ public class UpdateMessage {
      * @param pxAccession the PX project accession assigned to the dataset for which we are generating the PX XML.
      * @return a File that is the updated PX XML.
      */
-    // ToDo : to be used for further updates of the PX XML?
-    @SuppressWarnings("unused")
-    public File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession) throws SubmissionFileException, IOException {
+    public static File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession) throws SubmissionFileException, IOException {
         // the submission summary file has to exist
         Assert.isTrue(submissionSummaryFile.isFile() && submissionSummaryFile.exists(), "Summary file should already exist! In: " + submissionSummaryFile.getAbsolutePath());
         Submission submissionSummary = SubmissionFileParser.parse(submissionSummaryFile);
@@ -143,13 +141,13 @@ public class UpdateMessage {
     private static void backupPxXml(File pxFile, File outputDirectory) throws IOException{
         String baseName = FilenameUtils.getBaseName(pxFile.getName());
         String ext = FilenameUtils.getExtension(pxFile.getName());
-        final Character VERSION_SEP = '_';
-        final Character EXT_SEP = '.';
+        final String VERSION_SEP = "_";
+        final String EXT_SEP = ".";
         int nextVersionNumber = 1;
         File backupPx =  new File(outputDirectory.getAbsolutePath() + File.separator + baseName + VERSION_SEP + nextVersionNumber + EXT_SEP + ext);
         while (backupPx.exists()) {
             baseName = FilenameUtils.getBaseName(backupPx.getName());
-            String[] splittedSting = baseName.split("_");
+            String[] splittedSting = baseName.split(VERSION_SEP);
             nextVersionNumber = (Integer.parseInt(splittedSting[1])) + 1;
             backupPx =  new File(outputDirectory.getAbsolutePath() + File.separator + splittedSting[0] + VERSION_SEP + nextVersionNumber + EXT_SEP + ext);
         }
