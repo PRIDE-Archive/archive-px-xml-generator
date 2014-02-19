@@ -28,7 +28,8 @@ public class UpdateMessage {
 
     /**
      * Method to update a PX XML file with new references, intended only for *public* projects.
-     * Note: this will  add a change log, since that is  needed after the first version of the PX XML.
+     * Note: this will add a change log, since that is needed after the first version of the PX XML.
+     * Will also backup the PX XML before updating.
      *
      * @param submissionSummaryFile the summary file containing the PX submission summary information.
      * @param outputDirectory the path to the PX XML output directory.
@@ -67,7 +68,7 @@ public class UpdateMessage {
         logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
         backupPxXml(pxFile, outputDirectory);
 
-        logger.debug("Updating PX XML file: " + pxFile.getAbsolutePath());
+        logger.debug("Updating new reference for PX XML file: " + pxFile.getAbsolutePath());
 
         FileWriter fw = null;
         try {
@@ -83,8 +84,9 @@ public class UpdateMessage {
     }
 
     /**
-     * Method to update a PX XML file with new meta-data.
-     * Note: this will  add a change log, since that is  needed after the first version of the PX XML.
+     * Method to update a PX XML file with new meta-data, intended only for *public* projects.
+     * Note: this will add a change log, since that is needed after the first version of the PX XML.
+     * Will also backup the PX XML before updating.
      * Meta-data that will be updated includes:
      *  Title, description, modification list, species list, instrument list, and keyword list.
      *
@@ -96,10 +98,9 @@ public class UpdateMessage {
     // ToDo : to be used for further updates of the PX XML?
     @SuppressWarnings("unused")
     public File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession) throws SubmissionFileException, IOException {
-        // the submission summary file has to exist, with PMIDs
+        // the submission summary file has to exist
         Assert.isTrue(submissionSummaryFile.isFile() && submissionSummaryFile.exists(), "Summary file should already exist! In: " + submissionSummaryFile.getAbsolutePath());
         Submission submissionSummary = SubmissionFileParser.parse(submissionSummaryFile);
-        Assert.isTrue(submissionSummary.getProjectMetaData().hasPubmedIds(), "Summary file should have PubMed IDs listed!");
 
         // the output directory has to exist
         Assert.isTrue(outputDirectory.exists() && outputDirectory.isDirectory(), "PX XML output directory should already exist! In: " + outputDirectory.getAbsolutePath());
@@ -118,13 +119,14 @@ public class UpdateMessage {
         proteomeXchangeDataset.setKeywordList(WriteMessage.getKeywordList(submissionSummary));
         // no protocols in px xml
         // no tissue in px xml
+        // no project tags in px xml
 
-        WriteMessage.addChangeLogEntry(proteomeXchangeDataset, "Updated project meta-data.");
+        WriteMessage.addChangeLogEntry(proteomeXchangeDataset, "Updated project metadata.");
 
         logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
         backupPxXml(pxFile, outputDirectory);
 
-        logger.debug("Updating PX XML file: " + pxFile.getAbsolutePath());
+        logger.debug("Updating metadata for PX XML file: " + pxFile.getAbsolutePath());
         FileWriter fw = null;
         try {
             fw = new FileWriter(pxFile);
