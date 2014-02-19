@@ -141,14 +141,15 @@ public class UpdateMessage {
     private static void backupPxXml(File pxFile, File outputDirectory) throws IOException{
         String baseName = FilenameUtils.getBaseName(pxFile.getName());
         String ext = FilenameUtils.getExtension(pxFile.getName());
-        final Character versionSeparator = '_';
-        int nextVersionNumber = 0;
-        File backupPx =  new File(outputDirectory.getAbsolutePath() + File.separator + baseName + versionSeparator + nextVersionNumber + ext);
+        final Character VERSION_SEP = '_';
+        final Character EXT_SEP = '.';
+        int nextVersionNumber = 1;
+        File backupPx =  new File(outputDirectory.getAbsolutePath() + File.separator + baseName + VERSION_SEP + nextVersionNumber + EXT_SEP + ext);
         while (backupPx.exists()) {
             baseName = FilenameUtils.getBaseName(backupPx.getName());
             String[] splittedSting = baseName.split("_");
             nextVersionNumber = (Integer.parseInt(splittedSting[1])) + 1;
-            backupPx =  new File(outputDirectory.getAbsolutePath() + File.separator + splittedSting[0] + versionSeparator + nextVersionNumber + ext);
+            backupPx =  new File(outputDirectory.getAbsolutePath() + File.separator + splittedSting[0] + VERSION_SEP + nextVersionNumber + EXT_SEP + ext);
         }
 
         Files.copy(pxFile.toPath(), backupPx.toPath());
