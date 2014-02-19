@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.px;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -13,6 +14,7 @@ import uk.ac.ebi.pride.px.xml.PxMarshaller;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -62,6 +64,8 @@ public class UpdateMessage {
         }
         WriteMessage.addChangeLogEntry(proteomeXchangeDataset, "Updated publication reference for PubMed record(s): " + sb.toString() + ".");
 
+        logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
+        backupPxXml(pxFile, outputDirectory);
 
         logger.debug("Updating PX XML file: " + pxFile.getAbsolutePath());
 
@@ -117,6 +121,9 @@ public class UpdateMessage {
 
         WriteMessage.addChangeLogEntry(proteomeXchangeDataset, "Updated project meta-data.");
 
+        logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
+        backupPxXml(pxFile, outputDirectory);
+
         logger.debug("Updating PX XML file: " + pxFile.getAbsolutePath());
         FileWriter fw = null;
         try {
@@ -131,5 +138,20 @@ public class UpdateMessage {
         return pxFile;
     }
 
+    private static void backupPxXml(File pxFile, File outputDirectory) throws IOException{
+        String baseName = FilenameUtils.getBaseName(pxFile.getName());
+        String ext = FilenameUtils.getExtension(pxFile.getName());
+        final Character versionSeparator = '_';
+        int nextVersionNumber = 0;
+        File backupPx =  new File(outputDirectory.getAbsolutePath() + File.separator + baseName + versionSeparator + nextVersionNumber + ext);
+        while (backupPx.exists()) {
+            baseName = FilenameUtils.getBaseName(backupPx.getName());
+            String[] splittedSting = baseName.split("_");
+            nextVersionNumber = (Integer.parseInt(splittedSting[1])) + 1;
+            backupPx =  new File(outputDirectory.getAbsolutePath() + File.separator + splittedSting[0] + versionSeparator + nextVersionNumber + ext);
+        }
+
+        Files.copy(pxFile.toPath(), backupPx.toPath());
+    }
 
 }
