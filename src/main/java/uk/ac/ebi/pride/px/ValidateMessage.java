@@ -29,7 +29,7 @@ public class ValidateMessage {
     private static final Logger logger = LoggerFactory.getLogger(ValidateMessage.class);
     private static final String SCHEMA_LOCATION = "http://proteomecentral.proteomexchange.org/schemas/proteomeXchange-1.2.0.xsd";
 
-    public static String validateMessage(File file, boolean breakOnError) throws SAXException, MalformedURLException, FileNotFoundException, URISyntaxException{
+    public static String validateMessage(File file) throws SAXException, MalformedURLException, FileNotFoundException, URISyntaxException{
         StringBuilder errorOutput = new StringBuilder();
         GenericSchemaValidator genericValidator = new GenericSchemaValidator();
         genericValidator.setSchema(new URI(SCHEMA_LOCATION));
