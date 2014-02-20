@@ -4,7 +4,7 @@
 
     <groupId>uk.ac.ebi.pride.px</groupId>
     <artifactId>px-xml-generator-prider</artifactId>
-    <version>0.2.7-SNAPSHOT</version>
+    <version>0.2.8-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>ProteomeXchange XML message</name>
@@ -54,6 +54,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <http.client.version>4.2.5</http.client.version>
         <http.mime.version>4.2.2</http.mime.version>
+        <xml.schema.validator.version>2.1</xml.schema.validator.version>
     </properties>
 
     <build>
@@ -192,11 +193,16 @@
             <artifactId>httpclient</artifactId>
             <version>${http.client.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
             <version>${http.mime.version}</version>
+        </dependency>
+        <!--xml schema validation-->
+        <dependency>
+            <groupId>uk.ac.ebi.pride.tools</groupId>
+            <artifactId>xmlSchemaValidator</artifactId>
+            <version>${xml.schema.validator.version}</version>
         </dependency>
     </dependencies>
 
