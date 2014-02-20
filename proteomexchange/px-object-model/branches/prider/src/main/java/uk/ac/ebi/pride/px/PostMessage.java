@@ -32,7 +32,7 @@ public class PostMessage {
     //http://central.proteomexchange.org/cgi/GetDataset?ID=PXD000001
     public static final String CHARSET = "UTF-8";
 
-    public String postMessage(File file, XMLParams params) {
+    public static String postMessage(File file, XMLParams params) {
         String serverResponse;
         try {
             HttpClient httpclient = new DefaultHttpClient();
