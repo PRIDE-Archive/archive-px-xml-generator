@@ -4,11 +4,11 @@
 
     <groupId>uk.ac.ebi.pride.px</groupId>
     <artifactId>px-xml-generator-prider</artifactId>
-    <version>0.2.10-SNAPSHOT</version>
+    <version>0.2.11-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>ProteomeXchange XML message</name>
-    <description>Java object model for writing of ProteomeXchange XML messages.</description>
+    <description>Java object model for writing, updating, reading, validating, and posting of ProteomeXchange XML messages.</description>
     <url>...</url>
     <licenses>
         <license>
