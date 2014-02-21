@@ -18,17 +18,22 @@ import uk.ac.ebi.pride.tools.GenericSchemaValidator;
 import uk.ac.ebi.pride.tools.ValidationErrorHandler;
 
 /**
- * Created with IntelliJ IDEA.
- * User: tobias
- * Date: 19/02/14
- * Time: 16:26
- * To change this template use File | Settings | File Templates.
+ * Class to validate a PX XML file according to the PX XML schema.
+ *
+ * @author Tobias Ternent
  */
+
 public class ValidateMessage {
 
     private static final Logger logger = LoggerFactory.getLogger(ValidateMessage.class);
     private static final String SCHEMA_LOCATION = "http://proteomecentral.proteomexchange.org/schemas/proteomeXchange-1.2.0.xsd";
 
+    /**
+     * Method to validate a supplied PX XML file.
+     *
+     * @param file the PX XML file to be validated.
+     * @return a String which lists any errors that occurred during validation. If there were none, the String will be empty.
+     */
     public static String validateMessage(File file) throws SAXException, MalformedURLException, FileNotFoundException, URISyntaxException{
         StringBuilder errorOutput = new StringBuilder();
         GenericSchemaValidator genericValidator = new GenericSchemaValidator();

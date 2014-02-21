@@ -2,7 +2,6 @@ package uk.ac.ebi.pride.px;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
@@ -19,11 +18,9 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 /**
- * Created with IntelliJ IDEA.
- * User: tobias
- * Date: 19/02/14
- * Time: 15:54
- * To change this template use File | Settings | File Templates.
+ * Class to post a PX XML file to Proteome Central.
+ *
+ * @author Tobias Ternent
  */
 public class PostMessage {
     public static final Logger logger = LoggerFactory.getLogger(PostMessage.class);
@@ -32,6 +29,13 @@ public class PostMessage {
     //http://central.proteomexchange.org/cgi/GetDataset?ID=PXD000001
     public static final String CHARSET = "UTF-8";
 
+    /**
+     * Method to send a supplied PX XML file to Proteome Central.
+     *
+     * @param file the PX XML file to be validated.
+     * @param params the XMLParams needed for configuring the options when sending.
+     * @return a String which lists the output from the HTTP service used for posting the PX XML file.
+     */
     public static String postMessage(File file, XMLParams params)throws IOException {
         String serverResponse;
         HttpClient httpclient = new DefaultHttpClient();

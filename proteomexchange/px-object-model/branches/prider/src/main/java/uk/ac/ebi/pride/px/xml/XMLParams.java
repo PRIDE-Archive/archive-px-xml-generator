@@ -1,11 +1,10 @@
 package uk.ac.ebi.pride.px.xml;
 
 /**
- * Created with IntelliJ IDEA.
- * User: tobias
- * Date: 19/02/14
- * Time: 16:21
- * To change this template use File | Settings | File Templates.
+ * Class to configure options when posting PX XML to Proteome Central.
+ * Refactored from the PX Submission pipeline originally.
+ *
+ * @author Tobias Ternent
  */
 public class XMLParams {
 

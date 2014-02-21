@@ -9,11 +9,9 @@ import javax.xml.bind.Unmarshaller;
 
 
 /**
- * Created with IntelliJ IDEA.
- * User: tobias
- * Date: 12/02/14
- * Time: 11:14
- * To change this template use File | Settings | File Templates.
+ * Class to supply an unmarshaller for use when reading a PX XML file into a ProteomeXchangeDataset object.
+ *
+ * @author Tobias Ternent
  */
 public class UnmarshallerFactory {
     private static final Logger logger = Logger.getLogger(UnmarshallerFactory.class);

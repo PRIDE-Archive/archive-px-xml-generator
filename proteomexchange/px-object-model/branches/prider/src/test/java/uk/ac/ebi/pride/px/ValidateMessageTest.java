@@ -18,11 +18,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created with IntelliJ IDEA.
- * User: tobias
- * Date: 20/02/14
- * Time: 16:16
- * To change this template use File | Settings | File Templates.
+ * This test class validates a test PX XML file, which should not return any errors.
+ *
+ * @author Tobias Ternent
  */
 public class ValidateMessageTest {
 
