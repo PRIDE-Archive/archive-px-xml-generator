@@ -13,11 +13,10 @@ import java.io.IOException;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created with IntelliJ IDEA.
- * User: tobias
- * Date: 20/02/14
- * Time: 16:16
- * To change this template use File | Settings | File Templates.
+ * This test class attempts to post a test PX XML to Proteome Central. Doesn't actually log in
+ * but should get a reply anyway about the attempt.
+ *
+ * @author Tobias Ternent
  */
 public class PostMessageTest {
 
