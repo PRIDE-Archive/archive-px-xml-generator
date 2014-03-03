@@ -40,7 +40,7 @@ public class UpdateMessageTest {
         File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXT000001", "2013/07/PXT000001");
         proteomeXchangeDataset = unmarshalFile(file);
         assertEquals(proteomeXchangeDataset.getPublicationList().getPublication().get(0).getId(), "pending");
-        file = UpdateMessage.updateReferencesPxXml(submissionFileWithPubmed,  directory, "PXT000001");
+        file = UpdateMessage.updateReferencesPxXml(submissionFileWithPubmed,  directory, "PXT000001", "2013/07/PXT000001");
         proteomeXchangeDataset = unmarshalFile(file);
     }
 
