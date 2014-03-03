@@ -36,7 +36,7 @@ public class UpdateMessage {
      * @param pxAccession the PX project accession assigned to the dataset for which we are generating the PX XML.
      * @return a File that is the updated PX XML.
      */
-    public static File updateReferencesPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession) throws SubmissionFileException, IOException {
+    public static File updateReferencesPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment) throws SubmissionFileException, IOException {
         // the submission summary file has to exist, with PMIDs
         Assert.isTrue(submissionSummaryFile.isFile() && submissionSummaryFile.exists(), "Summary file should already exist! In: " + submissionSummaryFile.getAbsolutePath());
         Submission submissionSummary = SubmissionFileParser.parse(submissionSummaryFile);
@@ -50,6 +50,23 @@ public class UpdateMessage {
         Assert.isTrue(pxFile.isFile() && pxFile.exists(), "PX XML file should already exist!");
 
         ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
+        logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
+        backupPxXml(pxFile, outputDirectory);
+
+        // make new PX XML if dealing with old schema version in current PX XML
+        if (!proteomeXchangeDataset.getFormatVersion().equalsIgnoreCase(WriteMessage.FORMAT_VERSION)) {
+            WriteMessage writeMessage = new WriteMessage();
+            pxFile = writeMessage.createIntialPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment);
+            if (pxFile != null) {
+                logger.info("Generated PX XML message file " + pxFile.getAbsolutePath());
+            } else {
+                final String MSG = "Failed to create PX XML message file at " + outputDirectory.getAbsolutePath();
+                logger.error(MSG);
+                throw new SubmissionFileException(MSG);
+            }
+            proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
+        }
+
         proteomeXchangeDataset.getPublicationList().getPublication().clear();
         StringBuilder sb = new StringBuilder("");
         String reference;
@@ -64,9 +81,6 @@ public class UpdateMessage {
             }
         }
         WriteMessage.addChangeLogEntry(proteomeXchangeDataset, "Updated publication reference for PubMed record(s): " + sb.toString() + ".");
-
-        logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
-        backupPxXml(pxFile, outputDirectory);
 
         logger.debug("Updating new reference for PX XML file: " + pxFile.getAbsolutePath());
 
@@ -95,7 +109,7 @@ public class UpdateMessage {
      * @param pxAccession the PX project accession assigned to the dataset for which we are generating the PX XML.
      * @return a File that is the updated PX XML.
      */
-    public static File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession) throws SubmissionFileException, IOException {
+    public static File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment) throws SubmissionFileException, IOException {
         // the submission summary file has to exist
         Assert.isTrue(submissionSummaryFile.isFile() && submissionSummaryFile.exists(), "Summary file should already exist! In: " + submissionSummaryFile.getAbsolutePath());
         Submission submissionSummary = SubmissionFileParser.parse(submissionSummaryFile);
@@ -107,6 +121,22 @@ public class UpdateMessage {
         File pxFile = new File(outputDirectory.getAbsolutePath() + File.separator + pxAccession + ".xml");
         Assert.isTrue(pxFile.isFile() && pxFile.exists(), "PX XML file should already exist!");
         ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
+        logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
+        backupPxXml(pxFile, outputDirectory);
+
+        // make new PX XML if dealing with old schema version in current PX XML
+        if (!proteomeXchangeDataset.getFormatVersion().equalsIgnoreCase(WriteMessage.FORMAT_VERSION)) {
+            WriteMessage writeMessage = new WriteMessage();
+            pxFile = writeMessage.createIntialPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment);
+            if (pxFile != null) {
+                logger.info("Generated PX XML message file " + pxFile.getAbsolutePath());
+            } else {
+                final String MSG = "Failed to create PX XML message file at " + outputDirectory.getAbsolutePath();
+                logger.error(MSG);
+                throw new SubmissionFileException(MSG);
+            }
+            proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
+        }
 
         proteomeXchangeDataset.getDatasetSummary().setTitle(submissionSummary.getProjectMetaData().getProjectTitle());
         proteomeXchangeDataset.getDatasetSummary().setDescription(submissionSummary.getProjectMetaData().getProjectDescription());
@@ -120,9 +150,6 @@ public class UpdateMessage {
         // no project tags in px xml
 
         WriteMessage.addChangeLogEntry(proteomeXchangeDataset, "Updated project metadata.");
-
-        logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
-        backupPxXml(pxFile, outputDirectory);
 
         logger.debug("Updating metadata for PX XML file: " + pxFile.getAbsolutePath());
         FileWriter fw = null;
