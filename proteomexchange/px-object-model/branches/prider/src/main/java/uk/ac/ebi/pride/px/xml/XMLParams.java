@@ -13,6 +13,7 @@ public class XMLParams {
     private String method = "submitDataset";
     private String test = "no";
     private String verbose = "no";
+    private String noEmailBroadcast = "false";
 
     public String getPxPartner() {
         return pxPartner;
@@ -53,5 +54,13 @@ public class XMLParams {
     public void setVerbose(String verbose) {
         this.verbose = verbose;
     }
+
+    public String getNoEmailBroadcast() {
+        return noEmailBroadcast;
+    }
+    public void setNoEmailBroadcast(String noEmailBroadcast) {
+        this.noEmailBroadcast = noEmailBroadcast;
+    }
+
 
 }

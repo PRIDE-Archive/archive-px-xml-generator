@@ -25,8 +25,7 @@ public class PostMessageTest {
 
     public File directory;
     public File submissionFile;
-    public String errorOutput;
-    public String response;
+    public String response, responseNoEmail;
 
     @Before
     public void setUp() throws Exception {
@@ -41,10 +40,20 @@ public class PostMessageTest {
         params.setPxPartner("");
         params.setAuthentication("");
         response = PostMessage.postMessage(file, params);
+
+        params = new XMLParams();
+        params.setTest("yes");
+        params.setMethod("submitDataset");
+        params.setVerbose("no");
+        params.setPxPartner("");
+        params.setAuthentication("");
+        params.setNoEmailBroadcast("true");
+        responseNoEmail = PostMessage.postMessage(file, params);
     }
 
     @Test
     public void testPost(){
+        assertTrue(response != null && !(response.toLowerCase().contains("internal server error")));
         assertTrue(response != null && !(response.toLowerCase().contains("internal server error")));
     }
 

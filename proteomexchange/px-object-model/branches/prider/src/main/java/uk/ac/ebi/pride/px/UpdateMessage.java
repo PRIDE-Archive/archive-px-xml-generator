@@ -98,11 +98,8 @@ public class UpdateMessage {
     }
 
     /**
-     * Method to update a PX XML file with new meta-data, intended only for *public* projects.
-     * Note: this will add a change log, since that is needed after the first version of the PX XML.
-     * Will also backup the PX XML before updating.
-     * Meta-data that will be updated includes:
-     *  Title, description, modification list, species list, instrument list, and keyword list.
+     * Method to update a PX XML file with a newly generated version,
+     * e.g. with up-to-date FTP links, project tags, etc, according to the latest schema.
      *
      * @param submissionSummaryFile the summary file containing the PX submission summary information.
      * @param outputDirectory the path to the PX XML output directory.
@@ -110,47 +107,34 @@ public class UpdateMessage {
      * @return a File that is the updated PX XML.
      */
     public static File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment) throws SubmissionFileException, IOException {
+      return  updateMetadataPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, true);
+    }
+
+    public static File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment, boolean changeLogEntry) throws SubmissionFileException, IOException {
         // the submission summary file has to exist
         Assert.isTrue(submissionSummaryFile.isFile() && submissionSummaryFile.exists(), "Summary file should already exist! In: " + submissionSummaryFile.getAbsolutePath());
-        Submission submissionSummary = SubmissionFileParser.parse(submissionSummaryFile);
-
         // the output directory has to exist
         Assert.isTrue(outputDirectory.exists() && outputDirectory.isDirectory(), "PX XML output directory should already exist! In: " + outputDirectory.getAbsolutePath());
 
         // the PX XML file has to exist
         File pxFile = new File(outputDirectory.getAbsolutePath() + File.separator + pxAccession + ".xml");
         Assert.isTrue(pxFile.isFile() && pxFile.exists(), "PX XML file should already exist!");
-        ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
+
         logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
         backupPxXml(pxFile, outputDirectory);
-
-        // make new PX XML if dealing with old schema version in current PX XML
-        if (!proteomeXchangeDataset.getFormatVersion().equalsIgnoreCase(WriteMessage.FORMAT_VERSION)) {
-            WriteMessage writeMessage = new WriteMessage();
-            pxFile = writeMessage.createIntialPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment);
-            if (pxFile != null) {
-                logger.info("Generated PX XML message file " + pxFile.getAbsolutePath());
-            } else {
-                final String MSG = "Failed to create PX XML message file at " + outputDirectory.getAbsolutePath();
-                logger.error(MSG);
-                throw new SubmissionFileException(MSG);
-            }
-            proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
+        WriteMessage writeMessage = new WriteMessage();
+        pxFile = writeMessage.createIntialPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment);
+        if (pxFile != null) {
+            logger.info("Generated PX XML message file " + pxFile.getAbsolutePath());
+        } else {
+            final String MSG = "Failed to create PX XML message file at " + outputDirectory.getAbsolutePath();
+            logger.error(MSG);
+            throw new SubmissionFileException(MSG);
         }
-
-        proteomeXchangeDataset.getDatasetSummary().setTitle(submissionSummary.getProjectMetaData().getProjectTitle());
-        proteomeXchangeDataset.getDatasetSummary().setDescription(submissionSummary.getProjectMetaData().getProjectDescription());
-
-        proteomeXchangeDataset.setModificationList(WriteMessage.getModificationList(submissionSummary));
-        proteomeXchangeDataset.setSpeciesList(WriteMessage.getSpeciesList(submissionSummary));
-        proteomeXchangeDataset.setInstrumentList(WriteMessage.getInstrumentList(submissionSummary));
-        proteomeXchangeDataset.setKeywordList(WriteMessage.getKeywordList(submissionSummary));
-        // no protocols in px xml
-        // no tissue in px xml
-        // no project tags in px xml
-
-        WriteMessage.addChangeLogEntry(proteomeXchangeDataset, "Updated project metadata.");
-
+        ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
+        if (changeLogEntry) {
+            WriteMessage.addChangeLogEntry(proteomeXchangeDataset, "Updated project metadata.");
+        }
         logger.debug("Updating metadata for PX XML file: " + pxFile.getAbsolutePath());
         FileWriter fw = null;
         try {
