@@ -66,7 +66,7 @@ public class WrtieMessageTest {
     public void testPxMetadataFromFile(){
         assertEquals(proteomeXchangeDataset.getDatasetSummary().getTitle(),"Test project title");
         assertEquals(proteomeXchangeDataset.getDatasetSummary().getDescription(),"Description for the test project");
-        assertEquals(getValueCvParam(proteomeXchangeDataset.getKeywordList().getCvParam(),"MS:1001925"),"test, project");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getKeywordList().getCvParam(),WriteMessage.MS_1001925),"test, project");
     }
 
     @Test

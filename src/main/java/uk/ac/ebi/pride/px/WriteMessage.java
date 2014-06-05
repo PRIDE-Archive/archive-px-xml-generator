@@ -17,6 +17,7 @@ import uk.ac.ebi.pride.px.xml.PxMarshaller;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,7 +37,19 @@ public class WriteMessage {
     private static final String DOI_PREFFIX = "10.6019";
     private static final String NCBI_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
     private static final String FTP = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive";
+    //private static final String DEPRECATED_FTP = "ftp://ftp.pride.ebi.ac.uk/";
     private static final String PRIDE_REPO_PROJECT_BASE_URL = "http://www.ebi.ac.uk/pride/archive/projects/";
+    static final String MS_1001925 = "MS:1001925";
+    static final String SUBMITTER_KEYWORD = "submitter keyword";
+    static final String BIOLOGICAL = "Biological";
+    static final String BIOMEDICAL = "Biomedical";
+    static final String CARDIOVASCULAR = "Cardiovascular";
+    static final String HIGHLIGHTED = "Highlighted";
+    static final String TECHNICAL = "Technical";
+    static final String MS_1001926 = "MS:1001926";
+    static final String MS_1002340 = "MS:1002340";
+    static final String CURATOR_KEYWORD = "curator keyword";
+    static final String PROTEOME_XCHANGE_PROJECT_TAG = "ProteomeXchange project tag";
     // ToDo (general): check PXST summary file definition with regards to PARTIAL/COMPLETE differences
     // ToDo (general): extract CV params to global util package?
     // ToDo (general): perhaps change to non-static implementation and keep certain data in the instance (px accession, datasetPathFragment, counters...)?
@@ -298,7 +311,7 @@ public class WriteMessage {
         changeLog.getChangeLogEntry().add(entry);
     }
 
-    // there shoud always be a publication list, but it may have records to say 'no reference' or 'reference pending'
+    // there should always be a publication list, but it may have records to say 'no reference' or 'reference pending'
     private static PublicationList getPublicationList(Submission submissionSummary) {
         PublicationList list = new PublicationList();
 
@@ -373,14 +386,26 @@ public class WriteMessage {
     }
 
     /**
-     * method to retrieve keyword list from the summary file
+     * Method to retrieve keyword list from the summary file.
+     * Now also supports project tags, e.g. parent projects or curator keywords.
      *
      * @param submissionSummary  the object representing the PX submission summary file content.
      * @return a KeywordList with all the keywords mentioned in the submission summary file.
      */
     static KeywordList getKeywordList(Submission submissionSummary) {
         KeywordList keywordList = new KeywordList();
-        keywordList.getCvParam().add(createCvParam("MS:1001925", submissionSummary.getProjectMetaData().getKeywords(), "submitter keyword", MS_CV));
+        keywordList.getCvParam().add(createCvParam(MS_1001925, submissionSummary.getProjectMetaData().getKeywords(), SUBMITTER_KEYWORD, MS_CV));
+        Set<String> projectTags = submissionSummary.getProjectMetaData().getProjectTags();
+        if (projectTags!=null && projectTags.size()>0) {
+            HashSet<String> allPossibleCuratorTags = new HashSet<String>(Arrays.asList(BIOLOGICAL, BIOMEDICAL, CARDIOVASCULAR, HIGHLIGHTED, TECHNICAL));
+            for (String tag : projectTags) {
+                if (allPossibleCuratorTags.contains(tag)) {
+                    keywordList.getCvParam().add(createCvParam(MS_1001926, tag, CURATOR_KEYWORD, MS_CV));
+                }   else {
+                    keywordList.getCvParam().add(createCvParam(MS_1002340, tag, PROTEOME_XCHANGE_PROJECT_TAG, MS_CV));
+                }
+            }
+        }
         return keywordList;
     }
 

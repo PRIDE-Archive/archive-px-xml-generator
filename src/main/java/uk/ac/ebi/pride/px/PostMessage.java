@@ -50,6 +50,7 @@ public class PostMessage {
         reqEntity.addPart("method", new StringBody(params.getMethod(), "text/plain", Charset.forName(CHARSET)));
         reqEntity.addPart("test", new StringBody(params.getTest(), "text/plain", Charset.forName(CHARSET)));
         reqEntity.addPart("verbose", new StringBody(params.getVerbose(), "text/plain", Charset.forName(CHARSET)));
+        reqEntity.addPart("noEmailBroadcast", new StringBody(params.getNoEmailBroadcast(), "text/plain", Charset.forName(CHARSET)));
 
         httppost.setEntity(reqEntity);
 

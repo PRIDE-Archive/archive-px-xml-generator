@@ -1,6 +1,5 @@
 package uk.ac.ebi.pride.px;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 public class UpdateMessageTest {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
     public File directory;
-    public ProteomeXchangeDataset proteomeXchangeDataset;
+    public ProteomeXchangeDataset proteomeXchangeDataset, proteomeXchangeDatasetNoChangeLogEntry;
 
     @Before
     public void setUp() throws Exception {
@@ -42,6 +41,12 @@ public class UpdateMessageTest {
         assertEquals(proteomeXchangeDataset.getPublicationList().getPublication().get(0).getId(), "pending");
         file = UpdateMessage.updateReferencesPxXml(submissionFileWithPubmed,  directory, "PXT000001", "2013/07/PXT000001");
         proteomeXchangeDataset = unmarshalFile(file);
+
+        file = UpdateMessage.updateMetadataPxXml(submissionFileWithPubmed, directory, "PXT000001", "2013/07/PXT000001", true);
+        proteomeXchangeDataset = unmarshalFile(file);
+
+        file = UpdateMessage.updateMetadataPxXml(submissionFileWithPubmed, directory, "PXT000001", "2013/07/PXT000001", false);
+        proteomeXchangeDatasetNoChangeLogEntry = unmarshalFile(file);
     }
 
     @Test
@@ -71,7 +76,9 @@ public class UpdateMessageTest {
     public void testPxMetadataFromFile(){
         assertEquals(proteomeXchangeDataset.getDatasetSummary().getTitle(),"Test project title");
         assertEquals(proteomeXchangeDataset.getDatasetSummary().getDescription(),"Description for the test project");
-        assertEquals(getValueCvParam(proteomeXchangeDataset.getKeywordList().getCvParam(),"MS:1001925"),"test, project");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getKeywordList().getCvParam(), WriteMessage.MS_1001925),"test, project");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getKeywordList().getCvParam(), WriteMessage.MS_1002340), "PRIME-XS Project");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getKeywordList().getCvParam(),WriteMessage.MS_1001926), "Biological");
     }
 
     @Test
@@ -122,6 +129,11 @@ public class UpdateMessageTest {
         assertTrue(proteomeXchangeDataset.getChangeLog().getChangeLogEntry().size() > 0);
     }
 
+    @Test
+    public void testNoChangeLogEntry(){
+        assertTrue(proteomeXchangeDatasetNoChangeLogEntry.getChangeLog() == null );
+    }
+
     //helper method to retrieve accession for a specific value
     private String getAccessionCvParamValue(List<CvParam> cvParams, String value){
         String accession = null;
@@ -151,7 +163,7 @@ public class UpdateMessageTest {
 
     @After
     public void tearDown() throws IOException {
-        FileUtils.deleteDirectory(directory);
+        //FileUtils.deleteDirectory(directory);
     }
 
     private ProteomeXchangeDataset unmarshalFile(File pxXML){
