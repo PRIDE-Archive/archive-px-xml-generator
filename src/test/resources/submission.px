@@ -20,20 +20,22 @@ MTD	modification	[PSI-MOD, MOD:00198, D-alanine,]
 MTD	instrument	[MS, MS:1001742, LTQ Orbitrap Velos, ]
 MTD	pubmed_id	12345
 
-FMH	file_id	file_type	file_path	file_mapping	
+FMH	file_id	file_type	file_path	file_mapping	url	
 FME	10	other	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/database.fasta		
 FME	11	search	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/result_1.dat		
 FME	12	result	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/result_1_sample_1_dat.pride.xml	11,15,16,17,18	
 FME	13	search	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/result_2.dat		
 FME	14	result	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/result_2_sample_2_dat.pride.xml	13,19,20,21,22	
 FME	15	peak	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_1_replicate_1.mgf		
-FME	16	raw	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_1_replicate_1.RAW		
+FME	16	raw	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_1_replicate_1.RAW		ftp://webdav.swegrid.se/test_1.raw
 FME	17	peak	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_1_replicate_2.mgf		
 FME	18	raw	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_1_replicate_2.RAW		
 FME	19	peak	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_2_replicate_1.mgf		
 FME	20	raw	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_2_replicate_1.RAW		
 FME	21	peak	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_2_replicate_2.mgf		
-FME	22	raw	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_2_replicate_2.RAW		
+FME	22	raw	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_2_replicate_2.RAW	
+FME	23	gel	test_gel.png		
+FME	24	other	test_other.pdf		
 
 SMH	file_id	species	tissue	cell_type	disease	modification	instrument	quantification	experimental_factor
 SME	12	[NEWT, 9606, Homo Sapiens (Human), ]	[BTO, BTO:0000089, blood, ]				[MS, MS:1001742, LTQ Orbitrap Velos, ]		technical replicate 1
