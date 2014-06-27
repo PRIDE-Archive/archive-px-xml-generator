@@ -112,6 +112,17 @@ public class WrtieMessageTest {
         assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getValue(),"ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2013/07/PXT000001");
     }
 
+    @Test
+    public void testPxDatasetFileLink(){
+        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(0).getCvParam().get(0).getAccession(), "PRIDE:0000410");
+        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(0).getCvParam().get(0).getValue(), "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2013/07/PXT000001/database.fasta");
+
+        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(6).getCvParam().get(0).getAccession(), "PRIDE:0000404");
+        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(6).getCvParam().get(0).getValue(), "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2013/07/PXT000001/sample_1_replicate_1.RAW");
+        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(6).getCvParam().get(1).getAccession(), "PRIDE:0000448");
+        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(6).getCvParam().get(1).getValue(), "ftp://webdav.swegrid.se/test_1.raw");
+    }
+
     //helper method to retrieve accession for a specific value
     private String getAccessionCvParamValue(List<CvParam> cvParams, String value){
         String accession = null;

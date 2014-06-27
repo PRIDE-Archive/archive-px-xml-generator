@@ -17,10 +17,9 @@ import uk.ac.ebi.pride.px.xml.PxMarshaller;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Set;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,10 +45,12 @@ public class WriteMessage {
     static final String CARDIOVASCULAR = "Cardiovascular";
     static final String HIGHLIGHTED = "Highlighted";
     static final String TECHNICAL = "Technical";
+    static final String METAPROTEOMICS = "Metaproteomics";
     static final String MS_1001926 = "MS:1001926";
     static final String MS_1002340 = "MS:1002340";
     static final String CURATOR_KEYWORD = "curator keyword";
     static final String PROTEOME_XCHANGE_PROJECT_TAG = "ProteomeXchange project tag";
+    private static final String FRED_LAVANDER_LAB_SWE = "webdav.swegrid.se";
     // ToDo (general): check PXST summary file definition with regards to PARTIAL/COMPLETE differences
     // ToDo (general): extract CV params to global util package?
     // ToDo (general): perhaps change to non-static implementation and keep certain data in the instance (px accession, datasetPathFragment, counters...)?
@@ -397,7 +398,7 @@ public class WriteMessage {
         keywordList.getCvParam().add(createCvParam(MS_1001925, submissionSummary.getProjectMetaData().getKeywords(), SUBMITTER_KEYWORD, MS_CV));
         Set<String> projectTags = submissionSummary.getProjectMetaData().getProjectTags();
         if (projectTags!=null && projectTags.size()>0) {
-            HashSet<String> allPossibleCuratorTags = new HashSet<String>(Arrays.asList(BIOLOGICAL, BIOMEDICAL, CARDIOVASCULAR, HIGHLIGHTED, TECHNICAL));
+            HashSet<String> allPossibleCuratorTags = new HashSet<String>(Arrays.asList(BIOLOGICAL, BIOMEDICAL, CARDIOVASCULAR, HIGHLIGHTED, TECHNICAL, METAPROTEOMICS));
             for (String tag : projectTags) {
                 if (allPossibleCuratorTags.contains(tag)) {
                     keywordList.getCvParam().add(createCvParam(MS_1001926, tag, CURATOR_KEYWORD, MS_CV));
@@ -544,13 +545,29 @@ public class WriteMessage {
         // create a link to the public FTP location for each file of the dataset
         for (DataFile dataFile : submissionSummary.getDataFiles()) {
             DatasetFile df = new DatasetFile();
+            CvParam extraUrlLink = null;
             df.setId("FILE_"+dataFile.getFileId()); // ID to uniquely identify the DatasetFile
             String fileName = dataFile.getFile().getName();
             df.setName(fileName);
             String fileUri = FTP + "/" + datasetPathFragment + "/" + fileName;
             CvParam fileParam;
+            Set<String> allowedAltDomains = new HashSet<String>();
+            allowedAltDomains.add(FRED_LAVANDER_LAB_SWE);
             switch (dataFile.getFileType()) {
                 case RAW    : fileParam = createCvParam("PRIDE:0000404", fileUri, "Associated raw file URI", PRIDE_CV);
+                                if (dataFile.getUrl()!=null && dataFile.getUrl().toString().trim().length()>0) {
+                                    try {
+                                        URI uri = new URI(dataFile.getUrl().toString().trim());
+                                        String domain = uri.getHost();
+                                        if (allowedAltDomains.contains(domain)) {
+                                            extraUrlLink =  createCvParam("PRIDE:0000448", dataFile.getUrl().toString().trim(), "Additional associated raw file URI", PRIDE_CV);
+                                        } else {
+                                            logger.error("Alternative URL's domain not allowed: " + domain);                                        }
+                                    } catch (URISyntaxException urise) {
+                                        logger.error("Error checking alternative URL: " +  dataFile.getUrl().toString().trim());
+                                        logger.error(urise.toString());
+                                    }
+                                }
                               break;
                 case RESULT : fileParam = createCvParam("PRIDE:0000407", fileUri, "Result file URI", PRIDE_CV);
                               break;
@@ -558,13 +575,18 @@ public class WriteMessage {
                               break;
                 case PEAK   : fileParam = createCvParam("PRIDE:0000409", fileUri, "Peak list file URI", PRIDE_CV);
                               break;
+                case GEL   : fileParam = createCvParam("PRIDE:0000449", fileUri, "Gel image file URI", PRIDE_CV);
+                             break;
                 case OTHER  : fileParam = createCvParam("PRIDE:0000410", fileUri, "'Other' type file URI", PRIDE_CV);
                               break;
                 default     : fileParam = createCvParam("PRIDE:0000403", fileUri, "Associated file URI", PRIDE_CV);
                               break;
             }
-
             df.getCvParam().add(fileParam);
+            if (extraUrlLink!=null) {
+                df.getCvParam().add(extraUrlLink);
+            }
+            // ToDo (imminently): extra filetype support for 'fasta' and 'spectrum library'
             // ToDo (future): calculate and add checksum for file
             list.getDatasetFile().add(df);
         }
