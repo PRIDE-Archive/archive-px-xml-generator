@@ -70,8 +70,8 @@ public class UpdateMessage {
         proteomeXchangeDataset.getPublicationList().getPublication().clear();
         StringBuilder sb = new StringBuilder("");
         String reference;
-        Set<String> references = submissionSummary.getProjectMetaData().getPubmedIds();
-        Iterator<String> it = references.iterator();
+        Set<String> pubmedIds = submissionSummary.getProjectMetaData().getPubmedIds();
+        Iterator<String> it = pubmedIds.iterator();
         while (it.hasNext()) {
             reference = it.next();
             proteomeXchangeDataset.getPublicationList().getPublication().add(WriteMessage.getPublication(Long.parseLong(reference.trim())));
@@ -80,7 +80,23 @@ public class UpdateMessage {
                 sb.append(", ");
             }
         }
-        WriteMessage.addChangeLogEntry(proteomeXchangeDataset, "Updated publication reference for PubMed record(s): " + sb.toString() + ".");
+        if (sb.length()>0) {
+            WriteMessage.addChangeLogEntry(proteomeXchangeDataset, "Updated publication reference for PubMed record(s): " + sb.toString() + ".");
+        }
+
+        sb.delete(0, sb.length());
+        if (submissionSummary.getProjectMetaData().hasDois()) {
+            for (String doi : submissionSummary.getProjectMetaData().getDois()) {
+                proteomeXchangeDataset.getPublicationList().getPublication().add(WriteMessage.getPublicationDoi(doi));
+                sb.append(doi);
+                if (it.hasNext()) {
+                    sb.append(", ");
+                }
+            }
+            if (sb.length()>0) {
+                WriteMessage.addChangeLogEntry(proteomeXchangeDataset, "Updated publication reference for DOI(s): " + sb.toString() + ".");
+            }
+        }
 
         logger.debug("Updating new reference for PX XML file: " + pxFile.getAbsolutePath());
 

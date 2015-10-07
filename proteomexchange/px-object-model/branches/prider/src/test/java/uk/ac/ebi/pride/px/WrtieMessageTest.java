@@ -91,7 +91,7 @@ public class WrtieMessageTest {
 
     @Test
     public void testPxPubMedFromFile(){
-        assertEquals(proteomeXchangeDataset.getPublicationList().getPublication().size(),1);
+        assertEquals(proteomeXchangeDataset.getPublicationList().getPublication().size(),2);
         assertEquals(proteomeXchangeDataset.getPublicationList().getPublication().get(0).getId(),"PMID12345");
         assertEquals(getValueCvParam(proteomeXchangeDataset.getPublicationList().getPublication().get(0).getCvParam(),"MS:1000879"),"12345");
     }
