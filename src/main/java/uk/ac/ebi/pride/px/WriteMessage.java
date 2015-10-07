@@ -8,7 +8,7 @@ import uk.ac.ebi.pride.data.io.SubmissionFileParser;
 import uk.ac.ebi.pride.data.model.DataFile;
 import uk.ac.ebi.pride.data.model.SampleMetaData;
 import uk.ac.ebi.pride.data.model.Submission;
-import uk.ac.ebi.pride.prider.dataprovider.project.SubmissionType;
+import uk.ac.ebi.pride.archive.dataprovider.project.SubmissionType;
 import uk.ac.ebi.pride.pubmed.PubMedFetcher;
 import uk.ac.ebi.pride.pubmed.model.PubMedSummary;
 import uk.ac.ebi.pride.px.model.*;
@@ -317,8 +317,9 @@ public class WriteMessage {
         PublicationList list = new PublicationList();
 
         Set<String> pubmedIDs = submissionSummary.getProjectMetaData().getPubmedIds();
+        Set<String> dois = submissionSummary.getProjectMetaData().getDois();
 
-        if ( pubmedIDs == null || pubmedIDs.size() < 1 ) {
+        if ((pubmedIDs==null || pubmedIDs.size()<1) && (dois==null || dois.size()<1)) {
             // no pubmed ID, so no publication, we assume it is pending
             Publication publication = new Publication();
             CvParam cvParam = new CvParam();
@@ -332,6 +333,9 @@ public class WriteMessage {
             for (String pubmedID : pubmedIDs) {
                 Long pmid = Long.parseLong(pubmedID);
                 list.getPublication().add(getPublication(pmid));
+            }
+            for (String doi : dois) {
+                list.getPublication().add(getPublicationDoi(doi));
             }
         }
 
@@ -372,6 +376,17 @@ public class WriteMessage {
 
         // ToDo: is there no MS term for this? Is this the cv param we are supposed to use?
         publication.getCvParam().add(createCvParam("PRIDE:0000400", refLine, "Reference", PRIDE_CV));
+        return publication;
+    }
+
+    static Publication getPublicationDoi(String doi) {
+        if (doi==null || doi.isEmpty()) {
+            throw new IllegalArgumentException("No DOI provided!");
+        }
+        Publication publication = new Publication();
+        // add the doi
+        publication.setId("DOI-" + doi.replaceAll("[^A-Za-z0-9]", "_"));
+        publication.getCvParam().add(createCvParam("MS:1001922", doi, "Digital Object Identifier (DOI)", MS_CV));
         return publication;
     }
 

@@ -19,6 +19,7 @@ MTD	tissue	[BTO, BTO:0000089, blood, ]
 MTD	modification	[PSI-MOD, MOD:00198, D-alanine,]
 MTD	instrument	[MS, MS:1001742, LTQ Orbitrap Velos, ]
 MTD	pubmed_id	12345
+MTD	doi	10.1234/PXD000001
 
 FMH	file_id	file_type	file_path	file_mapping	url	
 FME	10	other	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/database.fasta		
