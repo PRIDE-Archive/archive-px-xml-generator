@@ -17,6 +17,9 @@ import javax.xml.bind.annotation.XmlType;
  *     &lt;enumeration value="PRIDE"/>
  *     &lt;enumeration value="PeptideAtlas"/>
  *     &lt;enumeration value="PASSEL"/>
+ *     &lt;enumeration value="TestRepo"/>
+ *     &lt;enumeration value="MassIVE"/>
+ *     &lt;enumeration value="iProX"/>
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
@@ -26,10 +29,18 @@ import javax.xml.bind.annotation.XmlType;
 @XmlEnum
 public enum HostingRepositoryType {
 
+    @XmlEnumValue("PRIDE")
     PRIDE("PRIDE"),
     @XmlEnumValue("PeptideAtlas")
     PEPTIDE_ATLAS("PeptideAtlas"),
-    PASSEL("PASSEL");
+    @XmlEnumValue("PASSEL")
+    PASSEL("PASSEL"),
+    @XmlEnumValue("TestRepo")
+    TEST_REPO("TestRepo"),
+    @XmlEnumValue("MassIVE")
+    MASS_IVE("MassIVE"),
+    @XmlEnumValue("iProX")
+    I_PRO_X("iProX");
     private final String value;
 
     HostingRepositoryType(String v) {

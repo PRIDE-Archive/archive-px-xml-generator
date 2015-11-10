@@ -1,11 +1,8 @@
 
 package uk.ac.ebi.pride.px.model;
 
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
 
 
 /**
@@ -19,7 +16,7 @@ import javax.xml.bind.annotation.XmlType;
  * &lt;complexType name="CvParamType">
  *   &lt;complexContent>
  *     &lt;extension base="{}AbstractParamType">
- *       &lt;attribute name="cvRef" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="cvRef" use="required" type="{http://www.w3.org/2001/XMLSchema}IDREF" />
  *       &lt;attribute name="accession" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/extension>
  *   &lt;/complexContent>
@@ -37,7 +34,9 @@ public class CvParam
 
     private final static long serialVersionUID = 100L;
     @XmlAttribute(required = true)
-    protected String cvRef;
+    @XmlIDREF
+    @XmlSchemaType(name = "IDREF")
+    protected Object cvRef;
     @XmlAttribute(required = true)
     protected String accession;
 
@@ -46,10 +45,10 @@ public class CvParam
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link Object }
      *     
      */
-    public String getCvRef() {
+    public Object getCvRef() {
         return cvRef;
     }
 
@@ -58,10 +57,10 @@ public class CvParam
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link Object }
      *     
      */
-    public void setCvRef(String value) {
+    public void setCvRef(Object value) {
         this.cvRef = value;
     }
 

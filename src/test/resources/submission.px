@@ -1,17 +1,43 @@
-MTD	name	 John Arthur Smith
-MTD	email	john.smith@cam.edu
-MTD	affiliation	University of Cambridge
-MTD	title	Human proteome
-MTD	description	An experiment about human proteome
-MTD	keywords	human, proteome
-MTD	type	supported
-MTD	pubmed	12345
-MTD	pubmed	23456
-MTD	px	10.1000/182
-MTD	px	10.1000/183
-MTD	pride_login	pride_user
+MTD	submitter_name	PRIDE
+MTD	submitter_email	pride-support@ebi.ac.uk
+MTD	submitter_affiliation	Proteomics
+MTD	submitter_pride_login	pride-support@ebi.ac.uk
+MTD	lab_head_name	The boss
+MTD	lab_head_email	boss@ebi.ac.uk
+MTD	lab_head_affiliation	EBI
+MTD	project_title	Test project title
+MTD	project_description	Description for the test project
+MTD	project_tag	PRIME-XS Project
+MTD	project_tag	Biological
+MTD	keywords	test, project
+MTD	sample_processing_protocol	Various post-translational modifications (PTMs) fine-tune the functions of almost all eukaryotic proteins, and co-regulation of different types of PTMs has been shown within and between a number of proteins. Aiming at a more global view of the interplay between PTM types, we collected modifications for 13 frequent PTM types in 8 eukaryotes, compared their speed of evolution and developed a method for measuring PTM co-evolution within proteins based on the co-occurrence of sites across eukaryotes. As many sites are still to be discovered, this is a considerable underestimate, yet, assuming that most co-evolving PTMs are functionally associated, we found that PTM types are vastly interconnected, forming a global network that comprise in human alone >50 000 residues in about 6000 proteins. We predict substantial PTM type interplay in secreted and membrane-associated proteins and in the context of particular protein domains and short-linear motifs. The global network of co-evolving PTM types implies a complex and intertwined post-translational regulation landscape that is likely to regulate multiple functional states of many if not all eukaryotic proteins.
+MTD	data_processing_protocol	Various post-translational modifications (PTMs) fine-tune the functions of almost all eukaryotic proteins, and co-regulation of different types of PTMs has been shown within and between a number of proteins. Aiming at a more global view of the interplay between PTM types, we collected modifications for 13 frequent PTM types in 8 eukaryotes, compared their speed of evolution and developed a method for measuring PTM co-evolution within proteins based on the co-occurrence of sites across eukaryotes. As many sites are still to be discovered, this is a considerable underestimate, yet, assuming that most co-evolving PTMs are functionally associated, we found that PTM types are vastly interconnected, forming a global network that comprise in human alone >50 000 residues in about 6000 proteins. We predict substantial PTM type interplay in secreted and membrane-associated proteins and in the context of particular protein domains and short-linear motifs. The global network of co-evolving PTM types implies a complex and intertwined post-translational regulation landscape that is likely to regulate multiple functional states of many if not all eukaryotic proteins.
+MTD	experiment_type	[PRIDE, PRIDE:0000429, Shotgun proteomics, ]
+MTD	submission_type	COMPLETE
+MTD	species	[NEWT, 9606, Homo Sapiens (Human), ]
+MTD	tissue	[BTO, BTO:0000089, blood, ]
+MTD	modification	[PSI-MOD, MOD:00198, D-alanine,]
+MTD	instrument	[MS, MS:1001742, LTQ Orbitrap Velos, ]
+MTD	pubmed_id	12345
+MTD	doi	10.1234/PXD000001
 
-FMH	file_id	file_type	file_path 	file_mapping	pride_accession
-FME	1	result	/path/to/pride/xml/files/pride_1.xml	2	2472
-FME	2	raw	/path/to/pride/xml/files/pride_2.xml
+FMH	file_id	file_type	file_path	file_mapping	url	
+FME	10	other	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/database.fasta		
+FME	11	search	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/result_1.dat		
+FME	12	result	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/result_1_sample_1_dat.pride.xml	11,15,16,17,18	
+FME	13	search	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/result_2.dat		
+FME	14	result	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/result_2_sample_2_dat.pride.xml	13,19,20,21,22	
+FME	15	peak	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_1_replicate_1.mgf		
+FME	16	raw	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_1_replicate_1.RAW		ftp://webdav.swegrid.se/test_1.raw
+FME	17	peak	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_1_replicate_2.mgf		
+FME	18	raw	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_1_replicate_2.RAW		
+FME	19	peak	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_2_replicate_1.mgf		
+FME	20	raw	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_2_replicate_1.RAW		
+FME	21	peak	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_2_replicate_2.mgf		
+FME	22	raw	/Users/attilacsordas/Desktop/pxsubmissiontestsets/pxcompletetest/sample_2_replicate_2.RAW	
+FME	23	gel	test_gel.png		
+FME	24	other	test_other.pdf		
 
+SMH	file_id	species	tissue	cell_type	disease	modification	instrument	quantification	experimental_factor
+SME	12	[NEWT, 9606, Homo Sapiens (Human), ]	[BTO, BTO:0000089, blood, ]				[MS, MS:1001742, LTQ Orbitrap Velos, ]		technical replicate 1
+SME	14	[NEWT, 9606, Homo Sapiens (Human), ]	[BTO, BTO:0000089, blood, ]				[MS, MS:1001742, LTQ Orbitrap Velos, ]		replicate 2

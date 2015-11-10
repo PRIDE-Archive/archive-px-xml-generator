@@ -11,18 +11,18 @@ import java.util.List;
 
 
 /**
- * The list of species from which the data has been generated.
+ * The list of controlled vocabularies used in the file.
  * 
- * <p>Java class for SpeciesListType complex type.
+ * <p>Java class for CvListType complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="SpeciesListType">
+ * &lt;complexType name="CvListType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="Species" type="{}SpeciesType" maxOccurs="unbounded"/>
+ *         &lt;element name="Cv" type="{}CvType" maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -32,44 +32,44 @@ import java.util.List;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "SpeciesListType", propOrder = {
-    "species"
+@XmlType(name = "CvListType", propOrder = {
+    "cv"
 })
-public class SpeciesList
+public class CvList
     implements Serializable, PXObject
 {
 
     private final static long serialVersionUID = 100L;
-    @XmlElement(name = "Species", required = true)
-    protected List<Species> species;
+    @XmlElement(name = "Cv", required = true)
+    protected List<Cv> cv;
 
     /**
-     * Gets the value of the species property.
+     * Gets the value of the cv property.
      * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the species property.
+     * This is why there is not a <CODE>set</CODE> method for the cv property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getSpecies().add(newItem);
+     *    getCv().add(newItem);
      * </pre>
      * 
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link Species }
+     * {@link Cv }
      * 
      * 
      */
-    public List<Species> getSpecies() {
-        if (species == null) {
-            species = new ArrayList<Species>();
+    public List<Cv> getCv() {
+        if (cv == null) {
+            cv = new ArrayList<Cv>();
         }
-        return this.species;
+        return this.cv;
     }
 
 }

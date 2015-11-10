@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.ac.ebi.pride.px</groupId>
-    <artifactId>px-xml-generator</artifactId>
-    <version>0.6-SNAPSHOT</version>
+    <artifactId>px-xml-generator-prider</artifactId>
+    <version>1.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>ProteomeXchange XML message</name>
-    <description>Java object model for writing of ProteomeXchange XML messages.</description>
+    <description>Java object model for writing, updating, reading, validating, and posting of ProteomeXchange XML messages.</description>
     <url>...</url>
     <licenses>
         <license>
@@ -32,11 +32,31 @@
             <email>dani@ebi.ac.uk</email>
             <organization>European Bioinformatics Institute</organization>
         </developer>
+        <developer>
+            <id>jadianes</id>
+            <name>Jose A. Dianes</name>
+            <email>jdianes@ebi.ac.uk</email>
+            <organization>European Bioinformatics Institute</organization>
+        </developer>
+        <developer>
+            <id>tobias</id>
+            <name>Tobias Ternent</name>
+            <email>tobias@ebi.ac.uk</email>
+            <organization>European Bioinformatics Institute</organization>
+        </developer>
     </developers>
     <organization>
         <name>European Bioinformatics Institute</name>
         <url>http://www.ebi.ac.uk</url>
     </organization>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <http.client.version>4.2.5</http.client.version>
+        <http.mime.version>4.2.2</http.mime.version>
+        <xml.schema.validator.version>2.1</xml.schema.validator.version>
+        <px.submission.core.version>2.0.9-SNAPSHOT</px.submission.core.version>
+    </properties>
 
     <build>
         <resources>
@@ -46,6 +66,7 @@
             </resource>
         </resources>
         <plugins>
+            <!-- maven-compiler-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -54,6 +75,7 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
+            <!-- maven-source-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -68,19 +90,21 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-javadoc-plugin</artifactId>-->
-                <!--<version>2.7</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>attach-javadocs</id>-->
-                        <!--<goals>-->
-                            <!--<goal>jar</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
+            <!-- maven-javadoc-plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- maven-jaxb2-plugin (generate model classes from XML Schema file) -->
             <plugin>
                 <!-- you can use this plugin to generate the jaxb object model from
                      the schema and binding files specified below. Note: this will
@@ -98,7 +122,7 @@
                     <extension>true</extension>
                     <schemaDirectory>src/main/resources</schemaDirectory>
                     <schemaIncludes>
-                        <include>proteomeXchange-draft-07.xsd</include>
+                        <include>proteomeXchange-1.2.0.xsd</include>
                     </schemaIncludes>
                     <bindingDirectory>src/main/resources</bindingDirectory>
                     <bindingIncludes>
@@ -139,14 +163,9 @@
             <version>1.2.16</version>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.0.5</version>
-        </dependency>
-        <dependency>
             <groupId>uk.ac.ebi.pride</groupId>
             <artifactId>px-submission-core</artifactId>
-            <version>1.0.4</version>
+            <version>${px.submission.core.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.mail</groupId>
@@ -167,32 +186,48 @@
         <dependency>
             <groupId>uk.ac.ebi.pride.pubmed</groupId>
             <artifactId>peppubmed</artifactId>
-            <version>0.3-SNAPSHOT</version>
+            <version>0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${http.client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>${http.mime.version}</version>
+        </dependency>
+        <!--xml schema validation-->
+        <dependency>
+            <groupId>uk.ac.ebi.pride.tools</groupId>
+            <artifactId>xmlSchemaValidator</artifactId>
+            <version>${xml.schema.validator.version}</version>
         </dependency>
     </dependencies>
 
-
     <repositories>
+        <!-- EBI repo -->
         <repository>
-            <id>ebi-repo</id>
+            <id>nexus-ebi-repo</id>
             <name>The EBI internal repository</name>
-            <url>http://www.ebi.ac.uk/~maven/m2repo</url>
+            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo/</url>
             <releases>
-                <enabled>true</enabled>
             </releases>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+
+        <!-- EBI SNAPSHOT repo -->
         <repository>
-            <id>ebi-snapshot-repo</id>
+            <id>nexus-ebi-snapshot-repo</id>
             <name>The EBI internal snapshot repository</name>
-            <url>http://www.ebi.ac.uk/~maven/m2repo_snapshots</url>
+            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo-snapshots/</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
             <snapshots>
-                <enabled>true</enabled>
             </snapshots>
         </repository>
         <repository>
@@ -201,6 +236,7 @@
             <url>http://repo1.maven.org/maven2/</url>
         </repository>
     </repositories>
+
     <distributionManagement>
         <!-- EBI repo -->
         <repository>
