@@ -4,7 +4,7 @@
 
     <groupId>uk.ac.ebi.pride.px</groupId>
     <artifactId>px-xml-generator-prider</artifactId>
-    <version>1.5-SNAPSHOT</version>
+    <version>0.9.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>ProteomeXchange XML message</name>
@@ -50,12 +50,19 @@
         <url>http://www.ebi.ac.uk</url>
     </organization>
 
+    <!-- for release-->
+    <scm>
+        <connection>scm:git:https://github.com/PRIDE-Archive/px-xml-generator.git</connection>
+        <developerConnection>scm:git:git@github.com/PRIDE-Archive/px-xml-generator.git</developerConnection>
+        <url>https://github.com/PRIDE-Archive/px-xml-generator</url>
+        <tag>HEAD</tag>
+    </scm>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <http.client.version>4.2.5</http.client.version>
-        <http.mime.version>4.2.2</http.mime.version>
         <xml.schema.validator.version>2.1</xml.schema.validator.version>
-        <px.submission.core.version>2.0.9-SNAPSHOT</px.submission.core.version>
+        <px.submission.core.version>2.0.8</px.submission.core.version>
+        <pubmed.id.fetcher.version>1.0.0</pubmed.id.fetcher.version>
     </properties>
 
     <build>
@@ -70,16 +77,17 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
             <!-- maven-source-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.1.2</version>
+                <version>2.4</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -90,11 +98,22 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <remoteTagging>true</remoteTagging>
+                    <goals>deploy</goals>
+                </configuration>
+            </plugin>
+
             <!-- maven-javadoc-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.7</version>
+                <version>2.10.3</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -150,17 +169,17 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.6.2</version>
+            <version>1.7.12</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.6.2</version>
+            <version>1.7.12</version>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.4.1</version>
         </dependency>
         <dependency>
             <groupId>uk.ac.ebi.pride</groupId>
@@ -169,34 +188,34 @@
         </dependency>
         <dependency>
             <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-            <version>1.4.5</version>
+            <artifactId>javax.mail-api</artifactId>
+            <version>1.5.4</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.1</version>
+            <version>3.4</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.0.1</version>
+            <version>2.4</version>
         </dependency>
-        <!-- PubMedId fetcher -->
+        <!-- pubmed id fetcher -->
         <dependency>
             <groupId>uk.ac.ebi.pride.pubmed</groupId>
-            <artifactId>peppubmed</artifactId>
-            <version>0.3</version>
+            <artifactId>pubmed-id-fetcher</artifactId>
+            <version>${pubmed.id.fetcher.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>${http.client.version}</version>
+            <version>4.5.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
-            <version>${http.mime.version}</version>
+            <version>4.5.1</version>
         </dependency>
         <!--xml schema validation-->
         <dependency>
@@ -218,7 +237,6 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-
         <!-- EBI SNAPSHOT repo -->
         <repository>
             <id>nexus-ebi-snapshot-repo</id>
@@ -230,6 +248,7 @@
             <snapshots>
             </snapshots>
         </repository>
+        <!-- Maven Central repo -->
         <repository>
             <id>central</id>
             <name>Maven Central</name>

@@ -66,17 +66,18 @@ public class WriteMessage {
         MS_CV = new Cv();
         MS_CV.setFullName("PSI-MS");
         MS_CV.setId("MS");
-        MS_CV.setUri("http://psidev.cvs.sourceforge.net/viewvc/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo");
+        MS_CV.setUri("https://raw.githubusercontent.com/MICommunity/psidev/master/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo");
 
         PRIDE_CV = new Cv();
         PRIDE_CV.setFullName("PRIDE");
         PRIDE_CV.setId("PRIDE");
+        //todo PRIDE ontology should now be moved to GitHub or similar, Google code is now deprecated
         PRIDE_CV.setUri("http://code.google.com/p/ebi-pride/source/browse/trunk/pride-core/schema/pride_cv.obo");
 
         MOD_CV = new Cv();
         MOD_CV.setFullName("PSI-MOD");
         MOD_CV.setId("MOD");
-        MOD_CV.setUri("http://psidev.cvs.sourceforge.net/psidev/psi/mod/data/PSI-MOD.obo");
+        MOD_CV.setUri("https://raw.githubusercontent.com/MICommunity/psidev/master/psi/mod/data/PSI-MOD.obo");
 
         UNIMOD_CV = new Cv();
         UNIMOD_CV.setFullName("UNIMOD");
@@ -330,12 +331,16 @@ public class WriteMessage {
             publication.getCvParam().add(cvParam);
             list.getPublication().add(publication);
         } else { // we have already publications
-            for (String pubmedID : pubmedIDs) {
-                Long pmid = Long.parseLong(pubmedID);
-                list.getPublication().add(getPublication(pmid));
+            if (pubmedIDs!=null) {
+                for (String pubmedID : pubmedIDs) {
+                    Long pmid = Long.parseLong(pubmedID);
+                    list.getPublication().add(getPublication(pmid));
+                }
             }
-            for (String doi : dois) {
-                list.getPublication().add(getPublicationDoi(doi));
+            if (dois != null) {
+                for (String doi : dois) {
+                    list.getPublication().add(getPublicationDoi(doi));
+                }
             }
         }
 
@@ -413,7 +418,7 @@ public class WriteMessage {
         keywordList.getCvParam().add(createCvParam(MS_1001925, submissionSummary.getProjectMetaData().getKeywords(), SUBMITTER_KEYWORD, MS_CV));
         Set<String> projectTags = submissionSummary.getProjectMetaData().getProjectTags();
         if (projectTags!=null && projectTags.size()>0) {
-            HashSet<String> allPossibleCuratorTags = new HashSet<String>(Arrays.asList(BIOLOGICAL, BIOMEDICAL, CARDIOVASCULAR, HIGHLIGHTED, TECHNICAL, METAPROTEOMICS));
+            HashSet<String> allPossibleCuratorTags = new HashSet<>(Arrays.asList(BIOLOGICAL, BIOMEDICAL, CARDIOVASCULAR, HIGHLIGHTED, TECHNICAL, METAPROTEOMICS));
             for (String tag : projectTags) {
                 if (allPossibleCuratorTags.contains(tag)) {
                     keywordList.getCvParam().add(createCvParam(MS_1001926, tag, CURATOR_KEYWORD, MS_CV));
@@ -437,7 +442,7 @@ public class WriteMessage {
         // however, in the summary file modifications can be annotated at project level or for each result file (in case of complete submissions)
         Set<uk.ac.ebi.pride.data.model.CvParam> modificationSet = submissionSummary.getProjectMetaData().getModifications();
         if (modificationSet == null) {
-            modificationSet = new HashSet<uk.ac.ebi.pride.data.model.CvParam>();
+            modificationSet = new HashSet<>();
         }
         if (modificationSet.isEmpty()) {
             // maybe we are dealing with a complete submission and the modifications have not been gathered at project level
@@ -566,7 +571,7 @@ public class WriteMessage {
             df.setName(fileName);
             String fileUri = FTP + "/" + datasetPathFragment + "/" + fileName;
             CvParam fileParam;
-            Set<String> allowedAltDomains = new HashSet<String>();
+            Set<String> allowedAltDomains = new HashSet<>();
             allowedAltDomains.add(FRED_LAVANDER_LAB_SWE);
             switch (dataFile.getFileType()) {
                 case RAW    : fileParam = createCvParam("PRIDE:0000404", fileUri, "Associated raw file URI", PRIDE_CV);
