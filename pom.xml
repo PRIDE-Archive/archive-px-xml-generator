@@ -53,7 +53,7 @@
     <!-- for release-->
     <scm>
         <connection>scm:git:https://github.com/PRIDE-Archive/px-xml-generator.git</connection>
-        <developerConnection>scm:git:git@github.com/PRIDE-Archive/px-xml-generator.git</developerConnection>
+        <developerConnection>scm:git:https://github.com/PRIDE-Archive/px-xml-generator.git</developerConnection>
         <url>https://github.com/PRIDE-Archive/px-xml-generator</url>
         <tag>HEAD</tag>
     </scm>
