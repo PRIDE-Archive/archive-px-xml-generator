@@ -1,12 +1,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>uk.ac.ebi.pride.maven</groupId>
+        <artifactId>pride-base-master</artifactId>
+        <version>1.0.3</version>
+    </parent>
+
     <groupId>uk.ac.ebi.pride.px</groupId>
-    <artifactId>px-xml-generator-prider</artifactId>
+    <artifactId>archive-px-xml-generator</artifactId>
     <version>1.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>ProteomeXchange XML message</name>
+    <name>ProteomeXchange XML file generator for PRIDE Archive</name>
     <description>Java object model for writing, updating, reading, validating, and posting of ProteomeXchange XML messages.</description>
     <url>...</url>
     <licenses>
@@ -51,9 +57,9 @@
 
     <!-- for release-->
     <scm>
-        <connection>scm:git:https://github.com/PRIDE-Archive/px-xml-generator.git</connection>
-        <developerConnection>scm:git:https://github.com/PRIDE-Archive/px-xml-generator.git</developerConnection>
-        <url>https://github.com/PRIDE-Archive/px-xml-generator</url>
+        <connection>scm:git:https://github.com/PRIDE-Archive/archive-px-xml-generator.git</connection>
+        <developerConnection>scm:git:https://github.com/PRIDE-Archive/archive-px-xml-generator.git</developerConnection>
+        <url>https://github.com/PRIDE-Archive/archive-px-xml-generator</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -61,7 +67,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <xml.schema.validator.version>2.1</xml.schema.validator.version>
         <px.submission.core.version>2.0.8</px.submission.core.version>
-        <pubmed.id.fetcher.version>1.0.0</pubmed.id.fetcher.version>
+        <pubmed.id.fetcher.version>1.0.1</pubmed.id.fetcher.version>
     </properties>
 
     <build>
@@ -76,7 +82,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
@@ -86,7 +91,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.4</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -112,7 +116,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -160,30 +163,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.9</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.12</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.12</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.4.1</version>
-        </dependency>
-        <dependency>
             <groupId>uk.ac.ebi.pride</groupId>
             <artifactId>px-submission-core</artifactId>
             <version>${px.submission.core.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>javax.mail</groupId>
@@ -222,38 +210,26 @@
             <artifactId>xmlSchemaValidator</artifactId>
             <version>${xml.schema.validator.version}</version>
         </dependency>
-    </dependencies>
 
-    <repositories>
-        <!-- EBI repo -->
-        <repository>
-            <id>nexus-ebi-repo</id>
-            <name>The EBI internal repository</name>
-            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo/</url>
-            <releases>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <!-- EBI SNAPSHOT repo -->
-        <repository>
-            <id>nexus-ebi-snapshot-repo</id>
-            <name>The EBI internal snapshot repository</name>
-            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo-snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-            </snapshots>
-        </repository>
-        <!-- Maven Central repo -->
-        <repository>
-            <id>central</id>
-            <name>Maven Central</name>
-            <url>http://repo1.maven.org/maven2/</url>
-        </repository>
-    </repositories>
+        <!-- logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+
+        <!--test-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.9</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
 
     <distributionManagement>
         <!-- EBI repo -->
