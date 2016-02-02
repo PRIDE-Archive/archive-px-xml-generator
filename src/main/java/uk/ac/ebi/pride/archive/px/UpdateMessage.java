@@ -40,7 +40,8 @@ public class UpdateMessage {
         // the submission summary file has to exist, with PMIDs
         Assert.isTrue(submissionSummaryFile.isFile() && submissionSummaryFile.exists(), "Summary file should already exist! In: " + submissionSummaryFile.getAbsolutePath());
         Submission submissionSummary = SubmissionFileParser.parse(submissionSummaryFile);
-        Assert.isTrue(submissionSummary.getProjectMetaData().hasPubmedIds(), "Summary file should have PubMed IDs listed!");
+        Assert.isTrue(submissionSummary.getProjectMetaData().hasPubmedIds() || submissionSummary.getProjectMetaData().hasDois(),
+                "Summary file should have PubMed IDs or DOIs listed!");
 
         // the output directory has to exist
         Assert.isTrue(outputDirectory.exists() && outputDirectory.isDirectory(), "PX XML output directory should already exist! In: " + outputDirectory.getAbsolutePath());
