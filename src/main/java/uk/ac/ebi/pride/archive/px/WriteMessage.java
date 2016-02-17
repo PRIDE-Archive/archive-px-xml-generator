@@ -66,13 +66,12 @@ public class WriteMessage {
         MS_CV = new Cv();
         MS_CV.setFullName("PSI-MS");
         MS_CV.setId("MS");
-        MS_CV.setUri("https://raw.githubusercontent.com/MICommunity/psidev/master/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo");
+        MS_CV.setUri("https://raw.githubusercontent.com/HUPO-PSI/psi-ms-CV/master/psi-ms.obo");
 
         PRIDE_CV = new Cv();
         PRIDE_CV.setFullName("PRIDE");
         PRIDE_CV.setId("PRIDE");
-        //todo PRIDE ontology should now be moved to GitHub or similar, Google code is now deprecated
-        PRIDE_CV.setUri("http://code.google.com/p/ebi-pride/source/browse/trunk/pride-core/schema/pride_cv.obo");
+        PRIDE_CV.setUri("https://raw.githubusercontent.com/PRIDE-Utilities/pride-ontology/master/pride_cv.obo");
 
         MOD_CV = new Cv();
         MOD_CV.setFullName("PSI-MOD");
