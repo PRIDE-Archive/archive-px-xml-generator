@@ -59,7 +59,6 @@ public class PostMessageTest {
 
     @After
     public void tearDown() throws IOException {
-        FileUtils.deleteDirectory(directory);
     }
 
 }

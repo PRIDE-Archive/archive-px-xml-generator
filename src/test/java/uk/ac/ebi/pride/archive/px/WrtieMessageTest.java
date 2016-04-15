@@ -152,7 +152,6 @@ public class WrtieMessageTest {
 
     @After
     public void tearDown() throws IOException {
-        FileUtils.deleteDirectory(directory);
     }
 
     private ProteomeXchangeDataset unmarshalFile(File pxXML){
