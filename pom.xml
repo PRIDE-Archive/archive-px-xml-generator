@@ -4,7 +4,7 @@
     <parent>
         <groupId>uk.ac.ebi.pride.maven</groupId>
         <artifactId>pride-base-master</artifactId>
-        <version>1.0.3</version>
+        <version>1.0.4-SNAPSHOT</version>
     </parent>
 
     <groupId>uk.ac.ebi.pride.archive</groupId>
@@ -55,18 +55,10 @@
         <url>http://www.ebi.ac.uk</url>
     </organization>
 
-    <!-- for release-->
-    <scm>
-        <connection>scm:git:https://github.com/PRIDE-Archive/archive-px-xml-generator.git</connection>
-        <developerConnection>scm:git:https://github.com/PRIDE-Archive/archive-px-xml-generator.git</developerConnection>
-        <url>https://github.com/PRIDE-Archive/archive-px-xml-generator</url>
-        <tag>HEAD</tag>
-    </scm>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <xml.schema.validator.version>2.1</xml.schema.validator.version>
-        <px.submission.core.version>2.0.8</px.submission.core.version>
+        <px.submission.core.version>2.0.9</px.submission.core.version>
         <pubmed.id.fetcher.version>1.0.1</pubmed.id.fetcher.version>
     </properties>
 
@@ -176,14 +168,11 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.4</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.4</version>
         </dependency>
-        <!-- pubmed id fetcher -->
         <dependency>
             <groupId>uk.ac.ebi.pride.pubmed</groupId>
             <artifactId>pubmed-id-fetcher</artifactId>
@@ -199,14 +188,11 @@
             <artifactId>httpmime</artifactId>
             <version>4.5.1</version>
         </dependency>
-        <!--xml schema validation-->
         <dependency>
             <groupId>uk.ac.ebi.pride.tools</groupId>
             <artifactId>xmlSchemaValidator</artifactId>
             <version>${xml.schema.validator.version}</version>
         </dependency>
-
-        <!-- logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -215,28 +201,18 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
         </dependency>
-
-        <!--test-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.9</version>
             <scope>test</scope>
         </dependency>
 
     </dependencies>
 
-    <distributionManagement>
-        <!-- EBI repo -->
-        <repository>
-            <id>nexus-ebi-repo</id>
-            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo</url>
-        </repository>
-        <!-- EBI SNAPSHOT repo -->
-        <snapshotRepository>
-            <id>nexus-ebi-repo-snapshots</id>
-            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo-snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
+    <scm>
+        <connection>scm:git:https://github.com/PRIDE-Archive/archive-px-xml-generator.git</connection>
+        <developerConnection>scm:git:https://github.com/PRIDE-Archive/archive-px-xml-generator.git</developerConnection>
+        <url>https://github.com/PRIDE-Archive/archive-px-xml-generator</url>
+        <tag>HEAD</tag>
+    </scm>
 </project>
