@@ -60,6 +60,7 @@
         <xml.schema.validator.version>2.1</xml.schema.validator.version>
         <px.submission.core.version>2.0.9</px.submission.core.version>
         <pubmed.id.fetcher.version>1.0.1</pubmed.id.fetcher.version>
+        <maven.surefire.plugin>2.12</maven.surefire.plugin>
     </properties>
 
     <build>
@@ -168,10 +169,12 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+            <version>3.4</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
+            <version>2.4</version>
         </dependency>
         <dependency>
             <groupId>uk.ac.ebi.pride.pubmed</groupId>
@@ -209,6 +212,13 @@
         </dependency>
 
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>nexus-ebi-release-repo</id>
+            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
+        </repository>
+    </repositories>
 
     <scm>
         <connection>scm:git:https://github.com/PRIDE-Archive/archive-px-xml-generator.git</connection>
