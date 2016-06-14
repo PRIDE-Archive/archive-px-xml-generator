@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
  * @author Daniel Rios
  * @author Florian Reisinger
  */
-public class WrtieMessageTest {
+public class WriteMessageTest {
 
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
