@@ -33,7 +33,7 @@
     <!-- #####       ProteomeXchange XML bindings                                ##### -->
     <!-- ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### ##### -->
 
-    <jxb:bindings schemaLocation="proteomeXchange-1.2.0.xsd" node="/xsd:schema">
+    <jxb:bindings schemaLocation="proteomeXchange-1.3.0.xsd" node="/xsd:schema">
 
         <jxb:schemaBindings>
             <jxb:package name="uk.ac.ebi.pride.px.model"/>

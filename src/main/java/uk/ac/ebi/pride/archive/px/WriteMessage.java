@@ -32,11 +32,10 @@ import java.util.regex.Pattern;
 public class WriteMessage {
 
     private static final Logger logger = LoggerFactory.getLogger(WriteMessage.class);
-    public static final String FORMAT_VERSION = "1.2.0";
+    public static final String FORMAT_VERSION = "1.3.0";
     private static final String DOI_PREFFIX = "10.6019";
     private static final String NCBI_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
     private static final String FTP = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive";
-    //private static final String DEPRECATED_FTP = "ftp://ftp.pride.ebi.ac.uk/";
     private static final String PRIDE_REPO_PROJECT_BASE_URL = "http://www.ebi.ac.uk/pride/archive/projects/";
     static final String MS_1001925 = "MS:1001925";
     static final String SUBMITTER_KEYWORD = "submitter keyword";

@@ -25,7 +25,7 @@ import java.util.List;
 public class ValidateMessage {
 
     private static final Logger logger = LoggerFactory.getLogger(ValidateMessage.class);
-    private static final String SCHEMA_LOCATION = "http://proteomecentral.proteomexchange.org/schemas/proteomeXchange-1.2.0.xsd";
+    private static final String SCHEMA_LOCATION = "http://proteomecentral.proteomexchange.org/schemas/proteomeXchange-1.3.0.xsd";
 
     /**
      * Method to validate a supplied PX XML file.
