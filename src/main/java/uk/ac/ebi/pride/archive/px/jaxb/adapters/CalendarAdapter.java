@@ -20,7 +20,7 @@ public class CalendarAdapter extends XmlAdapter<String, Calendar> {
      * Unmarshalls the calendar string to an object
      * @param value the calendar string
      * @return the Calendar object
-     * @throws ParseException
+     * @throws ParseException parse exception.
      */
     public Calendar unmarshal(String value) throws ParseException {
         Calendar calendar = Calendar.getInstance();
