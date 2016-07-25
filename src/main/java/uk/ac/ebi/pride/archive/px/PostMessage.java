@@ -35,6 +35,7 @@ public class PostMessage {
      * @param file the PX XML file to be validated.
      * @param params the XMLParams needed for configuring the options when sending.
      * @return a String which lists the output from the HTTP service used for posting the PX XML file.
+     * @throws IOException
      */
     public static String postMessage(File file, XMLParams params)throws IOException {
         String serverResponse;

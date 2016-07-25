@@ -27,6 +27,10 @@ public class UpdateMessage {
     private static final Logger logger = LoggerFactory.getLogger(UpdateMessage.class);
 
     /**
+
+
+     */
+    /**
      * Method to update a PX XML file with new references, intended only for *public* projects.
      * Note: this will add a change log, since that is needed after the first version of the PX XML.
      * Will also backup the PX XML before updating.
@@ -34,7 +38,10 @@ public class UpdateMessage {
      * @param submissionSummaryFile the summary file containing the PX submission summary information.
      * @param outputDirectory the path to the PX XML output directory.
      * @param pxAccession the PX project accession assigned to the dataset for which we are generating the PX XML.
+     * @param datasetPathFragment the public path fragment
      * @return a File that is the updated PX XML.
+     * @throws SubmissionFileException
+     * @throws IOException
      */
     public static File updateReferencesPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment) throws SubmissionFileException, IOException {
         // the submission summary file has to exist, with PMIDs
@@ -121,12 +128,29 @@ public class UpdateMessage {
      * @param submissionSummaryFile the summary file containing the PX submission summary information.
      * @param outputDirectory the path to the PX XML output directory.
      * @param pxAccession the PX project accession assigned to the dataset for which we are generating the PX XML.
+     * @param datasetPathFragment the public path fragment
+
      * @return a File that is the updated PX XML.
+     *      * @throws SubmissionFileException
+     * @throws IOException
      */
+
     public static File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment) throws SubmissionFileException, IOException {
       return  updateMetadataPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, true);
     }
 
+    /**
+     * Method to update a PX XML file with a newly generated version,
+     * e.g. with up-to-date FTP links, project tags, etc, according to the latest schema.
+     * @param submissionSummaryFile the summary file containing the PX submission summary information.
+     * @param outputDirectory the path to the PX XML output directory.
+     * @param pxAccession the PX project accession assigned to the dataset for which we are generating the PX XML.
+     * @param datasetPathFragment the public path fragment
+     * @param changeLogEntry include a change log entry or not.
+     * @return
+     * @throws SubmissionFileException
+     * @throws IOException
+     */
     public static File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment, boolean changeLogEntry) throws SubmissionFileException, IOException {
         // the submission summary file has to exist
         Assert.isTrue(submissionSummaryFile.isFile() && submissionSummaryFile.exists(), "Summary file should already exist! In: " + submissionSummaryFile.getAbsolutePath());
@@ -166,6 +190,12 @@ public class UpdateMessage {
         return pxFile;
     }
 
+    /**
+     * Backs up the current PX XML to a target directory, using a suffix _number.
+     * @param pxFile The PX XML file to backup
+     * @param outputDirectory Target directory where to backup to.
+     * @throws IOException
+     */
     private static void backupPxXml(File pxFile, File outputDirectory) throws IOException{
         String baseName = FilenameUtils.getBaseName(pxFile.getName());
         String ext = FilenameUtils.getExtension(pxFile.getName());

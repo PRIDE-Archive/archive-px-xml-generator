@@ -44,6 +44,10 @@ public class MarshallerFactory {
     private MarshallerFactory() {
     }
 
+    /**
+     * Initialises the marshaller.
+     * @return Marshaller object.
+     */
     public Marshaller initializeMarshaller() {
         logger.debug("Initializing Marshaller for ProteomeXchange.");
         try {

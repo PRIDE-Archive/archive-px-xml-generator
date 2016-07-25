@@ -24,10 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author Dani Rios
- * @author Jose A. Dianes (PRIDE-R updates and refactoring)
- * @version $Id$
- *
+ * This Writes out the PX XML file, which contains all the metadata for a dataset to be sent to ProteomeCentral.
  */
 public class WriteMessage {
 
@@ -84,11 +81,24 @@ public class WriteMessage {
     }
 
 
+    /**
+     * Default constructor.
+     */
     public WriteMessage() {
 
     }
 
 
+    /**
+     * Crates the first version of a PX XML file.
+     * @param submissionSummaryFile the Submission object containing the PX submission summary information.
+     * @param outputDirectory where the output PX XML will be written to.
+     * @param pxAccession the PX project accession assigned to the dataset for which we are generating the PX XML.
+     * @param datasetPathFragment the path fragment that points to the dataset (pattern: /yyyy/mm/accession/). 
+     * @return The generated PX XML file
+     * @throws SubmissionFileException
+     * @throws IOException
+     */
     public File createIntialPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment) throws SubmissionFileException, IOException {
         // the submission summary file has to exist
         if (!submissionSummaryFile.isFile() || !submissionSummaryFile.exists()) {
@@ -245,6 +255,7 @@ public class WriteMessage {
 
         return pxXml;
     }
+    
     /**
      * This method clears the publication list of the PX XML and adds a record for the provided PubMed ID.
      * Note: the initial PX XML is generally generated without knowledge of a publication and therefore
@@ -271,6 +282,11 @@ public class WriteMessage {
         return pxXml;
     }
 
+    /**
+     * Check if the PX accession number is valid according to the regex: PX[D|T]\d{6}
+     * @param pxAccession The PX accession number to check.
+     * @return
+     */
     private static boolean isValidPXAccession(String pxAccession) {
         Pattern p = Pattern.compile("PX[D|T]\\d{6}");
         Matcher m = p.matcher(pxAccession);
@@ -283,6 +299,12 @@ public class WriteMessage {
         }
     }
 
+    /**
+     * Check if the public path fragment is valid.
+     * @param datasetPathFragment the path fragment to check.
+     * @param pxAccession the PX accession number.
+     * @return
+     */
     private static boolean isValidPathFragment(String datasetPathFragment, String pxAccession) {
         Pattern p = Pattern.compile("201./[0,1][0-9]/"+pxAccession);
         Matcher m = p.matcher(datasetPathFragment);
@@ -294,6 +316,11 @@ public class WriteMessage {
         return true;
     }
 
+    /**
+     * Adds a change log entry field to the PX XML.
+     * @param pxXML the PX XML file to update.
+     * @param message the update message to be included.
+     */
     static void addChangeLogEntry(ProteomeXchangeDataset pxXML, String message) {
         // create a new change log entry for the provided message
         ChangeLogEntryType entry = new ChangeLogEntryType();
@@ -311,7 +338,11 @@ public class WriteMessage {
         changeLog.getChangeLogEntry().add(entry);
     }
 
-    // there should always be a publication list, but it may have records to say 'no reference' or 'reference pending'
+    /**
+     * Gets the publication list. There should always be a publication list, but it may have records to say 'no reference' or 'reference pending'
+     * @param submissionSummary the submission summary.
+     * @return The PublicationList is returned.
+     */
     private static PublicationList getPublicationList(Submission submissionSummary) {
         PublicationList list = new PublicationList();
 
@@ -345,6 +376,11 @@ public class WriteMessage {
         return  list;
     }
 
+    /**
+     * Extracts the publication from a refline.
+     * @param refLine The refline to obtain the publication.
+     * @return the Publication object
+     */
     static Publication getPublication(String refLine) {
         if (refLine == null) {
             throw new IllegalArgumentException("No ref line provided!");
@@ -355,6 +391,12 @@ public class WriteMessage {
         publication.getCvParam().add(createCvParam("PRIDE:0000400", refLine, "Reference", PRIDE_CV));
         return publication;
     }
+
+    /**
+     * Gets a Publication from a PubMed ID
+     * @param pmid the PubMed ID
+     * @return the Publication object
+     */
     static Publication getPublication(Long pmid) {
         if (pmid == null) {
             throw new IllegalArgumentException("No PMID provided!");
@@ -382,6 +424,11 @@ public class WriteMessage {
         return publication;
     }
 
+    /**
+     * Gets a Publication from a DOI
+     * @param doi the DOI
+     * @return the Publication object
+     */
     static Publication getPublicationDoi(String doi) {
         if (doi==null || doi.isEmpty()) {
             throw new IllegalArgumentException("No DOI provided!");
@@ -393,6 +440,10 @@ public class WriteMessage {
         return publication;
     }
 
+    /**
+     * Gets a list of allowed CVs
+     * @return CvList.
+     */
     private static CvList getCvList() {
         CvList list = new CvList();
 
@@ -428,7 +479,11 @@ public class WriteMessage {
         return keywordList;
     }
 
-    // method to extract modifications from summary file
+    /**
+     * Method to extract modifications from summary file
+     * @param submissionSummary the submission summary object of the project
+     * @return ModificationList.
+     */
     // Note: this will primarily look at project level, and only look at result file level if no annotation was found
     static ModificationList getModificationList(Submission submissionSummary) {
         ModificationList list = new ModificationList();
@@ -479,8 +534,12 @@ public class WriteMessage {
 
         return list;
     }
-
-    // method to extract instrument information from summary file
+    
+    /**
+     * Method to extract instrument information from summary file
+     * @param submissionSummary the submission summary object of the project
+     * @return InstrumentList.
+     */
     static InstrumentList getInstrumentList(Submission submissionSummary) {
         InstrumentList list = new InstrumentList();
 
@@ -497,8 +556,12 @@ public class WriteMessage {
 
         return list;
     }
-
-    // method to get Species information from summary file
+    
+    /**
+     * Mmethod to get Species information from summary file
+     * @param submissionSummary the submission summary object of the project
+     * @return SpeciesList.
+     */
     static SpeciesList getSpeciesList(Submission submissionSummary) {
         SpeciesList list = new SpeciesList();
 
@@ -515,8 +578,13 @@ public class WriteMessage {
 
         return list;
     }
-
-    // method to add Dataset identifier information
+    
+    /**
+     * Method to add Dataset identifier information
+     * @param projectAccession the submission summary object of the project
+     * @param withDOI including a DOU or not.
+     * @return DatasetIdentifierList.
+     */
     // ToDo: take submissions into account that refer to previous datasets/submissions
     private static DatasetIdentifierList getDatasetIdentifierList(String projectAccession, boolean withDOI) {
         DatasetIdentifierList datasetIdentifierList = new DatasetIdentifierList();
@@ -536,6 +604,14 @@ public class WriteMessage {
         return datasetIdentifierList;
     }
 
+    /**
+     * Method to create a CV Param.
+     * @param accession the term's accession number
+     * @param value the term's value
+     * @param name the term's name
+     * @param cvRef the term's ontology
+     * @return
+     */
     private static CvParam createCvParam(String accession, String value, String name, Cv cvRef) {
 
         CvParam cvParam = new CvParam();
@@ -546,6 +622,12 @@ public class WriteMessage {
 
         return cvParam;
     }
+
+    /**
+     * Convert a uk.ac.ebi.pride.data.model.CvParam to a uk.ac.ebi.pride.archive.px.model.CvParam.
+     * @param cvParam The CV Parameter to convert
+     * @return The converted CV Parameter
+     */
     private static CvParam convertCvParam(uk.ac.ebi.pride.data.model.CvParam cvParam) {
         if (cvParam.getCvLabel().trim().equalsIgnoreCase(MS_CV.getId()) || cvParam.getCvLabel().trim().equalsIgnoreCase("PSI-MS")) {
             return createCvParam(cvParam.getAccession(),cvParam.getValue(), cvParam.getName(), MS_CV);
@@ -560,6 +642,12 @@ public class WriteMessage {
         }
     }
 
+    /**
+     * Creates a list of files for the dataset
+     * @param submissionSummary the submission summary object of the project
+     * @param datasetPathFragment the path fragment
+     * @return DatasetFileList.
+     */
     private static DatasetFileList createDatasetFileList(Submission submissionSummary, String datasetPathFragment) {
         DatasetFileList list = new DatasetFileList();
         // create a link to the public FTP location for each file of the dataset
@@ -614,6 +702,12 @@ public class WriteMessage {
         return list;
     }
 
+    /**
+     * Creates a repository record list,
+     * @param submissionSummary the submission summary object of the project
+     * @param pxAccession the PX accession number
+     * @return
+     */
     private RepositoryRecordList createRepositoryRecordList(Submission submissionSummary, String pxAccession) {
         RepositoryRecordList list = new RepositoryRecordList();
 
@@ -632,7 +726,10 @@ public class WriteMessage {
         return list;
     }
 
-    // the DatasetOriginList, at the moment, it is hardcoded, all are new submissions who's origin is in the PRIDE PX repository
+    /**
+     * The DatasetOriginList, at the moment, it is hardcoded, all are new submissions who's origin is in the PRIDE PX repository
+     * @return DatasetOriginList.
+     */
     private static DatasetOriginList getDatasetOriginList() {
         DatasetOriginList list = new DatasetOriginList();
 
@@ -647,7 +744,14 @@ public class WriteMessage {
         return list;
     }
 
-    // helper method to return full DatasetLink with FTP location of the dataset
+    //
+
+    /**
+     * Helper method to return full DatasetLink with FTP location of the dataset
+     * @param datasetPathFragment the path fragment
+     * @param pxAccession the PX accession number
+     * @return
+     */
     private static FullDatasetLinkList createFullDatasetLinkList(String datasetPathFragment, String pxAccession)  {
         FullDatasetLinkList fullDatasetLinkList = new FullDatasetLinkList();
         FullDatasetLink prideFtpLink = new FullDatasetLink();
@@ -664,6 +768,12 @@ public class WriteMessage {
     }
 
     //this information will come from the summary file
+
+    /**
+     * Gets the dataset summary for a submission summary
+     * @param submissionSummary the submission summary object of the project
+     * @return DatasetSummary.
+     */
     private static DatasetSummary getDatasetSummary(Submission submissionSummary) {
 
         DatasetSummary datasetSummary = new DatasetSummary();
@@ -683,8 +793,11 @@ public class WriteMessage {
         return datasetSummary;
     }
 
-    // helper method to create RepositorySupportType for either complete or partial submissions
-    // (other types are currently not supported and will return null)
+    /**
+     *  Helper method to create RepositorySupportType for either complete or partial submissions (other types are currently not supported and will return null).
+     * @param type the submission type
+     * @return RepositorySupportType
+     */
     private static RepositorySupportType createRepositorySupport(SubmissionType type) {
         RepositorySupportType repositorySupport = new RepositorySupportType();
         CvParam cvparam;
@@ -702,7 +815,11 @@ public class WriteMessage {
         return repositorySupport;
     }
 
-    //helper method to create a ReviewLevelType, either peer-reviewed or non-peer-reviewed
+    /**
+     * Helper method to create a ReviewLevelType, either peer-reviewed or non-peer-reviewed
+     * @param peerReviewed peer reviewed dataet, or not.
+     * @return ReviewLevelType.
+     */
     private static ReviewLevelType createReviewLevel(boolean peerReviewed) {
         ReviewLevelType reviewLevel = new ReviewLevelType();
 
@@ -717,7 +834,13 @@ public class WriteMessage {
         return reviewLevel;
     }
 
-    //private method to extract the contact list from the summary file
+    //private
+
+    /**
+     *  Method to extract the contact list from the summary file
+     * @param submissionSummary  the submission summary object of the project
+     * @return ContactList
+     */
     private ContactList getContactList(Submission submissionSummary) {
         ContactList list = new ContactList();
 

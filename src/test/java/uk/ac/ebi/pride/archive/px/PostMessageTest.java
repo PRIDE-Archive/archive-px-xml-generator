@@ -27,6 +27,10 @@ public class PostMessageTest {
     public File submissionFile;
     public String response, responseNoEmail;
 
+    /**
+     * Setup unit test.
+     * @throws Exception
+     */
     @Before
     public void setUp() throws Exception {
         directory = temporaryFolder.newFolder("pxMessage");
@@ -51,12 +55,19 @@ public class PostMessageTest {
         responseNoEmail = PostMessage.postMessage(file, params);
     }
 
+    /**
+     * Tests posting PX XML.
+     */
     @Test
     public void testPost(){
         assertTrue(response != null && !(response.toLowerCase().contains("internal server error")));
         assertTrue(response != null && !(response.toLowerCase().contains("internal server error")));
     }
 
+    /**
+     * Tears down tests.
+     * @throws IOException
+     */
     @After
     public void tearDown() throws IOException {
     }

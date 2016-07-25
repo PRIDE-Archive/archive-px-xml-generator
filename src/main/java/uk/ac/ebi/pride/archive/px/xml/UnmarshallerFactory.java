@@ -23,9 +23,16 @@ public class UnmarshallerFactory {
         return instance;
     }
 
+    /**
+     * Default constructor.
+     */
     private UnmarshallerFactory() {
     }
 
+    /**
+     * Initalises the unmarshaller.
+     * @return Unmarshaller.
+     */
     public Unmarshaller initializeUnmarshaller() {
         logger.debug("Initializing Unmarshaller for ProteomeXchange.");
         try {

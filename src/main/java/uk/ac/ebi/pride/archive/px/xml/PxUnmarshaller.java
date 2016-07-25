@@ -16,6 +16,12 @@ import java.io.File;
 public class PxUnmarshaller {
     private static final Logger logger = LoggerFactory.getLogger(PxUnmarshaller.class);
 
+    /**
+     * Unmarshalls PX XML.
+     * @param f input file to unmarshall
+     * @param <T> PX Object
+     * @return
+     */
     public <T extends PXObject> ProteomeXchangeDataset unmarshall(File f) {
 
         try {

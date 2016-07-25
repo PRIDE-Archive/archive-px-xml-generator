@@ -16,12 +16,23 @@ public class CalendarAdapter extends XmlAdapter<String, Calendar> {
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+    /**
+     * Unmarshalls the calendar string to an object
+     * @param value the calendar string
+     * @return the Calendar object
+     * @throws ParseException
+     */
     public Calendar unmarshal(String value) throws ParseException {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(dateFormat.parse(value));
         return calendar;
     }
 
+    /**
+     * Marshalls the calendar value
+     * @param value the Calendar object
+     * @return the formatted calendar string
+     */
     public String marshal(Calendar value) {
         if (value == null) {
             return null;

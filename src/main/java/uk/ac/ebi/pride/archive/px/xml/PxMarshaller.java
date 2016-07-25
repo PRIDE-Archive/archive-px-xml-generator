@@ -15,6 +15,12 @@ import java.io.Writer;
 public class PxMarshaller {
     private static final Logger logger = LoggerFactory.getLogger(PxMarshaller.class);
 
+    /**
+     * PX Marshaller.
+     * @param object Object to marshall
+     * @param out output writer
+     * @param <T> PXObject
+     */
      public <T extends PXObject> void marshall(T object, Writer out) {
 
         if (object == null) {

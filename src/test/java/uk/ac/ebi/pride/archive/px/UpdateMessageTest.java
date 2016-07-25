@@ -31,6 +31,10 @@ public class UpdateMessageTest {
     public File directory;
     public ProteomeXchangeDataset proteomeXchangeDataset, proteomeXchangeDatasetNoChangeLogEntry;
 
+    /**
+     * Sets up unit tests.
+     * @throws Exception
+     */
     @Before
     public void setUp() throws Exception {
         directory = temporaryFolder.newFolder("pxMessage");
@@ -50,6 +54,9 @@ public class UpdateMessageTest {
         proteomeXchangeDatasetNoChangeLogEntry = unmarshalFile(file);
     }
 
+    /**
+     * Test PX CV List.
+     */
     @Test
     public void testPxCvListFromFile(){
         assertEquals(proteomeXchangeDataset.getCvList().getCv().size(), 4);
@@ -60,6 +67,9 @@ public class UpdateMessageTest {
 
     }
 
+    /**
+     * Tests the PX Contact.
+     */
     @Test
     public void testPxContactFromFile(){
         assertEquals(proteomeXchangeDataset.getContactList().getContact().get(0).getId(),"project_submitter");
@@ -73,6 +83,9 @@ public class UpdateMessageTest {
 
     }
 
+    /**
+     * Tests PX Meetadata
+     */
     @Test
     public void testPxMetadataFromFile(){
         assertEquals(proteomeXchangeDataset.getDatasetSummary().getTitle(),"Test project title");
@@ -82,6 +95,9 @@ public class UpdateMessageTest {
         assertEquals(getValueCvParam(proteomeXchangeDataset.getKeywordList().getCvParam(),WriteMessage.MS_1001926), "Biological");
     }
 
+    /**
+     * Tetss PX species.
+     */
     @Test
     public void testPxSpeciesFromFile(){
         assertEquals(proteomeXchangeDataset.getSpeciesList().getSpecies().get(0).getCvParam().size(), 2);
@@ -89,6 +105,9 @@ public class UpdateMessageTest {
         assertEquals(getAccessionCvParamValue(proteomeXchangeDataset.getSpeciesList().getSpecies().get(0).getCvParam(), "Homo sapiens (Human)"),"MS:1001469");
     }
 
+    /**
+     * Tests PX instrument.
+     */
     @Test
     public void testPxInstrumentFromFile(){
         assertEquals(proteomeXchangeDataset.getInstrumentList().getInstrument().get(0).getId(),"Instrument_1");
@@ -96,12 +115,18 @@ public class UpdateMessageTest {
         assertEquals(getNameCvParam(proteomeXchangeDataset.getInstrumentList().getInstrument().get(0).getCvParam(),"MS:1001742"),"LTQ Orbitrap Velos");
     }
 
+    /**
+     * Tests PX Moedificiation.
+     */
     @Test
     public void testPxModificationFromFile(){
         assertEquals(proteomeXchangeDataset.getModificationList().getCvParam().size(),1);
         assertEquals(getNameCvParam(proteomeXchangeDataset.getModificationList().getCvParam(),"MOD:00198"),"D-alanine");
     }
 
+    /**
+     * Tets PX PubMed.
+     */
     @Test
     public void testPxPubMedFromFile(){
         assertEquals(proteomeXchangeDataset.getPublicationList().getPublication().size(),2);
@@ -109,33 +134,53 @@ public class UpdateMessageTest {
         assertEquals(getValueCvParam(proteomeXchangeDataset.getPublicationList().getPublication().get(0).getCvParam(),"MS:1000879"),"12345");
     }
 
+    /**
+     * Tests PX review level.
+     */
     @Test
     public void testPxReviewLevelFromFile(){
         assertEquals(proteomeXchangeDataset.getDatasetSummary().getReviewLevel().getCvParam().getAccession(),"PRIDE:0000414");
     }
 
+    /**
+     * Tets PX Repo Support.
+     */
     @Test
     public void testPxRepositorySupportFromFile(){
         assertEquals(proteomeXchangeDataset.getDatasetSummary().getRepositorySupport().getCvParam().getAccession(),"PRIDE:0000416");
     }
 
+    /**
+     * Test PX full dataset link.
+     */
     @Test
     public void testPxFullDatasetLinkListFromFile(){
         assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getAccession(),"PRIDE:0000411");
         assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getValue(),"ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2013/07/PXT000001");
     }
 
+    /**
+     * Tests Change Log Entry.
+     */
     @Test
     public void testChangeLogEntry(){
         assertTrue(proteomeXchangeDataset.getChangeLog().getChangeLogEntry().size() > 0);
     }
 
+    /**
+     * Tests no Change Log Entry.
+     */
     @Test
     public void testNoChangeLogEntry(){
         assertTrue(proteomeXchangeDatasetNoChangeLogEntry.getChangeLog() == null );
     }
 
-    //helper method to retrieve accession for a specific value
+    /**
+     * Helper method to retrieve accession for a specific value
+     * @param cvParams the cv params to extract
+     * @param value the values
+     * @return the accession
+     */
     private String getAccessionCvParamValue(List<CvParam> cvParams, String value){
         String accession = null;
         for (CvParam cvParam : cvParams) {
@@ -144,7 +189,13 @@ public class UpdateMessageTest {
         return accession;
     }
 
-    //helper method, for a list of params, returns name for a particular accession
+
+    /**
+     * Helper method: for a list of params, returns name for a particular accession
+     * @param cvParams the cv params to extract
+     * @param accession the accession
+     * @return the names
+     */
     private String getNameCvParam(List<CvParam> cvParams, String accession){
         String name = null;
         for (CvParam cvParam : cvParams) {
@@ -153,7 +204,12 @@ public class UpdateMessageTest {
         return name;
     }
 
-    //helper method, for a list of params, returns the value for that particular accession, if found
+    /**
+     * Helper method: for a list of params, returns the value for that particular accession, if found
+     * @param cvParams the cv params to extract
+     * @param accession the accession
+     * @return tha values
+     */
     private String getValueCvParam(List<CvParam> cvParams, String accession){
         String value = null;
         for (CvParam cvParam : cvParams) {
@@ -162,6 +218,10 @@ public class UpdateMessageTest {
         return value;
     }
 
+    /**
+     * Tears down the unit tests.
+     * @throws IOException
+     */
     @After
     public void tearDown() throws IOException {
     }

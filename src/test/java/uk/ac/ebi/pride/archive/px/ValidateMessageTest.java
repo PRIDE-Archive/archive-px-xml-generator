@@ -29,6 +29,10 @@ public class ValidateMessageTest {
     public File submissionFile;
     public String errorOutput;
 
+    /**
+     * Sets up unit test
+     * @throws Exception
+     */
     @Before
     public void setUp() throws Exception {
         directory = temporaryFolder.newFolder("pxMessage");
@@ -38,11 +42,18 @@ public class ValidateMessageTest {
         errorOutput = ValidateMessage.validateMessage(file);
     }
 
+    /**
+     * Test validation.
+     */
     @Test
     public void testValidation(){
         assertTrue(errorOutput.length()<1);
     }
 
+    /**
+     * Tears down tests.
+     * @throws IOException
+     */
     @After
     public void tearDown() throws IOException {
     }

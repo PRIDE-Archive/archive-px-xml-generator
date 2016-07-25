@@ -31,7 +31,11 @@ public class ValidateMessage {
      * Method to validate a supplied PX XML file.
      *
      * @param file the PX XML file to be validated.
-     * @return a String which lists any errors that occurred during validation. If there were none, the String will be empty.
+     * @return String which lists any errors that occurred during validation. If there were none, the String will be empty.
+     * @throws SAXException
+     * @throws MalformedURLException
+     * @throws FileNotFoundException
+     * @throws URISyntaxException
      */
     public static String validateMessage(File file) throws SAXException, MalformedURLException, FileNotFoundException, URISyntaxException{
         StringBuilder errorOutput = new StringBuilder();
