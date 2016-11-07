@@ -58,8 +58,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <xml.schema.validator.version>2.1</xml.schema.validator.version>
-        <px.submission.core.version>2.0.9</px.submission.core.version>
-        <pubmed.id.fetcher.version>1.0.1</pubmed.id.fetcher.version>
+        <px.submission.core.version>2.0.11</px.submission.core.version>
+        <pubmed.id.fetcher.version>1.0.3</pubmed.id.fetcher.version>
         <maven.surefire.plugin>2.12</maven.surefire.plugin>
     </properties>
 
