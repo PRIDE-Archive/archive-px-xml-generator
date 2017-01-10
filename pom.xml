@@ -4,7 +4,7 @@
     <parent>
         <groupId>uk.ac.ebi.pride.maven</groupId>
         <artifactId>pride-base-master</artifactId>
-        <version>1.0.4</version>
+        <version>1.0.5</version>
     </parent>
 
     <groupId>uk.ac.ebi.pride.archive</groupId>
@@ -14,7 +14,7 @@
 
     <name>ProteomeXchange XML file generator for PRIDE Archive</name>
     <description>Java object model for writing, updating, reading, validating, and posting of ProteomeXchange XML messages.</description>
-    <url>...</url>
+    <url>https://github.com/PRIDE-Archive/archive-px-xml-generator</url>
     <licenses>
         <license>
             <name>Apache 2</name>
