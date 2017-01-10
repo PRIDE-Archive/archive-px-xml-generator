@@ -415,7 +415,7 @@ public class WriteMessage {
             PubMedSummary pubMedSummary = pubMedFetcher.getPubMedSummary(pmid.toString());
             refLine = pubMedSummary.getReference();
         } catch (IOException e) {
-            logger.error("Problems getting r eference line from PubMed " + e.getMessage());
+            logger.error("Problems getting reference line from PubMed " + e.getMessage());
             refLine = "no refLine for PMID: " + pmid; // ToDo: better default value?
         }
 
