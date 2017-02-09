@@ -1,16 +1,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>uk.ac.ebi.pride.archive</groupId>
+    <artifactId>archive-px-xml-generator</artifactId>
+    <version>1.0.10-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
     <parent>
         <groupId>uk.ac.ebi.pride.maven</groupId>
         <artifactId>pride-base-master</artifactId>
         <version>1.0.5</version>
     </parent>
-
-    <groupId>uk.ac.ebi.pride.archive</groupId>
-    <artifactId>archive-px-xml-generator</artifactId>
-    <version>1.0.10-SNAPSHOT</version>
-    <packaging>jar</packaging>
 
     <name>ProteomeXchange XML file generator for PRIDE Archive</name>
     <description>Java object model for writing, updating, reading, validating, and posting of ProteomeXchange XML messages.</description>
@@ -26,22 +26,14 @@
 
     <developers>
         <developer>
-            <id>florian</id>
-            <name>Florian Reisinger</name>
-            <email>florian@ebi.ac.uk</email>
-            <organization>European Bioinformatics Institute</organization>
-        </developer>
-        <developer>
-            <id>dani</id>
-            <name>Daniel Rios</name>
-            <email>dani@ebi.ac.uk</email>
-            <organization>European Bioinformatics Institute</organization>
-        </developer>
-        <developer>
-            <id>jadianes</id>
-            <name>Jose A. Dianes</name>
-            <email>jdianes@ebi.ac.uk</email>
-            <organization>European Bioinformatics Institute</organization>
+            <id>mbernal</id>
+            <name>Manuel Bernal-Llinares</name>
+            <organization>Proteomics Team, EMBL-European Bioinformatics Institute</organization>
+            <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
         </developer>
         <developer>
             <id>tobias</id>
@@ -50,6 +42,24 @@
             <organization>European Bioinformatics Institute</organization>
         </developer>
     </developers>
+
+    <contributors>
+        <contributor>
+            <name>Florian Reisinger</name>
+            <email>florian@ebi.ac.uk</email>
+            <organization>European Bioinformatics Institute</organization>
+        </contributor>
+        <contributor>
+            <name>Daniel Rios</name>
+            <email>dani@ebi.ac.uk</email>
+            <organization>European Bioinformatics Institute</organization>
+        </contributor>
+        <contributor>
+            <name>Jose A. Dianes</name>
+            <email>jdianes@ebi.ac.uk</email>
+            <organization>European Bioinformatics Institute</organization>
+        </contributor>
+    </contributors>
     <organization>
         <name>European Bioinformatics Institute</name>
         <url>http://www.ebi.ac.uk</url>
@@ -62,6 +72,65 @@
         <pubmed.id.fetcher.version>1.0.3</pubmed.id.fetcher.version>
         <maven.surefire.plugin>2.12</maven.surefire.plugin>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>uk.ac.ebi.pride</groupId>
+            <artifactId>px-submission-core</artifactId>
+            <version>${px.submission.core.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.4</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.ac.ebi.pride.pubmed</groupId>
+            <artifactId>pubmed-id-fetcher</artifactId>
+            <version>${pubmed.id.fetcher.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>4.5.1</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.ac.ebi.pride.tools</groupId>
+            <artifactId>xmlSchemaValidator</artifactId>
+            <version>${xml.schema.validator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.9</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
 
     <build>
         <resources>
@@ -147,65 +216,6 @@
             </plugin>
         </plugins>
     </build>
-
-    <dependencies>
-        <dependency>
-            <groupId>uk.ac.ebi.pride</groupId>
-            <artifactId>px-submission-core</artifactId>
-            <version>${px.submission.core.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>jcl-over-slf4j</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.4</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ebi.pride.pubmed</groupId>
-            <artifactId>pubmed-id-fetcher</artifactId>
-            <version>${pubmed.id.fetcher.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-            <version>4.5.1</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ebi.pride.tools</groupId>
-            <artifactId>xmlSchemaValidator</artifactId>
-            <version>${xml.schema.validator.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.9</version>
-            <scope>test</scope>
-        </dependency>
-
-    </dependencies>
 
     <repositories>
         <repository>
