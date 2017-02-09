@@ -3,6 +3,7 @@ package uk.ac.ebi.pride.archive.px;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import uk.ac.ebi.pride.archive.px.model.CvParam;
@@ -27,6 +28,8 @@ import static org.junit.Assert.assertTrue;
  * @author Tobias Ternent
  */
 public class UpdateMessageTest {
+
+    @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
     public File directory;
     public ProteomeXchangeDataset proteomeXchangeDataset, proteomeXchangeDatasetNoChangeLogEntry;

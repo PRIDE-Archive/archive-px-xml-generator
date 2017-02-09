@@ -1,8 +1,8 @@
 package uk.ac.ebi.pride.archive.px;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import uk.ac.ebi.pride.archive.px.xml.XMLParams;
@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class PostMessageTest {
 
-
+    @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     public File directory;

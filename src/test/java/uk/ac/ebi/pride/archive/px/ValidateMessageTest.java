@@ -1,19 +1,14 @@
 package uk.ac.ebi.pride.archive.px;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.UnmarshalException;
-import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -23,6 +18,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class ValidateMessageTest {
 
+    @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     public File directory;

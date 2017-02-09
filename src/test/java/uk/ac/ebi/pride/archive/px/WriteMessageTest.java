@@ -1,12 +1,12 @@
 package uk.ac.ebi.pride.archive.px;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import uk.ac.ebi.pride.archive.px.model.ProteomeXchangeDataset;
 import uk.ac.ebi.pride.archive.px.model.CvParam;
+import uk.ac.ebi.pride.archive.px.model.ProteomeXchangeDataset;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class WriteMessageTest {
 
+    @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     public File directory;
