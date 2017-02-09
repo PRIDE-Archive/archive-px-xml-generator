@@ -4,18 +4,19 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.archive.px.xml.XMLParams;
+
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 /**
  * Class to post a PX XML file to Proteome Central.
@@ -39,24 +40,26 @@ public class PostMessage {
      */
     public static String postMessage(File file, XMLParams params)throws IOException {
         String serverResponse;
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpClient httpclient = HttpClients.createDefault();
         HttpPost httppost = new HttpPost(URL);
 
         FileBody bin = new FileBody(file);
-        MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE, null, Charset.forName(CHARSET));
+        MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
+        multipartEntityBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
 
-        reqEntity.addPart("ProteomeXchangeXML", bin);
-        reqEntity.addPart("PXPartner", new StringBody(params.getPxPartner(), "text/plain", Charset.forName(CHARSET)));
-        reqEntity.addPart("authentication", new StringBody(params.getAuthentication(), "text/plain", Charset.forName(CHARSET)));
-        reqEntity.addPart("method", new StringBody(params.getMethod(), "text/plain", Charset.forName(CHARSET)));
-        reqEntity.addPart("test", new StringBody(params.getTest(), "text/plain", Charset.forName(CHARSET)));
-        reqEntity.addPart("verbose", new StringBody(params.getVerbose(), "text/plain", Charset.forName(CHARSET)));
-        reqEntity.addPart("noEmailBroadcast", new StringBody(params.getNoEmailBroadcast(), "text/plain", Charset.forName(CHARSET)));
+        multipartEntityBuilder.addPart("ProteomeXchangeXML", bin);
+        multipartEntityBuilder.addPart("PXPartner", new StringBody(params.getPxPartner(), ContentType.TEXT_PLAIN));
+        multipartEntityBuilder.addPart("authentication", new StringBody(params.getAuthentication(), ContentType.TEXT_PLAIN));
+        multipartEntityBuilder.addPart("method", new StringBody(params.getMethod(), ContentType.TEXT_PLAIN));
+        multipartEntityBuilder.addPart("test", new StringBody(params.getTest(), ContentType.TEXT_PLAIN));
+        multipartEntityBuilder.addPart("verbose", new StringBody(params.getVerbose(), ContentType.TEXT_PLAIN));
+        multipartEntityBuilder.addPart("noEmailBroadcast", new StringBody(params.getNoEmailBroadcast(), ContentType.TEXT_PLAIN));
 
-        httppost.setEntity(reqEntity);
+        httppost.setEntity(multipartEntityBuilder.build());
 
         // Execute HTTP Post Request
-
+        logger.info("REQUEST URL ---> " + httppost.getURI());
+        logger.info("REQUEST LINE ---> " + httppost.getRequestLine().toString());
         // ResponseHandler<String> responseHandler=new BasicResponseHandler();
         HttpResponse response = httpclient.execute(httppost);
         int statusCode = response.getStatusLine().getStatusCode();
