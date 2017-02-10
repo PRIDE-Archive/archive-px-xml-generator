@@ -29,6 +29,7 @@ public class PostMessage {
     public static final String URL = "http://proteomecentral.proteomexchange.org/cgi/Dataset";
     //http://central.proteomexchange.org/cgi/GetDataset?ID=PXD000001
     public static final String CHARSET = "UTF-8";
+    public static final int DEFAULT_PROXY_PORT = 3128;
 
     /**
      * Method to send a supplied PX XML file to Proteome Central.
@@ -40,7 +41,7 @@ public class PostMessage {
      */
     public static String postMessage(File file, XMLParams params)throws IOException {
         String serverResponse;
-        HttpClient httpclient = HttpClients.createDefault();
+        HttpClient httpclient = HttpClients.createSystem();
         HttpPost httppost = new HttpPost(URL);
 
         FileBody bin = new FileBody(file);
