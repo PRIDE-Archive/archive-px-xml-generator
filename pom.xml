@@ -3,7 +3,7 @@
 
     <groupId>uk.ac.ebi.pride.archive</groupId>
     <artifactId>archive-px-xml-generator</artifactId>
-    <version>1.0.11-SNAPSHOT</version>
+    <version>1.0.11-SNAPSHOT-ORCID</version>
     <packaging>jar</packaging>
 
     <parent>
@@ -65,7 +65,7 @@
         <!-- TDD -->
         <uk.ac.ebi.pride.architectural-pride-tdd.version>1.0.3</uk.ac.ebi.pride.architectural-pride-tdd.version>
         <uk.ac.ebi.pride.tools-xmlSchemaValidator.version>2.1</uk.ac.ebi.pride.tools-xmlSchemaValidator.version>
-        <uk.ac.ebi.pride-px-submission-core.version>2.0.11</uk.ac.ebi.pride-px-submission-core.version>
+        <uk.ac.ebi.pride-px-submission-core.version>2.0.17-SNAPSHOT-ORCID</uk.ac.ebi.pride-px-submission-core.version>
         <uk.ac.ebi.pride.pubmed-pubmed-id-fetcher.version>1.0.3</uk.ac.ebi.pride.pubmed-pubmed-id-fetcher.version>
     </properties>
 
@@ -99,12 +99,12 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.1</version>
+            <version>4.2.5</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
-            <version>4.5.2</version>
+            <version>4.2.3</version>
         </dependency>
         <dependency>
             <groupId>uk.ac.ebi.pride.tools</groupId>

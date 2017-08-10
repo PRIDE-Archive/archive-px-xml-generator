@@ -51,3 +51,4 @@ target/
 /.settings
 .classpath
 .project
+/pxMessage/
