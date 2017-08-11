@@ -12,7 +12,6 @@ import uk.ac.ebi.pride.data.model.SampleMetaData;
 import uk.ac.ebi.pride.data.model.Submission;
 import uk.ac.ebi.pride.archive.dataprovider.project.SubmissionType;
 import uk.ac.ebi.pride.pubmed.PubMedFetcher;
-import uk.ac.ebi.pride.pubmed.model.PubMedSummary;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -401,25 +400,16 @@ public class WriteMessage {
         if (pmid == null) {
             throw new IllegalArgumentException("No PMID provided!");
         }
-
         Publication publication = new Publication();
-
-        // add the PMID
         publication.setId("PMID" + pmid);
         publication.getCvParam().add(createCvParam("MS:1000879", pmid.toString(), "PubMed identifier", MS_CV));
-
-        // try to get the ref line using an external service
         String refLine;
         try {
-            PubMedFetcher pubMedFetcher = new PubMedFetcher(NCBI_URL);
-            PubMedSummary pubMedSummary = pubMedFetcher.getPubMedSummary(pmid.toString());
-            refLine = pubMedSummary.getReference();
-        } catch (IOException e) {
+            refLine = PubMedFetcher.getPubMedSummary(Long.toString(pmid)).getRefLine();
+        } catch (URISyntaxException | IOException e) {
             logger.error("Problems getting reference line from PubMed " + e.getMessage());
-            refLine = "no refLine for PMID: " + pmid; // ToDo: better default value?
+            refLine = "No refLine for PMID: " + pmid; // ToDo: better default value?
         }
-
-        // ToDo: is there no MS term for this? Is this the cv param we are supposed to use?
         publication.getCvParam().add(createCvParam("PRIDE:0000400", refLine, "Reference", PRIDE_CV));
         return publication;
     }
