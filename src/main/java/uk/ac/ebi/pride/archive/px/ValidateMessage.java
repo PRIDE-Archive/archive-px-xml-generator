@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.archive.px;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -7,13 +8,11 @@ import uk.ac.ebi.pride.tools.ErrorHandlerIface;
 import uk.ac.ebi.pride.tools.GenericSchemaValidator;
 import uk.ac.ebi.pride.tools.ValidationErrorHandler;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -41,9 +40,7 @@ public class ValidateMessage {
         StringBuilder errorOutput = new StringBuilder();
         GenericSchemaValidator genericValidator = new GenericSchemaValidator();
         genericValidator.setSchema(new URI(SCHEMA_LOCATION));
-
         logger.info("XML schema validation on " + file.getName());
-
         ErrorHandlerIface handler = new ValidationErrorHandler();
         genericValidator.setErrorHandler(handler);
         BufferedReader br = new BufferedReader(new FileReader(file));
@@ -53,7 +50,6 @@ public class ValidateMessage {
             errorOutput.append(content);
             errorOutput.append(System.getProperty("line.separator"));
         }
-
         return errorOutput.toString();
     }
 }

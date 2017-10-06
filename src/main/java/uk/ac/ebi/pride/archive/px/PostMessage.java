@@ -56,8 +56,7 @@ public class PostMessage {
         httppost.setEntity(reqEntity);
 
         // Execute HTTP Post Request
-        logger.info("REQUEST URL ---> " + httppost.getURI());
-        logger.info("REQUEST LINE ---> " + httppost.getRequestLine().toString());
+
         // ResponseHandler<String> responseHandler=new BasicResponseHandler();
         HttpResponse response = httpclient.execute(httppost);
         int statusCode = response.getStatusLine().getStatusCode();
