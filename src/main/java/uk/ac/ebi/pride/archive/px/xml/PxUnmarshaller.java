@@ -14,23 +14,22 @@ import java.io.File;
  * @author Tobias Ternent
  */
 public class PxUnmarshaller {
-    private static final Logger logger = LoggerFactory.getLogger(PxUnmarshaller.class);
+  private static final Logger logger = LoggerFactory.getLogger(PxUnmarshaller.class);
 
-    /**
-     * Unmarshalls PX XML.
-     * @param f input file to unmarshall
-     * @param <T> PX Object
-     * @return
-     */
-    public <T extends PXObject> ProteomeXchangeDataset unmarshall(File f) {
+  /**
+   * Unmarshalls PX XML.
+   * @param f input file to unmarshall
+   * @param <T> PX Object
+   * @return
+   */
+  public <T extends PXObject> ProteomeXchangeDataset unmarshall(File f) {
 
-        try {
-            Unmarshaller unmarshaller = UnmarshallerFactory.getInstance().initializeUnmarshaller();
-            return (ProteomeXchangeDataset) unmarshaller.unmarshal(f);
-        } catch (JAXBException e) {
-            logger.error("PxUnmarshaller.unmarshal", e);
-            throw new IllegalStateException("Error while unmarshalling file:" + f.getAbsolutePath());
-        }
-
+    try {
+      Unmarshaller unmarshaller = UnmarshallerFactory.getInstance().initializeUnmarshaller();
+      return (ProteomeXchangeDataset) unmarshaller.unmarshal(f);
+    } catch (JAXBException e) {
+      logger.error("PxUnmarshaller.unmarshal", e);
+      throw new IllegalStateException("Error while unmarshalling file:" + f.getAbsolutePath());
     }
+  }
 }
