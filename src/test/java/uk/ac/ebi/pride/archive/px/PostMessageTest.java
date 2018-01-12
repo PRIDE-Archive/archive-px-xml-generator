@@ -32,7 +32,15 @@ public class PostMessageTest {
      * @throws Exception
      */
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
+        //n/a
+    }
+
+    /**
+     * Tests posting PX XML.
+     */
+    @Test
+    public void testPost() throws Exception{
         directory = temporaryFolder.newFolder("pxMessage");
         submissionFile = new File("src/test/resources/submission.px");
         WriteMessage messageWriter = new WriteMessage();
@@ -53,13 +61,7 @@ public class PostMessageTest {
         params.setAuthentication("");
         params.setNoEmailBroadcast("true");
         responseNoEmail = PostMessage.postMessage(file, params);
-    }
 
-    /**
-     * Tests posting PX XML.
-     */
-    @Test
-    public void testPost(){
         assertTrue(response != null && !(response.toLowerCase().contains("internal server error")));
         assertTrue(response != null && !(response.toLowerCase().contains("internal server error")));
     }
