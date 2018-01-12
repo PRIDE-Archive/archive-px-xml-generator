@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.archive.px;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,7 +30,6 @@ public class PostMessageTest {
 
     /**
      * Setup unit test.
-     * @throws Exception
      */
     @Before
     public void setUp() {
@@ -38,6 +38,7 @@ public class PostMessageTest {
 
     /**
      * Tests posting PX XML.
+     * @throws Exception Problems posting to ProteomeCentral in test omode.
      */
     @Test
     public void testPost() throws Exception{
@@ -62,8 +63,8 @@ public class PostMessageTest {
         params.setNoEmailBroadcast("true");
         responseNoEmail = PostMessage.postMessage(file, params);
 
-        assertTrue(response != null && !(response.toLowerCase().contains("internal server error")));
-        assertTrue(response != null && !(response.toLowerCase().contains("internal server error")));
+        assertTrue(StringUtils.isNotEmpty(response) && !(response.toLowerCase().contains("internal server error")));
+        assertTrue(StringUtils.isNotEmpty(response) && !(response.toLowerCase().contains("internal server error")));
     }
 
     /**
