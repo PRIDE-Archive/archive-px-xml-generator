@@ -62,11 +62,10 @@ public class UpdateMessageTest {
      */
     @Test
     public void testPxCvListFromFile(){
-        assertEquals(proteomeXchangeDataset.getCvList().getCv().size(), 4);
+        assertEquals(proteomeXchangeDataset.getCvList().getCv().size(), 3);
         assertEquals(proteomeXchangeDataset.getCvList().getCv().get(0).getId(), "MS");
-        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(1).getId(), "PRIDE");
-        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(2).getId(), "MOD");
-        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(3).getId(), "UNIMOD");
+        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(1).getId(), "MOD");
+        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(2).getId(), "UNIMOD");
 
     }
 
@@ -142,7 +141,7 @@ public class UpdateMessageTest {
      */
     @Test
     public void testPxReviewLevelFromFile(){
-        assertEquals(proteomeXchangeDataset.getDatasetSummary().getReviewLevel().getCvParam().getAccession(),"PRIDE:0000414");
+        assertEquals(proteomeXchangeDataset.getDatasetSummary().getReviewLevel().getCvParam().getAccession(),"MS:1002854");
     }
 
     /**
@@ -150,7 +149,7 @@ public class UpdateMessageTest {
      */
     @Test
     public void testPxRepositorySupportFromFile(){
-        assertEquals(proteomeXchangeDataset.getDatasetSummary().getRepositorySupport().getCvParam().getAccession(),"PRIDE:0000416");
+        assertEquals(proteomeXchangeDataset.getDatasetSummary().getRepositorySupport().getCvParam().getAccession(),"MS:1002856");
     }
 
     /**
@@ -158,7 +157,7 @@ public class UpdateMessageTest {
      */
     @Test
     public void testPxFullDatasetLinkListFromFile(){
-        assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getAccession(),"PRIDE:0000411");
+        assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getAccession(),"MS:1002852");
         assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getValue(),"ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2013/07/PXT000001");
     }
 

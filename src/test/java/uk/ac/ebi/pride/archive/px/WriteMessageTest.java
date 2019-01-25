@@ -33,7 +33,7 @@ public class WriteMessageTest {
 
     @Before
     public void setUp() throws Exception {
-        directory = temporaryFolder.newFolder("pxMessage");
+        directory = new File("src/test/resources/"); //temporaryFolder.newFolder("pxMessage");
         submissionFile = new File("src/test/resources/submission.px");
         WriteMessage messageWriter = new WriteMessage();
         File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXT000001", "2013/07/PXT000001");
@@ -42,11 +42,10 @@ public class WriteMessageTest {
 
     @Test
     public void testPxCvListFromFile(){
-        assertEquals(proteomeXchangeDataset.getCvList().getCv().size(), 4);
+        assertEquals(proteomeXchangeDataset.getCvList().getCv().size(), 3);
         assertEquals(proteomeXchangeDataset.getCvList().getCv().get(0).getId(), "MS");
-        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(1).getId(), "PRIDE");
-        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(2).getId(), "MOD");
-        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(3).getId(), "UNIMOD");
+        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(1).getId(), "MOD");
+        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(2).getId(), "UNIMOD");
 
     }
 
@@ -60,7 +59,6 @@ public class WriteMessageTest {
         assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(1).getCvParam(), "MS:1000586"), "The boss");
         assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(1).getCvParam(), "MS:1000589"), "boss@ebi.ac.uk");
         assertEquals(getValueCvParam(proteomeXchangeDataset.getContactList().getContact().get(1).getCvParam(), "MS:1000590"), "EBI");
-
     }
 
     @Test
@@ -99,28 +97,28 @@ public class WriteMessageTest {
 
     @Test
     public void testPxReviewLevelFromFile(){
-        assertEquals(proteomeXchangeDataset.getDatasetSummary().getReviewLevel().getCvParam().getAccession(),"PRIDE:0000414");
+        assertEquals(proteomeXchangeDataset.getDatasetSummary().getReviewLevel().getCvParam().getAccession(),"MS:1002854");
     }
 
     @Test
     public void testPxRepositorySupportFromFile(){
-        assertEquals(proteomeXchangeDataset.getDatasetSummary().getRepositorySupport().getCvParam().getAccession(),"PRIDE:0000416");
+        assertEquals(proteomeXchangeDataset.getDatasetSummary().getRepositorySupport().getCvParam().getAccession(),"MS:1002856");
     }
 
     @Test
     public void testPxFullDatasetLinkListFromFile(){
-        assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getAccession(),"PRIDE:0000411");
+        assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getAccession(),"MS:1002852");
         assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getValue(),"ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2013/07/PXT000001");
     }
 
     @Test
     public void testPxDatasetFileLink(){
-        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(0).getCvParam().get(0).getAccession(), "PRIDE:0000410");
+        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(0).getCvParam().get(0).getAccession(), "MS:1002851");
         assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(0).getCvParam().get(0).getValue(), "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2013/07/PXT000001/database.fasta");
 
-        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(6).getCvParam().get(0).getAccession(), "PRIDE:0000404");
+        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(6).getCvParam().get(0).getAccession(), "MS:1002846");
         assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(6).getCvParam().get(0).getValue(), "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2013/07/PXT000001/sample_1_replicate_1.RAW");
-        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(6).getCvParam().get(1).getAccession(), "PRIDE:0000448");
+        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(6).getCvParam().get(1).getAccession(), "MS:1002859");
         assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(6).getCvParam().get(1).getValue(), "ftp://webdav.swegrid.se/test_1.raw");
     }
 
