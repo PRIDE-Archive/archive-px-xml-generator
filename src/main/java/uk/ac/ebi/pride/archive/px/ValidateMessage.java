@@ -23,7 +23,8 @@ import java.util.List;
 public class ValidateMessage {
 
   private static final Logger logger = LoggerFactory.getLogger(ValidateMessage.class);
-  private static final String SCHEMA_LOCATION = "http://ftp.pride.ebi.ac.uk/pride/resources/schema/proteomexchange/proteomeXchange-1.3.0.xsd";
+//  private static final String SCHEMA_LOCATION = "http://ftp.pride.ebi.ac.uk/pride/resources/schema/proteomexchange/proteomeXchange-1.3.0.xsd";
+  private static final String SCHEMA_LOCATION = "http://ftp.pride.ebi.ac.uk/pride/resources/schema/proteomexchange/proteomeXchange-1.4.0.xsd";
 
   /**
    * Method to validate a supplied PX XML file using the default PX Schema location.

@@ -32,9 +32,9 @@ public class ValidateMessageTest {
     @Before
     public void setUp() throws Exception {
         directory = temporaryFolder.newFolder("pxMessage");
-        submissionFile = new File("src/test/resources/submission.px");
+        submissionFile = new File("src/test/resources/PXD010568_submission.px");
         WriteMessage messageWriter = new WriteMessage();
-        File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXT000001", "2013/07/PXT000001");
+        File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXD010568", "2019/01/PXD010568");
         errorOutput = ValidateMessage.validateMessage(file);
     }
 

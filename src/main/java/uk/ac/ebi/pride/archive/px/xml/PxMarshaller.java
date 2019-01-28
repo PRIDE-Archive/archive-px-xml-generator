@@ -23,7 +23,7 @@ public class PxMarshaller {
     }
     try {
       Marshaller marshaller = MarshallerFactory.getInstance().initializeMarshaller();
-      marshaller.setProperty(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, "proteomeXchange-1.3.0.xsd");
+      marshaller.setProperty(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, "proteomeXchange-1.4.0.xsd");
       marshaller.marshal(object, out);
     } catch (JAXBException e) {
       logger.error("PxMarshaller.marshall", e);

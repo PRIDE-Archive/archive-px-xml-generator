@@ -33,7 +33,7 @@ public class WriteMessageTest {
 
     @Before
     public void setUp() throws Exception {
-        directory = new File("src/test/resources/"); //temporaryFolder.newFolder("pxMessage");
+        directory = temporaryFolder.newFolder("pxMessage");
         submissionFile = new File("src/test/resources/submission.px");
         WriteMessage messageWriter = new WriteMessage();
         File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXT000001", "2013/07/PXT000001");
