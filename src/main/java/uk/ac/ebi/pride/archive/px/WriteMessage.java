@@ -28,7 +28,6 @@ import java.util.regex.Pattern;
 public class WriteMessage {
 
   private static final Logger logger = LoggerFactory.getLogger(WriteMessage.class);
-//  public static final String FORMAT_VERSION = "1.3.0";
   public static final String FORMAT_VERSION = "1.4.0";
   private static final String DOI_PREFFIX = "10.6019";
   private static final String FTP = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive";
