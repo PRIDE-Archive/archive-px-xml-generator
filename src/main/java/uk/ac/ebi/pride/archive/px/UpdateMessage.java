@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 import uk.ac.ebi.pride.archive.px.reader.ReadMessage;
 import uk.ac.ebi.pride.archive.px.model.ProteomeXchangeDataset;
+import uk.ac.ebi.pride.archive.px.writer.MessageWriter;
 import uk.ac.ebi.pride.archive.px.xml.PxMarshaller;
 import uk.ac.ebi.pride.data.exception.SubmissionFileException;
 import uk.ac.ebi.pride.data.io.SubmissionFileParser;
@@ -39,7 +40,7 @@ public class UpdateMessage {
    * @throws SubmissionFileException
    * @throws IOException
    */
-  public static File updateReferencesPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment) throws SubmissionFileException, IOException {
+  public static File updateReferencesPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment, String pxSchemaVersion) throws SubmissionFileException, IOException {
     Assert.isTrue(submissionSummaryFile.isFile() && submissionSummaryFile.exists(), "Summary file should already exist! In: " + submissionSummaryFile.getAbsolutePath());
     Submission submissionSummary = SubmissionFileParser.parse(submissionSummaryFile);
     Assert.isTrue(submissionSummary.getProjectMetaData().hasPubmedIds() || submissionSummary.getProjectMetaData().hasDois(),
@@ -52,10 +53,11 @@ public class UpdateMessage {
     logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
     backupPxXml(pxFile, outputDirectory);
 
+    MessageWriter messageWriter = messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
     // make new PX XML if dealing with old schema version in current PX XML
-    if (!proteomeXchangeDataset.getFormatVersion().equalsIgnoreCase(WriteMessage.FORMAT_VERSION)) {
-      WriteMessage writeMessage = new WriteMessage();
-      pxFile = writeMessage.createIntialPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment);
+    if (!(proteomeXchangeDataset.getFormatVersion().equalsIgnoreCase("1.3.0") || proteomeXchangeDataset.getFormatVersion().equalsIgnoreCase("1.4.0"))) {
+
+      pxFile = messageWriter.createIntialPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment,pxSchemaVersion);
       if (pxFile != null) {
         logger.info("Generated PX XML message file " + pxFile.getAbsolutePath());
       } else {
@@ -72,33 +74,33 @@ public class UpdateMessage {
     Iterator<String> it = pubmedIds.iterator();
     while (it.hasNext()) {
       reference = it.next();
-      proteomeXchangeDataset.getPublicationList().getPublication().add(WriteMessage.getPublication(Long.parseLong(reference.trim())));
+      proteomeXchangeDataset.getPublicationList().getPublication().add(messageWriter.getPublication(Long.parseLong(reference.trim())));
       sb.append(reference);
       if (it.hasNext()) {
         sb.append(", ");
       }
     }
     if (sb.length()>0) {
-      WriteMessage.addChangeLogEntry(proteomeXchangeDataset, "Updated publication reference for PubMed record(s): " + sb.toString() + ".");
+      messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated publication reference for PubMed record(s): " + sb.toString() + ".");
     }
     sb.delete(0, sb.length());
     if (submissionSummary.getProjectMetaData().hasDois()) {
       for (String doi : submissionSummary.getProjectMetaData().getDois()) {
-        proteomeXchangeDataset.getPublicationList().getPublication().add(WriteMessage.getPublicationDoi(doi));
+        proteomeXchangeDataset.getPublicationList().getPublication().add(messageWriter.getPublicationDoi(doi));
         sb.append(doi);
         if (it.hasNext()) {
           sb.append(", ");
         }
       }
       if (sb.length()>0) {
-        WriteMessage.addChangeLogEntry(proteomeXchangeDataset, "Updated publication reference for DOI(s): " + sb.toString() + ".");
+        messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated publication reference for DOI(s): " + sb.toString() + ".");
       }
     }
     logger.debug("Updating new reference for PX XML file: " + pxFile.getAbsolutePath());
     FileWriter fw = null;
     try {
       fw = new FileWriter(pxFile);
-      new PxMarshaller().marshall(proteomeXchangeDataset, fw);
+      new PxMarshaller().marshall(proteomeXchangeDataset, fw, pxSchemaVersion);
     } finally {
       if (fw != null) {
         fw.close();
@@ -122,8 +124,8 @@ public class UpdateMessage {
    * @throws IOException
    */
 
-  public static File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment) throws SubmissionFileException, IOException {
-    return  updateMetadataPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, true);
+  public static File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment, String pxSchemaVersion) throws SubmissionFileException, IOException {
+    return  updateMetadataPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, true, pxSchemaVersion);
   }
 
   /**
@@ -138,7 +140,7 @@ public class UpdateMessage {
    * @throws SubmissionFileException
    * @throws IOException
    */
-  public static File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment, boolean changeLogEntry) throws SubmissionFileException, IOException {
+  public static File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment, boolean changeLogEntry, String pxSchemaVersion) throws SubmissionFileException, IOException {
     Assert.isTrue(submissionSummaryFile.isFile() && submissionSummaryFile.exists(), "Summary file should already exist! In: " + submissionSummaryFile.getAbsolutePath());
     Assert.isTrue(outputDirectory.exists() && outputDirectory.isDirectory(), "PX XML output directory should already exist! In: " + outputDirectory.getAbsolutePath());
     File pxFile = new File(outputDirectory.getAbsolutePath() + File.separator + pxAccession + ".xml");
@@ -146,8 +148,8 @@ public class UpdateMessage {
 
     logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
     backupPxXml(pxFile, outputDirectory);
-    WriteMessage writeMessage = new WriteMessage();
-    pxFile = writeMessage.createIntialPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment);
+    MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
+    pxFile = messageWriter.createIntialPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, pxSchemaVersion);
     if (pxFile != null) {
       logger.info("Generated PX XML message file " + pxFile.getAbsolutePath());
     } else {
@@ -157,13 +159,13 @@ public class UpdateMessage {
     }
     ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
     if (changeLogEntry) {
-      WriteMessage.addChangeLogEntry(proteomeXchangeDataset, "Updated project metadata.");
+      messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated project metadata.");
     }
     logger.debug("Updating metadata for PX XML file: " + pxFile.getAbsolutePath());
     FileWriter fw = null;
     try {
       fw = new FileWriter(pxFile);
-      new PxMarshaller().marshall(proteomeXchangeDataset, fw);
+      new PxMarshaller().marshall(proteomeXchangeDataset, fw, pxSchemaVersion);
     } finally {
       if (fw != null) {
         fw.close();

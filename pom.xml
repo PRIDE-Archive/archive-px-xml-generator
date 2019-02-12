@@ -35,6 +35,13 @@
             <email>tobias@ebi.ac.uk</email>
             <organization>European Bioinformatics Institute</organization>
         </developer>
+        <developer>
+            <id>sureshhewabi</id>
+            <name>Suresh Hewapathirana</name>
+            <organization>Proteomics Team, EMBL-European Bioinformatics Institute</organization>
+            <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
+            <timezone>Europe/London</timezone>
+        </developer>
     </developers>
 
     <contributors>

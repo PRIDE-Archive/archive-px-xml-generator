@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import uk.ac.ebi.pride.archive.px.model.CvParam;
 import uk.ac.ebi.pride.archive.px.model.ProteomeXchangeDataset;
+import uk.ac.ebi.pride.archive.px.writer.MessageWriter;
+import uk.ac.ebi.pride.archive.px.writer.SchemaOnePointFourStrategy;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -27,7 +29,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Tobias Ternent
  */
-public class UpdateMessageTest {
+public class UpdateMessageOnePointThreeTest {
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -40,20 +42,21 @@ public class UpdateMessageTest {
      */
     @Before
     public void setUp() throws Exception {
+        final String SCHEMA_VERSION = "1.3.0";
         directory = temporaryFolder.newFolder("pxMessage");
         File submissionFile = new File("src/test/resources/submission_update.px");
         File submissionFileWithPubmed = new File("src/test/resources/submission.px");
-        WriteMessage messageWriter = new WriteMessage();
-        File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXT000001", "2013/07/PXT000001");
+        MessageWriter messageWriter = Util.getSchemaStrategy(SCHEMA_VERSION);
+        File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXT000001", "2013/07/PXT000001", SCHEMA_VERSION);
         proteomeXchangeDataset = unmarshalFile(file);
         assertEquals(proteomeXchangeDataset.getPublicationList().getPublication().get(0).getId(), "pending");
-        file = UpdateMessage.updateReferencesPxXml(submissionFileWithPubmed,  directory, "PXT000001", "2013/07/PXT000001");
+        file = UpdateMessage.updateReferencesPxXml(submissionFileWithPubmed,  directory, "PXT000001", "2013/07/PXT000001", SCHEMA_VERSION);
         proteomeXchangeDataset = unmarshalFile(file);
 
-        file = UpdateMessage.updateMetadataPxXml(submissionFileWithPubmed, directory, "PXT000001", "2013/07/PXT000001", true);
+        file = UpdateMessage.updateMetadataPxXml(submissionFileWithPubmed, directory, "PXT000001", "2013/07/PXT000001", true, SCHEMA_VERSION);
         proteomeXchangeDataset = unmarshalFile(file);
 
-        file = UpdateMessage.updateMetadataPxXml(submissionFileWithPubmed, directory, "PXT000001", "2013/07/PXT000001", false);
+        file = UpdateMessage.updateMetadataPxXml(submissionFileWithPubmed, directory, "PXT000001", "2013/07/PXT000001", false, SCHEMA_VERSION);
         proteomeXchangeDatasetNoChangeLogEntry = unmarshalFile(file);
     }
 
@@ -62,10 +65,11 @@ public class UpdateMessageTest {
      */
     @Test
     public void testPxCvListFromFile(){
-        assertEquals(proteomeXchangeDataset.getCvList().getCv().size(), 3);
+        assertEquals(proteomeXchangeDataset.getCvList().getCv().size(), 4);
         assertEquals(proteomeXchangeDataset.getCvList().getCv().get(0).getId(), "MS");
-        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(1).getId(), "MOD");
-        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(2).getId(), "UNIMOD");
+        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(1).getId(), "PRIDE");
+        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(2).getId(), "MOD");
+        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(3).getId(), "UNIMOD");
 
     }
 
@@ -86,19 +90,19 @@ public class UpdateMessageTest {
     }
 
     /**
-     * Tests PX Meetadata
+     * Tests PX Metadata
      */
     @Test
     public void testPxMetadataFromFile(){
-        assertEquals(proteomeXchangeDataset.getDatasetSummary().getTitle(),"Test project title");
-        assertEquals(proteomeXchangeDataset.getDatasetSummary().getDescription(),"Description for the test project");
-        assertEquals(getValueCvParam(proteomeXchangeDataset.getKeywordList().getCvParam(), WriteMessage.MS_1001925),"test, project");
-        assertEquals(getValueCvParam(proteomeXchangeDataset.getKeywordList().getCvParam(), WriteMessage.MS_1002340), "PRIME-XS Project");
-        assertEquals(getValueCvParam(proteomeXchangeDataset.getKeywordList().getCvParam(),WriteMessage.MS_1001926), "Biological");
+        assertEquals(proteomeXchangeDataset.getDatasetSummary().getTitle(),"Test project title-PIM1 kinase promotes gallbladder cancer cell proliferation via inhibition of proline-rich Akt substrate of 40 kDa (PRAS40)");
+        assertEquals(proteomeXchangeDataset.getDatasetSummary().getDescription(),"Description for the test project - Gallbladder cancer (GBC) is associated with poor disease prognosis with a survival of less than 5 years in 90% the cases. This has been attributed to late presentation of the disease, lack of early diagnostic markers and limited efficiency of therapeutic interventions. Elucidation of the molecular events in GBC carcinogenesis can contribute in better management of the disease by aiding in identification of therapeutic targets. To identify the aberrantly activated signaling events in GBC, tandem mass tag-based quantitative phosphoproteomic analysis of five GBC cell lines based on the invasive property was carried out. Using a panel of five GBC cell lines, a total of 2,623 phosphosites from 1,343 proteins were identified. Of these, 55 phosphosites were hyperphosphorylated and 39 phosphosites were hypophosphorylated in both replicates and all the 4 invasive GBC cell lines. Proline-rich Akt substrate 40 kDa (PRAS40) was one of the proteins found to be hyperphosphorylated in all the invasive GBC cell lines. Tissue microarray-based immunohistochemical labeling of phospho-PRAS40 (T246) revealed moderate to strong staining in 77% of the primary gallbladder adenocarcinoma cases. Inhibition of PRAS40 phosphorylation using inhibitors of its upstream kinases, PIM1 and AKT resulted in a significant decrease in cell proliferation, colony forming and invasive ability of the GBC cells. Our findings support the role of PRAS40 phosphorylation in tumor cell survival and aggressiveness in GBC and suggest its potential as a therapeutic target for GBC.");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getKeywordList().getCvParam(), SchemaOnePointFourStrategy.MS_1001925),"test, project");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getKeywordList().getCvParam(), SchemaOnePointFourStrategy.MS_1002340), "PRIME-XS Project");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getKeywordList().getCvParam(),SchemaOnePointFourStrategy.MS_1001926), "Biological");
     }
 
     /**
-     * Tetss PX species.
+     * Tests PX species.
      */
     @Test
     public void testPxSpeciesFromFile(){
@@ -118,16 +122,16 @@ public class UpdateMessageTest {
     }
 
     /**
-     * Tests PX Moedificiation.
+     * Tests PX Modification.
      */
     @Test
     public void testPxModificationFromFile(){
         assertEquals(proteomeXchangeDataset.getModificationList().getCvParam().size(),1);
-        assertEquals(getNameCvParam(proteomeXchangeDataset.getModificationList().getCvParam(),"MOD:00198"),"D-alanine");
+        assertEquals(getNameCvParam(proteomeXchangeDataset.getModificationList().getCvParam(),"MOD:00198"),"D-alanine (Ala)");
     }
 
     /**
-     * Tets PX PubMed.
+     * Tests PX PubMed.
      */
     @Test
     public void testPxPubMedFromFile(){
@@ -141,7 +145,7 @@ public class UpdateMessageTest {
      */
     @Test
     public void testPxReviewLevelFromFile(){
-        assertEquals(proteomeXchangeDataset.getDatasetSummary().getReviewLevel().getCvParam().getAccession(),"MS:1002854");
+        assertEquals(proteomeXchangeDataset.getDatasetSummary().getReviewLevel().getCvParam().getAccession(),"PRIDE:0000414");
     }
 
     /**
@@ -149,7 +153,7 @@ public class UpdateMessageTest {
      */
     @Test
     public void testPxRepositorySupportFromFile(){
-        assertEquals(proteomeXchangeDataset.getDatasetSummary().getRepositorySupport().getCvParam().getAccession(),"MS:1002856");
+        assertEquals(proteomeXchangeDataset.getDatasetSummary().getRepositorySupport().getCvParam().getAccession(),"PRIDE:0000416");
     }
 
     /**
@@ -157,7 +161,7 @@ public class UpdateMessageTest {
      */
     @Test
     public void testPxFullDatasetLinkListFromFile(){
-        assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getAccession(),"MS:1002852");
+        assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getAccession(),"PRIDE:0000411");
         assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getValue(),"ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2013/07/PXT000001");
     }
 

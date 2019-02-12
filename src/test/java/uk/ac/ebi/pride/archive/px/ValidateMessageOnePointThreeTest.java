@@ -5,6 +5,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import uk.ac.ebi.pride.archive.px.writer.MessageWriter;
+import uk.ac.ebi.pride.archive.px.writer.SchemaOnePointFourStrategy;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +18,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Tobias Ternent
  */
-public class ValidateMessageTest {
+public class ValidateMessageOnePointThreeTest {
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -31,11 +33,13 @@ public class ValidateMessageTest {
      */
     @Before
     public void setUp() throws Exception {
+        final String SCHEMA_VERSION = "1.3.0";
         directory = temporaryFolder.newFolder("pxMessage");
-        submissionFile = new File("src/test/resources/PXD010568_submission.px");
-        WriteMessage messageWriter = new WriteMessage();
-        File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXD010568", "2019/01/PXD010568");
-        errorOutput = ValidateMessage.validateMessage(file);
+        submissionFile = new File("src/test/resources/submission.px");
+        MessageWriter messageWriter = Util.getSchemaStrategy(SCHEMA_VERSION);
+        File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXD010568", "2019/01/PXD010568", SCHEMA_VERSION);
+        ValidateMessage message = new ValidateMessage();
+        errorOutput = message.validateMessage(file, SCHEMA_VERSION);
     }
 
     /**

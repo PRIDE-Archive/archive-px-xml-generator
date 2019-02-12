@@ -7,6 +7,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import uk.ac.ebi.pride.archive.px.model.CvParam;
 import uk.ac.ebi.pride.archive.px.model.ProteomeXchangeDataset;
+import uk.ac.ebi.pride.archive.px.writer.MessageWriter;
+import uk.ac.ebi.pride.archive.px.writer.SchemaCommonStrategy;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -22,7 +24,7 @@ import static org.junit.Assert.assertEquals;
  * @author Daniel Rios
  * @author Florian Reisinger
  */
-public class WriteMessageTest {
+public class WriteMessageOnePointThreeTest {
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -30,23 +32,30 @@ public class WriteMessageTest {
     public File directory;
     public File submissionFile;
     public ProteomeXchangeDataset proteomeXchangeDataset;
+    final String SCHEMA_VERSION = "1.3.0";
 
     @Before
     public void setUp() throws Exception {
+
         directory = temporaryFolder.newFolder("pxMessage");
         submissionFile = new File("src/test/resources/submission.px");
-        WriteMessage messageWriter = new WriteMessage();
-        File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXT000001", "2013/07/PXT000001");
+        MessageWriter messageWriter = Util.getSchemaStrategy(SCHEMA_VERSION);
+        File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXT000001", "2013/07/PXT000001", SCHEMA_VERSION);
         proteomeXchangeDataset = unmarshalFile(file);
     }
 
     @Test
-    public void testPxCvListFromFile(){
-        assertEquals(proteomeXchangeDataset.getCvList().getCv().size(), 3);
-        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(0).getId(), "MS");
-        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(1).getId(), "MOD");
-        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(2).getId(), "UNIMOD");
+    public void tesFormatVersion(){
+        assertEquals(proteomeXchangeDataset.getFormatVersion(), SCHEMA_VERSION);
+    }
 
+    @Test
+    public void testPxCvListFromFile(){
+        assertEquals(proteomeXchangeDataset.getCvList().getCv().size(), 4);
+        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(0).getId(), "MS");
+        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(1).getId(), "PRIDE");
+        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(2).getId(), "MOD");
+        assertEquals(proteomeXchangeDataset.getCvList().getCv().get(3).getId(), "UNIMOD");
     }
 
     @Test
@@ -63,9 +72,9 @@ public class WriteMessageTest {
 
     @Test
     public void testPxMetadataFromFile(){
-        assertEquals(proteomeXchangeDataset.getDatasetSummary().getTitle(),"Test project title");
-        assertEquals(proteomeXchangeDataset.getDatasetSummary().getDescription(),"Description for the test project");
-        assertEquals(getValueCvParam(proteomeXchangeDataset.getKeywordList().getCvParam(),WriteMessage.MS_1001925),"test, project");
+        assertEquals(proteomeXchangeDataset.getDatasetSummary().getTitle(),"Test project title-PIM1 kinase promotes gallbladder cancer cell proliferation via inhibition of proline-rich Akt substrate of 40 kDa (PRAS40)");
+        assertEquals(proteomeXchangeDataset.getDatasetSummary().getDescription(),"Description for the test project - Gallbladder cancer (GBC) is associated with poor disease prognosis with a survival of less than 5 years in 90% the cases. This has been attributed to late presentation of the disease, lack of early diagnostic markers and limited efficiency of therapeutic interventions. Elucidation of the molecular events in GBC carcinogenesis can contribute in better management of the disease by aiding in identification of therapeutic targets. To identify the aberrantly activated signaling events in GBC, tandem mass tag-based quantitative phosphoproteomic analysis of five GBC cell lines based on the invasive property was carried out. Using a panel of five GBC cell lines, a total of 2,623 phosphosites from 1,343 proteins were identified. Of these, 55 phosphosites were hyperphosphorylated and 39 phosphosites were hypophosphorylated in both replicates and all the 4 invasive GBC cell lines. Proline-rich Akt substrate 40 kDa (PRAS40) was one of the proteins found to be hyperphosphorylated in all the invasive GBC cell lines. Tissue microarray-based immunohistochemical labeling of phospho-PRAS40 (T246) revealed moderate to strong staining in 77% of the primary gallbladder adenocarcinoma cases. Inhibition of PRAS40 phosphorylation using inhibitors of its upstream kinases, PIM1 and AKT resulted in a significant decrease in cell proliferation, colony forming and invasive ability of the GBC cells. Our findings support the role of PRAS40 phosphorylation in tumor cell survival and aggressiveness in GBC and suggest its potential as a therapeutic target for GBC.");
+        assertEquals(getValueCvParam(proteomeXchangeDataset.getKeywordList().getCvParam(),SchemaCommonStrategy.MS_1001925),"test, project");
     }
 
     @Test
@@ -85,7 +94,7 @@ public class WriteMessageTest {
     @Test
     public void testPxModificationFromFile(){
         assertEquals(proteomeXchangeDataset.getModificationList().getCvParam().size(),1);
-        assertEquals(getNameCvParam(proteomeXchangeDataset.getModificationList().getCvParam(),"MOD:00198"),"D-alanine");
+        assertEquals(getNameCvParam(proteomeXchangeDataset.getModificationList().getCvParam(),"MOD:00198"),"D-alanine (Ala)");
     }
 
     @Test
@@ -97,28 +106,28 @@ public class WriteMessageTest {
 
     @Test
     public void testPxReviewLevelFromFile(){
-        assertEquals(proteomeXchangeDataset.getDatasetSummary().getReviewLevel().getCvParam().getAccession(),"MS:1002854");
+        assertEquals(proteomeXchangeDataset.getDatasetSummary().getReviewLevel().getCvParam().getAccession(),"PRIDE:0000414");
     }
 
     @Test
     public void testPxRepositorySupportFromFile(){
-        assertEquals(proteomeXchangeDataset.getDatasetSummary().getRepositorySupport().getCvParam().getAccession(),"MS:1002856");
+        assertEquals(proteomeXchangeDataset.getDatasetSummary().getRepositorySupport().getCvParam().getAccession(),"PRIDE:0000416");
     }
 
     @Test
     public void testPxFullDatasetLinkListFromFile(){
-        assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getAccession(),"MS:1002852");
+        assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getAccession(),"PRIDE:0000411");
         assertEquals(proteomeXchangeDataset.getFullDatasetLinkList().getFullDatasetLink().get(0).getCvParam().getValue(),"ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2013/07/PXT000001");
     }
 
     @Test
     public void testPxDatasetFileLink(){
-        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(0).getCvParam().get(0).getAccession(), "MS:1002851");
+        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(0).getCvParam().get(0).getAccession(), "PRIDE:0000410");
         assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(0).getCvParam().get(0).getValue(), "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2013/07/PXT000001/database.fasta");
 
-        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(6).getCvParam().get(0).getAccession(), "MS:1002846");
+        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(6).getCvParam().get(0).getAccession(), "PRIDE:0000404");
         assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(6).getCvParam().get(0).getValue(), "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2013/07/PXT000001/sample_1_replicate_1.RAW");
-        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(6).getCvParam().get(1).getAccession(), "MS:1002859");
+        assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(6).getCvParam().get(1).getAccession(), "PRIDE:0000448");
         assertEquals(proteomeXchangeDataset.getDatasetFileList().getDatasetFile().get(6).getCvParam().get(1).getValue(), "ftp://webdav.swegrid.se/test_1.raw");
     }
 
