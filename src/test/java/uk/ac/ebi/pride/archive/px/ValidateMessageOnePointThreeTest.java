@@ -6,7 +6,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import uk.ac.ebi.pride.archive.px.writer.MessageWriter;
-import uk.ac.ebi.pride.archive.px.writer.SchemaOnePointFourStrategy;
 
 import java.io.File;
 import java.io.IOException;
