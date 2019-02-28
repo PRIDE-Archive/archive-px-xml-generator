@@ -1,6 +1,7 @@
 package uk.ac.ebi.pride.archive.px;
 
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -15,7 +16,7 @@ import static org.junit.Assert.assertTrue;
  * This test class attempts to post a test PX XML to Proteome Central. Doesn't actually log in
  * but should get a reply anyway about the attempt.
  *
- * @author Tobias Ternent
+ * @author Suresh Hewapathirana
  */
 public class PostMessageOnePointFourTest {
 
@@ -27,6 +28,7 @@ public class PostMessageOnePointFourTest {
      * @throws Exception Problems posting to ProteomeCentral in test omode.
      */
     @Test
+    @Ignore
     public void testPost() throws Exception{
 
          File directory;
