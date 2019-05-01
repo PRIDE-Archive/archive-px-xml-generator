@@ -37,8 +37,7 @@ public class ValidateMessageOnePointThreeTest {
         submissionFile = new File("src/test/resources/submission.px");
         MessageWriter messageWriter = Util.getSchemaStrategy(SCHEMA_VERSION);
         File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXD010568", "2019/01/PXD010568", SCHEMA_VERSION);
-        ValidateMessage message = new ValidateMessage();
-        errorOutput = message.validateMessage(file, SCHEMA_VERSION);
+        errorOutput = ValidateMessage.validateMessage(file, SCHEMA_VERSION);
     }
 
     /**

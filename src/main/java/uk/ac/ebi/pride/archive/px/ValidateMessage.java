@@ -1,6 +1,5 @@
 package uk.ac.ebi.pride.archive.px;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -23,7 +22,6 @@ import java.util.List;
 public class ValidateMessage {
 
   private static final Logger logger = LoggerFactory.getLogger(ValidateMessage.class);
-  private String schemaLocation;
 
   /**
    * Method to validate a supplied PX XML file using the default PX Schema location.
@@ -35,8 +33,8 @@ public class ValidateMessage {
    * @throws FileNotFoundException
    * @throws URISyntaxException
    */
-  public String validateMessage(File file, String version) throws URISyntaxException, SAXException, MalformedURLException, FileNotFoundException {
-    this.schemaLocation = "http://ftp.pride.ebi.ac.uk/pride/resources/schema/proteomexchange/proteomeXchange-"+ version +".xsd";
+  public static String validateMessage(File file, String version) throws URISyntaxException, SAXException, MalformedURLException, FileNotFoundException {
+    String schemaLocation = "http://ftp.pride.ebi.ac.uk/pride/resources/schema/proteomexchange/proteomeXchange-"+ version +".xsd";
     return validatePXMessage(file, schemaLocation, version);
   }
 
@@ -51,11 +49,11 @@ public class ValidateMessage {
    * @throws FileNotFoundException
    * @throws URISyntaxException
    */
-  public String validatePXMessage(File file, String schemaLocation, String version) throws SAXException, MalformedURLException, FileNotFoundException, URISyntaxException{
+  public static String  validatePXMessage(File file, String schemaLocation, String version) throws SAXException, MalformedURLException, FileNotFoundException, URISyntaxException{
     StringBuilder errorOutput = new StringBuilder();
     GenericSchemaValidator genericValidator = new GenericSchemaValidator();
     genericValidator.setSchema(new URI(schemaLocation));
-    logger.info("XML schema validation on " + file.getName() + "agaist schema: " + version);
+    logger.info("XML schema validation on " + file.getName() + " against schema: " + version);
     ErrorHandlerIface handler = new ValidationErrorHandler();
     genericValidator.setErrorHandler(handler);
     BufferedReader br = new BufferedReader(new FileReader(file));
