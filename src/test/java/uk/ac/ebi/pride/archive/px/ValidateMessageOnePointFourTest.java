@@ -41,7 +41,6 @@ public class ValidateMessageOnePointFourTest {
      * Test validation.
      */
     @Test
-    @Ignore
     public void testValidation(){
         assertTrue(errorOutput.length()<1);
     }
