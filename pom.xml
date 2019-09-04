@@ -9,7 +9,7 @@
     <parent>
         <groupId>uk.ac.ebi.pride.architectural</groupId>
         <artifactId>pride-core</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
 
     <name>ProteomeXchange XML file generator for PRIDE Archive</name>
