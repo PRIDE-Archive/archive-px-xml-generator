@@ -17,13 +17,13 @@ public class PxMarshaller {
    * @param out output writer
    * @param <T> PXObject
    */
-  public <T extends PXObject> void marshall(T object, Writer out) {
+  public <T extends PXObject> void marshall(T object, Writer out, String pxSchemaVersion) {
     if (object == null) {
       throw new IllegalArgumentException("Cannot marshall a NULL object");
     }
     try {
       Marshaller marshaller = MarshallerFactory.getInstance().initializeMarshaller();
-      marshaller.setProperty(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, "proteomeXchange-1.3.0.xsd");
+      marshaller.setProperty(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION, "proteomeXchange-"+pxSchemaVersion+".xsd");
       marshaller.marshal(object, out);
     } catch (JAXBException e) {
       logger.error("PxMarshaller.marshall", e);

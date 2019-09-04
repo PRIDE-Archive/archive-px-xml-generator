@@ -35,6 +35,13 @@
             <email>tobias@ebi.ac.uk</email>
             <organization>European Bioinformatics Institute</organization>
         </developer>
+        <developer>
+            <id>sureshhewabi</id>
+            <name>Suresh Hewapathirana</name>
+            <organization>Proteomics Team, EMBL-European Bioinformatics Institute</organization>
+            <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
+            <timezone>Europe/London</timezone>
+        </developer>
     </developers>
 
     <contributors>
@@ -98,13 +105,22 @@
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.2.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
-            <version>4.2.2</version>
+            <version>4.5.7</version>
+        </dependency>
+        <!-- Used to work with the older excel file format - `.xls` -->
+        <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.17</version>
+        </dependency>
+        <!-- Used to work with the newer excel file format - `.xlsx` -->
+        <!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.17</version>
         </dependency>
         <dependency>
             <groupId>uk.ac.ebi.pride.tools</groupId>
