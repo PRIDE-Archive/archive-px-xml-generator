@@ -3,7 +3,7 @@
 
     <groupId>uk.ac.ebi.pride.archive</groupId>
     <artifactId>archive-px-xml-generator</artifactId>
-    <version>1.0.20-SNAPSHOT</version>
+    <version>1.0.20</version>
     <packaging>jar</packaging>
 
     <parent>
@@ -225,6 +225,6 @@
         <connection>scm:git:https://github.com/PRIDE-Archive/archive-px-xml-generator.git</connection>
         <developerConnection>scm:git:https://github.com/PRIDE-Archive/archive-px-xml-generator.git</developerConnection>
         <url>https://github.com/PRIDE-Archive/archive-px-xml-generator</url>
-        <tag>HEAD</tag>
+        <tag>archive-px-xml-generator-1.0.20</tag>
     </scm>
 </project>
