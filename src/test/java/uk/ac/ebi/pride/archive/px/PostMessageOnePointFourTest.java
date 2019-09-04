@@ -47,7 +47,7 @@ public class PostMessageOnePointFourTest {
         params.setTest("yes");
         params.setMethod("validateXML");
         params.setVerbose("yes");
-        params.setPxPartner("TestRepo");
+        params.setPxPartner("TestRepo");     // you may change this in production
         params.setAuthentication("*******"); // replace with the password
         response = PostMessage.postFile(file, params, SCHEMA_VERSION);
 
