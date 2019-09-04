@@ -9,7 +9,7 @@
     <parent>
         <groupId>uk.ac.ebi.pride.architectural</groupId>
         <artifactId>pride-core</artifactId>
-        <version>1.0.3-SNAPSHOT</version>
+        <version>1.0.3</version>
     </parent>
 
     <name>ProteomeXchange XML file generator for PRIDE Archive</name>
@@ -191,6 +191,35 @@
             </plugin>
         </plugins>
     </build>
+
+    <!-- Repos and distribution -->
+    <repositories>
+        <repository>
+            <id>nexus-ebi-release-repo</id>
+            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
+        </repository>
+        <repository>
+            <id>nexus-ebi-snapshot-repo</id>
+            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <!-- Deployment to EBI's release repository -->
+        <repository>
+            <id>pst-release</id>
+            <name>EBI Nexus Repository</name>
+            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release</url>
+        </repository>
+        <!-- Deployment to EBI's snapshot repository -->
+        <snapshotRepository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>pst-snapshots</id>
+            <name>EBI Nexus Snapshots Repository</name>
+            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 
     <scm>
         <connection>scm:git:https://github.com/PRIDE-Archive/archive-px-xml-generator.git</connection>
