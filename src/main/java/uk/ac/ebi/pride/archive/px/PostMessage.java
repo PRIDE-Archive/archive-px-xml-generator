@@ -25,9 +25,7 @@ import java.io.IOException;
 public class PostMessage {
   public static final Logger logger = LoggerFactory.getLogger(PostMessage.class);
 
-//  public static final String URL = "http://proteomecentral.proteomexchange.org/cgi/Dataset";
-//  public static final String URL = "http://proteomecentral.proteomexchange.org/beta/cgi/Dataset";
-//  http://central.proteomexchange.org/cgi/GetDataset?ID=PXD000001
+  public static final String PC_URL = "http://proteomecentral.proteomexchange.org/cgi/Dataset";
 
   /**
    * Method to send a supplied PX XML file to Proteome Central.
@@ -38,10 +36,13 @@ public class PostMessage {
    */
   public static String postFile(File file, XMLParams params, String formatVersion) {
 
-    // Currently we have "1.3.0" and "1.4.0" in beta version
-    String URL = (formatVersion.equals("1.3.0"))? "http://proteomecentral.proteomexchange.org/cgi/Dataset": "http://proteomecentral.proteomexchange.org/beta/cgi/Dataset";
+
+
     String serverResponse = null; // server response if we don't run into errors
     try {
+
+      PostMessage.checkVersionCompatibility(formatVersion);
+
       // create the POST attributes
       MultipartEntityBuilder builder = MultipartEntityBuilder.create();
       builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
@@ -60,7 +61,7 @@ public class PostMessage {
               .build();
 
       // create the POST request
-      HttpPost httpPost = new HttpPost(URL);
+      HttpPost httpPost = new HttpPost(PC_URL);
       httpPost.setConfig(requestConfig);
       httpPost.setEntity(builder.build());
 
@@ -81,7 +82,16 @@ public class PostMessage {
       }
     } catch (IOException e) {
       logger.error("ERROR executing command! " + e.getMessage());
+    } catch (Exception e) {
+      e.printStackTrace();
     }
     return serverResponse;
+  }
+
+  private static void checkVersionCompatibility(String formatVersion) throws Exception {
+    if(!formatVersion.equals("1.4.0")){
+        throw new Exception("Unsupported ProteomeXchange version. Currently PX supports 1.4.0");
+
+    }
   }
 }
