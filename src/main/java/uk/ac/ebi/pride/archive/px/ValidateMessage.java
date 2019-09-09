@@ -9,8 +9,8 @@ import uk.ac.ebi.pride.tools.ValidationErrorHandler;
 
 import java.io.*;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -34,8 +34,17 @@ public class ValidateMessage {
    * @throws URISyntaxException
    */
   public static String validateMessage(File file, String version) throws URISyntaxException, SAXException, MalformedURLException, FileNotFoundException {
-    String schemaLocation = "http://ftp.pride.ebi.ac.uk/pride/resources/schema/proteomexchange/proteomeXchange-"+ version +".xsd";
-    return validatePXMessage(file, schemaLocation, version);
+    URL url;
+
+    if(version.equals("1.3.0")){
+      url = ValidateMessage.class.getClassLoader().getResource("proteomeXchange-1.3.0.xsd");
+    }else{
+      url = ValidateMessage.class.getClassLoader().getResource("proteomeXchange-1.4.0.xsd");
+    }
+    if (url == null) {
+      throw new IllegalStateException("No proteomeXchange schema file found!");
+    }
+    return validatePXMessage(file, url, version);
   }
 
   /**
@@ -49,10 +58,10 @@ public class ValidateMessage {
    * @throws FileNotFoundException
    * @throws URISyntaxException
    */
-  public static String  validatePXMessage(File file, String schemaLocation, String version) throws SAXException, MalformedURLException, FileNotFoundException, URISyntaxException{
+  private static String  validatePXMessage(File file, URL schemaLocation, String version) throws SAXException, MalformedURLException, FileNotFoundException, URISyntaxException{
     StringBuilder errorOutput = new StringBuilder();
     GenericSchemaValidator genericValidator = new GenericSchemaValidator();
-    genericValidator.setSchema(new URI(schemaLocation));
+    genericValidator.setSchema(schemaLocation.toURI());
     logger.info("XML schema validation on " + file.getName() + " against schema: " + version);
     ErrorHandlerIface handler = new ValidationErrorHandler();
     genericValidator.setErrorHandler(handler);

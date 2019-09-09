@@ -39,7 +39,7 @@ public class ValidateMessageInBulkOnePointThreeTest {
     params.setMethod("validateXML");
     params.setVerbose("yes");
     params.setPxPartner("TestRepo");
-    params.setAuthentication("goon400"); // replace with the password
+    params.setAuthentication("******"); // replace with the password
   }
 
   /** Test validation on public datasets. */

@@ -108,6 +108,11 @@
             <artifactId>httpmime</artifactId>
             <version>4.5.7</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.4</version>
+        </dependency>
         <!-- Used to work with the older excel file format - `.xls` -->
         <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
         <dependency>
