@@ -41,6 +41,7 @@ public class UpdateMessage {
    * @throws IOException
    */
   public static File updateReferencesPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment, String pxSchemaVersion) throws SubmissionFileException, IOException {
+    final String CURRENT_VERSION = "1.4.0";
     Assert.isTrue(submissionSummaryFile.isFile() && submissionSummaryFile.exists(), "Summary file should already exist! In: " + submissionSummaryFile.getAbsolutePath());
     Submission submissionSummary = SubmissionFileParser.parse(submissionSummaryFile);
     Assert.isTrue(submissionSummary.getProjectMetaData().hasPubmedIds() || submissionSummary.getProjectMetaData().hasDois(),
@@ -55,7 +56,7 @@ public class UpdateMessage {
 
     MessageWriter messageWriter = messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
     // make new PX XML if dealing with old schema version in current PX XML
-    if (!(proteomeXchangeDataset.getFormatVersion().equalsIgnoreCase("1.3.0") || proteomeXchangeDataset.getFormatVersion().equalsIgnoreCase("1.4.0"))) {
+    if (!proteomeXchangeDataset.getFormatVersion().equalsIgnoreCase(CURRENT_VERSION)) {
 
       pxFile = messageWriter.createIntialPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment,pxSchemaVersion);
       if (pxFile != null) {
