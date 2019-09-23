@@ -54,7 +54,7 @@ public class UpdateMessage {
     logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
     backupPxXml(pxFile, outputDirectory);
 
-    MessageWriter messageWriter = messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
+    MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
     // make new PX XML if dealing with old schema version in current PX XML
     if (!proteomeXchangeDataset.getFormatVersion().equalsIgnoreCase(CURRENT_VERSION)) {
 
@@ -97,17 +97,7 @@ public class UpdateMessage {
         messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated publication reference for DOI(s): " + sb.toString() + ".");
       }
     }
-    logger.debug("Updating new reference for PX XML file: " + pxFile.getAbsolutePath());
-    FileWriter fw = null;
-    try {
-      fw = new FileWriter(pxFile);
-      new PxMarshaller().marshall(proteomeXchangeDataset, fw, pxSchemaVersion);
-    } finally {
-      if (fw != null) {
-        fw.close();
-      }
-    }
-    logger.info("PX XML file updated: " + pxFile.getAbsolutePath());
+    updatePXXML(pxFile, proteomeXchangeDataset, pxSchemaVersion);
     return pxFile;
   }
 
@@ -162,18 +152,30 @@ public class UpdateMessage {
     if (changeLogEntry) {
       messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated project metadata.");
     }
+
+    updatePXXML(pxFile, proteomeXchangeDataset, pxSchemaVersion);
+    return pxFile;
+  }
+
+  private static void updatePXXML(File pxFile, ProteomeXchangeDataset proteomeXchangeDataset, String pxSchemaVersion){
     logger.debug("Updating metadata for PX XML file: " + pxFile.getAbsolutePath());
     FileWriter fw = null;
+
     try {
       fw = new FileWriter(pxFile);
       new PxMarshaller().marshall(proteomeXchangeDataset, fw, pxSchemaVersion);
+    } catch (IOException e) {
+      e.printStackTrace();
     } finally {
       if (fw != null) {
-        fw.close();
+        try {
+          fw.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
       }
     }
     logger.info("PX XML file updated: " + pxFile.getAbsolutePath());
-    return pxFile;
   }
 
   /**
@@ -191,9 +193,9 @@ public class UpdateMessage {
     File backupPx =  new File(outputDirectory.getAbsolutePath() + File.separator + baseName + VERSION_SEP + nextVersionNumber + EXT_SEP + ext);
     while (backupPx.exists()) {
       baseName = FilenameUtils.getBaseName(backupPx.getName());
-      String[] splittedSting = baseName.split(VERSION_SEP);
-      nextVersionNumber = (Integer.parseInt(splittedSting[1])) + 1;
-      backupPx =  new File(outputDirectory.getAbsolutePath() + File.separator + splittedSting[0] + VERSION_SEP + nextVersionNumber + EXT_SEP + ext);
+      String[] split = baseName.split(VERSION_SEP);
+      nextVersionNumber = (Integer.parseInt(split[1])) + 1;
+      backupPx =  new File(outputDirectory.getAbsolutePath() + File.separator + split[0] + VERSION_SEP + nextVersionNumber + EXT_SEP + ext);
     }
     Files.copy(pxFile.toPath(), backupPx.toPath());
   }
