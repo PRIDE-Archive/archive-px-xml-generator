@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ProteomeXchangeDataset id="PXD014829" formatVersion="1.4.0" xsi:noNamespaceSchemaLocation="proteomeXchange-1.4.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <CvList>
+        <Cv fullName="PSI-MS" uri="https://raw.githubusercontent.com/HUPO-PSI/psi-ms-CV/master/psi-ms.obo" id="MS"/>
+        <Cv fullName="PSI-MOD" uri="https://raw.githubusercontent.com/MICommunity/psidev/master/psi/mod/data/PSI-MOD.obo" id="MOD"/>
+        <Cv fullName="UNIMOD" uri="http://www.unimod.org/obo/unimod.obo" id="UNIMOD"/>
+    </CvList>
+    <ChangeLog>
+        <ChangeLogEntry date="2019-09-18">Updated publication reference for PubMed record(s): 31519908.</ChangeLogEntry>
+    </ChangeLog>
+    <DatasetSummary announceDate="2019-09-12" hostingRepository="PRIDE" title="Selective autophagy maintains centrosome integrity and accurate mitosis by turnover of centriolar satellites">
+        <Description>The centrosome is the master orchestrator of mitotic spindle formation and chromosome segregation in animal cells. Centrosome abnormalities are frequently observed in cancer, but little is known of their origin and about pathways affecting centrosome homeostasis. Here we show that autophagy preserves centrosome organization and stability through selective turnover of centriolar satellite components, a process we termed doryphagy. Autophagy targets the satellite organizer PCM1 by interacting with GABARAPs via a C-terminal LIR motif. Accordingly, autophagy deficiency results in accumulation of large abnormal centriolar satellites and a resultant dysregulation of centrosome composition. These alterations have critical impact on centrosome stability and lead to mitotic centrosome fragmentation and unbalanced chromosome segregation. Our findings identify doryphagy as an important centrosome-regulating pathway and bring mechanistic insights to the link between autophagy dysfunction and chromosomal instability. In addition, we highlight the vital role of centriolar satellites in maintaining centrosome integrity.</Description>
+        <ReviewLevel>
+            <cvParam cvRef="MS" accession="MS:1002854" name="Peer-reviewed dataset"/>
+        </ReviewLevel>
+        <RepositorySupport>
+            <cvParam cvRef="MS" accession="MS:1002857" name="Unsupported dataset by repository"/>
+        </RepositorySupport>
+    </DatasetSummary>
+    <DatasetIdentifierList>
+        <DatasetIdentifier>
+            <cvParam cvRef="MS" accession="MS:1001919" name="ProteomeXchange accession number" value="PXD014829"/>
+            <cvParam accession="MS:1001921" cvRef="MS" name="ProteomeXchange accession number version number" value="2"/>
+	</DatasetIdentifier>
+    </DatasetIdentifierList>
+    <DatasetOriginList>
+        <DatasetOrigin>
+            <cvParam cvRef="MS" accession="MS:1002868" name="Original data"/>
+        </DatasetOrigin>
+    </DatasetOriginList>
+    <SpeciesList>
+        <Species>
+            <cvParam cvRef="MS" accession="MS:1001469" name="taxonomy: scientific name" value="Homo sapiens (Human)"/>
+            <cvParam cvRef="MS" accession="MS:1001467" name="taxonomy: NCBI TaxID" value="9606"/>
+        </Species>
+    </SpeciesList>
+    <InstrumentList>
+        <Instrument id="Instrument_1">
+            <cvParam cvRef="MS" accession="MS:1001911" name="Q Exactive"/>
+        </Instrument>
+    </InstrumentList>
+    <ModificationList>
+        <cvParam cvRef="MS" accession="MS:1002864" name="No PTMs are included in the dataset"/>
+    </ModificationList>
+    <ContactList>
+        <Contact id="project_submitter">
+            <cvParam cvRef="MS" accession="MS:1000586" name="contact name" value="Michal Lubas"/>
+            <cvParam cvRef="MS" accession="MS:1000589" name="contact email" value="mlubas@bmb.sdu.dk"/>
+            <cvParam cvRef="MS" accession="MS:1000590" name="contact affiliation" value="University of Southern Denmark"/>
+            <cvParam cvRef="MS" accession="MS:1002037" name="dataset submitter"/>
+        </Contact>
+        <Contact id="project_lab_head">
+            <cvParam cvRef="MS" accession="MS:1002332" name="lab head"/>
+            <cvParam cvRef="MS" accession="MS:1000586" name="contact name" value="Anders Lund"/>
+            <cvParam cvRef="MS" accession="MS:1000589" name="contact email" value="anders.lund@bric.ku.dk"/>
+            <cvParam cvRef="MS" accession="MS:1000590" name="contact affiliation" value="Anders H. Lund Professor, PhD  Biotech Research and Innovation Centre University of Copenhagen Ole Maaloes Vej 5 DK-2200 N Copenhagen Denmark"/>
+        </Contact>
+    </ContactList>
+    <PublicationList>
+        <Publication id="PMID31519908">
+            <cvParam cvRef="MS" accession="MS:1000879" name="PubMed identifier" value="31519908"/>
+            <cvParam cvRef="MS" accession="MS:1002866" name="Reference" value="Holdgaard SG, Cianfanelli V, Pupo E, Lambrughi M, Lubas M, Nielsen JC, Eibes S, Maiani E, Harder LM, Wesch N, Foged MM, Maeda K, Nazio F, de la Ballina LR, D?tsch V, Brech A, Frankel LB, J??ttel? M, Locatelli F, Barisic M, Andersen JS, Bekker-Jensen S, Lund AH, Rogov VV, Papaleo E, Lanzetti L, De Zio D, Cecconi F. Selective autophagy maintains centrosome integrity and accurate mitosis by turnover of centriolar satellites. Nat Commun. 2019 10(1):4176"/>
+        </Publication>
+    </PublicationList>
+    <KeywordList>
+        <cvParam cvRef="MS" accession="MS:1001925" name="submitter keyword" value="Autophagy, centriolar satellites, centrosome, centrosome fragmentation, CEP131, GABARAP, mitosis, PCM1, selective autophagy"/>
+    </KeywordList>
+    <FullDatasetLinkList>
+        <FullDatasetLink>
+            <cvParam cvRef="MS" accession="MS:1002852" name="Dataset FTP location" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829"/>
+        </FullDatasetLink>
+        <FullDatasetLink>
+            <cvParam cvRef="MS" accession="MS:1001930" name="PRIDE project URI" value="http://www.ebi.ac.uk/pride/archive/projects/PXD014829"/>
+        </FullDatasetLink>
+    </FullDatasetLinkList>
+    <DatasetFileList>
+        <DatasetFile id="FILE_17" name="20170703_LMH_MLU_LC3famIP_Ctrl1.raw">
+            <cvParam cvRef="MS" accession="MS:1002846" name="Associated raw file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/20170703_LMH_MLU_LC3famIP_Ctrl1.raw"/>
+        </DatasetFile>
+        <DatasetFile id="FILE_18" name="20170703_LMH_MLU_LC3famIP_Ctrl2.raw">
+            <cvParam cvRef="MS" accession="MS:1002846" name="Associated raw file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/20170703_LMH_MLU_LC3famIP_Ctrl2.raw"/>
+        </DatasetFile>
+        <DatasetFile id="FILE_19" name="20170703_LMH_MLU_LC3famIP_Ctrl3.raw">
+            <cvParam cvRef="MS" accession="MS:1002846" name="Associated raw file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/20170703_LMH_MLU_LC3famIP_Ctrl3.raw"/>
+        </DatasetFile>
+        <DatasetFile id="FILE_20" name="20170703_LMH_MLU_LC3famIP_Ctrl4.raw">
+            <cvParam cvRef="MS" accession="MS:1002846" name="Associated raw file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/20170703_LMH_MLU_LC3famIP_Ctrl4.raw"/>
+        </DatasetFile>
+        <DatasetFile id="FILE_21" name="20170703_LMH_MLU_LC3famIP_GABARAP_1.raw">
+            <cvParam cvRef="MS" accession="MS:1002846" name="Associated raw file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/20170703_LMH_MLU_LC3famIP_GABARAP_1.raw"/>
+        </DatasetFile>
+        <DatasetFile id="FILE_22" name="20170703_LMH_MLU_LC3famIP_GABARAP_2.raw">
+            <cvParam cvRef="MS" accession="MS:1002846" name="Associated raw file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/20170703_LMH_MLU_LC3famIP_GABARAP_2.raw"/>
+        </DatasetFile>
+        <DatasetFile id="FILE_23" name="20170703_LMH_MLU_LC3famIP_GABARAP_3.raw">
+            <cvParam cvRef="MS" accession="MS:1002846" name="Associated raw file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/20170703_LMH_MLU_LC3famIP_GABARAP_3.raw"/>
+        </DatasetFile>
+        <DatasetFile id="FILE_24" name="20170703_LMH_MLU_LC3famIP_GABARAP_4.raw">
+            <cvParam cvRef="MS" accession="MS:1002846" name="Associated raw file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/20170703_LMH_MLU_LC3famIP_GABARAP_4.raw"/>
+        </DatasetFile>
+        <DatasetFile id="FILE_25" name="20170703_LMH_MLU_LC3famIP_GABARAPL2_1.raw">
+            <cvParam cvRef="MS" accession="MS:1002846" name="Associated raw file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/20170703_LMH_MLU_LC3famIP_GABARAPL2_1.raw"/>
+        </DatasetFile>
+        <DatasetFile id="FILE_26" name="20170703_LMH_MLU_LC3famIP_GABARAPL2_2.raw">
+            <cvParam cvRef="MS" accession="MS:1002846" name="Associated raw file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/20170703_LMH_MLU_LC3famIP_GABARAPL2_2.raw"/>
+        </DatasetFile>
+        <DatasetFile id="FILE_27" name="20170703_LMH_MLU_LC3famIP_GABARAPL2_3.raw">
+            <cvParam cvRef="MS" accession="MS:1002846" name="Associated raw file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/20170703_LMH_MLU_LC3famIP_GABARAPL2_3.raw"/>
+        </DatasetFile>
+        <DatasetFile id="FILE_28" name="20170703_LMH_MLU_LC3famIP_GABARAPL2_4.raw">
+            <cvParam cvRef="MS" accession="MS:1002846" name="Associated raw file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/20170703_LMH_MLU_LC3famIP_GABARAPL2_4.raw"/>
+        </DatasetFile>
+        <DatasetFile id="FILE_29" name="20170703_LMH_MLU_LC3famIP_LC3B_1.raw">
+            <cvParam cvRef="MS" accession="MS:1002846" name="Associated raw file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/20170703_LMH_MLU_LC3famIP_LC3B_1.raw"/>
+        </DatasetFile>
+        <DatasetFile id="FILE_30" name="20170703_LMH_MLU_LC3famIP_LC3B_2.raw">
+            <cvParam cvRef="MS" accession="MS:1002846" name="Associated raw file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/20170703_LMH_MLU_LC3famIP_LC3B_2.raw"/>
+        </DatasetFile>
+        <DatasetFile id="FILE_31" name="20170703_LMH_MLU_LC3famIP_LC3B_3.raw">
+            <cvParam cvRef="MS" accession="MS:1002846" name="Associated raw file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/20170703_LMH_MLU_LC3famIP_LC3B_3.raw"/>
+        </DatasetFile>
+        <DatasetFile id="FILE_32" name="20170703_LMH_MLU_LC3famIP_LC3B_4.raw">
+            <cvParam cvRef="MS" accession="MS:1002846" name="Associated raw file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/20170703_LMH_MLU_LC3famIP_LC3B_4.raw"/>
+        </DatasetFile>
+        <DatasetFile id="FILE_33" name="Search files.zip">
+            <cvParam cvRef="MS" accession="MS:1002849" name="Search engine output file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/Search files.zip"/>
+        </DatasetFile>
+        <DatasetFile id="FILE_34" name="proteinGroups.txt">
+            <cvParam cvRef="MS" accession="MS:1002845" name="Associated file URI" value="ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2019/09/PXD014829/proteinGroups.txt"/>
+        </DatasetFile>
+    </DatasetFileList>
+    <RepositoryRecordList>
+        <RepositoryRecord name="Selective autophagy maintains centrosome integrity and accurate mitosis by turnover of centriolar satellites" label="PRIDE project" recordID="PXD014829" repositoryID="PRIDE" uri="http://www.ebi.ac.uk/pride/archive/projects/PXD014829"/>
+    </RepositoryRecordList>
+</ProteomeXchangeDataset>
