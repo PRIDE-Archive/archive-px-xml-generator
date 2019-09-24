@@ -4,10 +4,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
+import uk.ac.ebi.pride.archive.px.model.*;
 import uk.ac.ebi.pride.archive.px.reader.ReadMessage;
-import uk.ac.ebi.pride.archive.px.model.ProteomeXchangeDataset;
 import uk.ac.ebi.pride.archive.px.writer.MessageWriter;
 import uk.ac.ebi.pride.archive.px.xml.PxMarshaller;
+import uk.ac.ebi.pride.archive.px.xml.PxUnmarshaller;
 import uk.ac.ebi.pride.data.exception.SubmissionFileException;
 import uk.ac.ebi.pride.data.io.SubmissionFileParser;
 import uk.ac.ebi.pride.data.model.Submission;
@@ -17,6 +18,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -26,6 +28,15 @@ import java.util.Set;
  */
 public class UpdateMessage {
   private static final Logger logger = LoggerFactory.getLogger(UpdateMessage.class);
+
+  static Cv MS_CV;
+
+  static {
+    MS_CV = new Cv();
+    MS_CV.setFullName("PSI-MS");
+    MS_CV.setId("MS");
+    MS_CV.setUri("https://raw.githubusercontent.com/HUPO-PSI/psi-ms-CV/master/psi-ms.obo");
+  }
 
   /**
    * Method to update a PX XML file with new references, intended only for *public* projects.
@@ -51,6 +62,10 @@ public class UpdateMessage {
     Assert.isTrue(pxFile.isFile() && pxFile.exists(), "PX XML file should already exist!");
 
     ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
+
+      // Get the revision number before backup
+      int revisionNo = readRevisionNumber(pxFile, pxAccession);
+
     logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
     backupPxXml(pxFile, outputDirectory);
 
@@ -68,6 +83,7 @@ public class UpdateMessage {
       }
       proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
     }
+    // set new publication
     proteomeXchangeDataset.getPublicationList().getPublication().clear();
     StringBuilder sb = new StringBuilder("");
     String reference;
@@ -81,6 +97,7 @@ public class UpdateMessage {
         sb.append(", ");
       }
     }
+    // change the log for the publication
     if (sb.length()>0) {
       messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated publication reference for PubMed record(s): " + sb.toString() + ".");
     }
@@ -97,6 +114,9 @@ public class UpdateMessage {
         messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated publication reference for DOI(s): " + sb.toString() + ".");
       }
     }
+
+    changeRevisionNumber( proteomeXchangeDataset,  pxAccession, Integer.toString(revisionNo + 1 )); // increase the revision number when updating PX XML
+
     updatePXXML(pxFile, proteomeXchangeDataset, pxSchemaVersion);
     return pxFile;
   }
@@ -199,4 +219,85 @@ public class UpdateMessage {
     }
     Files.copy(pxFile.toPath(), backupPx.toPath());
   }
+
+    /**
+     * Reads the current PX XML file and find the revision version
+     * @param pxFile current PX XML file
+     * @param pxAccession Project accession
+     * @return revision number
+     * @throws IOException
+     */
+    private static int readRevisionNumber(File pxFile, String pxAccession) throws IOException {
+        int revisionNumber = 1;
+        boolean isAccessionRecordFound = false;
+        ProteomeXchangeDataset proteomeXchangeDataset = new PxUnmarshaller().unmarshall(pxFile);
+        DatasetIdentifierList datasetIdentifierList = proteomeXchangeDataset.getDatasetIdentifierList();
+        List<DatasetIdentifier> datasetIdentifiers = datasetIdentifierList.getDatasetIdentifier();
+        for (DatasetIdentifier datasetIdentifier : datasetIdentifiers) {
+            List<CvParam> cvParams = datasetIdentifier.getCvParam();
+            for (CvParam cvParam : cvParams) {
+                if (cvParam.getAccession().equals("MS:1001919") && cvParam.getValue().equals(pxAccession)) { // ProteomeXchange accession number
+                    isAccessionRecordFound = true;
+                }
+                if (cvParam.getAccession().equals("MS:1001921")) { // ProteomeXchange accession number version number
+                    revisionNumber = Integer.parseInt(cvParam.getValue());
+                    break;
+                }
+            }
+            if(isAccessionRecordFound) break;
+        }
+        return revisionNumber;
+    }
+
+  /**
+   * Increment the revision number if the entry already exists, if not this method will add a new entry to the PX XML
+   * @param proteomeXchangeDataset
+   * @param pxAccession
+   * @param revision
+   */
+    private static void changeRevisionNumber(ProteomeXchangeDataset proteomeXchangeDataset, String pxAccession, String revision){
+        boolean isAccessionRecordFound = false;
+        boolean isRevisionRecordExists = false;
+        int index = 0;
+        List<DatasetIdentifier> datasetIdentifiers = proteomeXchangeDataset.getDatasetIdentifierList().getDatasetIdentifier();
+        for (DatasetIdentifier datasetIdentifier : datasetIdentifiers) {
+            List<CvParam> cvParams = datasetIdentifier.getCvParam();
+            for (CvParam cvParam : cvParams) {
+                if (cvParam.getAccession().equals("MS:1001919") && cvParam.getValue().equals(pxAccession)) { // ProteomeXchange accession number
+                    isAccessionRecordFound = true;
+                    index++;
+                }else if (cvParam.getAccession().equals("MS:1001921")) { // ProteomeXchange accession number version number
+                    isRevisionRecordExists = true;
+                }
+            }
+            if(isAccessionRecordFound){
+                if(isRevisionRecordExists){
+                  // edit record
+                  datasetIdentifier.getCvParam().get(index).setValue(revision);
+                }else{
+                  // add new record
+                  cvParams.add(createCvParam("MS:1001921", revision, "ProteomeXchange accession number version number", MS_CV));
+                }
+                break;
+            }
+        }
+
+    }
+
+    /**
+     * Method to create a CV Param.
+     * @param accession the term's accession number
+     * @param value the term's value
+     * @param name the term's name
+     * @param cvRef the term's ontology
+     * @return
+     */
+    static CvParam createCvParam(String accession, String value, String name, Cv cvRef) {
+        CvParam cvParam = new CvParam();
+        cvParam.setAccession(accession.trim());
+        cvParam.setValue(value == null ? null : value.trim());
+        cvParam.setName(name.trim());
+        cvParam.setCvRef(cvRef);
+        return cvParam;
+    }
 }
