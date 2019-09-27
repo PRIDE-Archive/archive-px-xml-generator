@@ -157,6 +157,9 @@ public class UpdateMessage {
     File pxFile = new File(outputDirectory.getAbsolutePath() + File.separator + pxAccession + ".xml");
     Assert.isTrue(pxFile.isFile() && pxFile.exists(), "PX XML file should already exist!");
 
+      // Get the revision number before backup
+      int revisionNo = readRevisionNumber(pxFile, pxAccession);
+
     logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
     backupPxXml(pxFile, outputDirectory);
     MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
@@ -172,7 +175,7 @@ public class UpdateMessage {
     if (changeLogEntry) {
       messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated project metadata.");
     }
-
+    changeRevisionNumber( proteomeXchangeDataset,  pxAccession, Integer.toString(revisionNo + 1 )); // increase the revision number when updating PX XML
     updatePXXML(pxFile, proteomeXchangeDataset, pxSchemaVersion);
     return pxFile;
   }
@@ -281,7 +284,6 @@ public class UpdateMessage {
                 break;
             }
         }
-
     }
 
     /**
