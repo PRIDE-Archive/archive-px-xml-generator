@@ -3,7 +3,7 @@
 
     <groupId>uk.ac.ebi.pride.archive</groupId>
     <artifactId>archive-px-xml-generator</artifactId>
-    <version>1.0.24-SNAPSHOT</version>
+    <version>1.0.24</version>
     <packaging>jar</packaging>
 
     <parent>
@@ -73,7 +73,7 @@
         <uk.ac.ebi.pride.architectural-pride-tdd.version>1.0.3</uk.ac.ebi.pride.architectural-pride-tdd.version>
         <uk.ac.ebi.pride.tools-xmlSchemaValidator.version>2.1</uk.ac.ebi.pride.tools-xmlSchemaValidator.version>
         <uk.ac.ebi.pride-px-submission-core.version>2.0.18</uk.ac.ebi.pride-px-submission-core.version>
-        <uk.ac.ebi.pride.pubmed-pubmed-id-fetcher.version>2.0.2</uk.ac.ebi.pride.pubmed-pubmed-id-fetcher.version>
+        <uk.ac.ebi.pride.pubmed-pubmed-id-fetcher.version>2.0.3</uk.ac.ebi.pride.pubmed-pubmed-id-fetcher.version>
     </properties>
 
     <dependencies>
