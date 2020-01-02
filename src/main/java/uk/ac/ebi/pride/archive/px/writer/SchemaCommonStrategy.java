@@ -211,7 +211,7 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
      * @return
      */
      boolean isValidPathFragment(String datasetPathFragment, String pxAccession) {
-        Pattern p = Pattern.compile("201./[0,1][0-9]/"+pxAccession);
+        Pattern p = Pattern.compile("20../[0,1][0-9]/"+pxAccession);
         Matcher m = p.matcher(datasetPathFragment);
         if (!m.matches()) {
             logger.info("The dataset path fragment '" + datasetPathFragment + "' is not valid for PX accession: " + pxAccession );
