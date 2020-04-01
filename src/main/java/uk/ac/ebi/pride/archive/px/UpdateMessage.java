@@ -17,9 +17,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 
 /**
  * Class to update existing PX XML, to use new references or other meta-data.
@@ -59,17 +58,11 @@ public class UpdateMessage {
         "Summary file should have PubMed IDs or DOIs listed!");
     Assert.isTrue(outputDirectory.exists() && outputDirectory.isDirectory(), "PX XML output directory should already exist! In: " + outputDirectory.getAbsolutePath());
     File pxFile = new File(outputDirectory.getAbsolutePath() + File.separator + pxAccession + ".xml");
-    Assert.isTrue(pxFile.isFile() && pxFile.exists(), "PX XML file should already exist!");
 
-    ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
+     int revisionNumber = preUpdateStep(pxFile, outputDirectory, pxAccession);
 
-      // Get the revision number before backup
-      int revisionNo = readRevisionNumber(pxFile, pxAccession);
-
-    logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
-    backupPxXml(pxFile, outputDirectory);
-
-    MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
+      ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
+      MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
     // make new PX XML if dealing with old schema version in current PX XML
     if (!proteomeXchangeDataset.getFormatVersion().equalsIgnoreCase(CURRENT_VERSION)) {
 
@@ -115,7 +108,7 @@ public class UpdateMessage {
       }
     }
 
-    changeRevisionNumber( proteomeXchangeDataset,  pxAccession, Integer.toString(revisionNo + 1 )); // increase the revision number when updating PX XML
+    changeRevisionNumber( proteomeXchangeDataset,  pxAccession, Integer.toString(revisionNumber + 1 )); // increase the revision number when updating PX XML
 
     updatePXXML(pxFile, proteomeXchangeDataset, pxSchemaVersion);
     return pxFile;
@@ -155,13 +148,8 @@ public class UpdateMessage {
     Assert.isTrue(submissionSummaryFile.isFile() && submissionSummaryFile.exists(), "Summary file should already exist! In: " + submissionSummaryFile.getAbsolutePath());
     Assert.isTrue(outputDirectory.exists() && outputDirectory.isDirectory(), "PX XML output directory should already exist! In: " + outputDirectory.getAbsolutePath());
     File pxFile = new File(outputDirectory.getAbsolutePath() + File.separator + pxAccession + ".xml");
-    Assert.isTrue(pxFile.isFile() && pxFile.exists(), "PX XML file should already exist!");
+    int revisionNumber = preUpdateStep(pxFile, outputDirectory, pxAccession);
 
-      // Get the revision number before backup
-      int revisionNo = readRevisionNumber(pxFile, pxAccession);
-
-    logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
-    backupPxXml(pxFile, outputDirectory);
     MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
     pxFile = messageWriter.createIntialPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, pxSchemaVersion);
     if (pxFile != null) {
@@ -175,7 +163,7 @@ public class UpdateMessage {
     if (changeLogEntry) {
       messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated project metadata.");
     }
-    changeRevisionNumber( proteomeXchangeDataset,  pxAccession, Integer.toString(revisionNo + 1 )); // increase the revision number when updating PX XML
+    changeRevisionNumber( proteomeXchangeDataset,  pxAccession, Integer.toString(revisionNumber + 1 )); // increase the revision number when updating PX XML
     updatePXXML(pxFile, proteomeXchangeDataset, pxSchemaVersion);
     return pxFile;
   }
@@ -201,6 +189,36 @@ public class UpdateMessage {
     logger.info("PX XML file updated: " + pxFile.getAbsolutePath());
   }
 
+    /**
+     * Before changing the PX XML file,
+     *  First, check for any empty XML file. If the file is empty, recover it from the previous backup
+     *  Secondly, take the revision number
+     *  Finally, take a backup of the current XML file before we do any change
+     * @param pxFile Active PX XML file (non-backup file with <accession>.xml filename)
+     * @param outputDirectory generated folder
+     * @param pxAccession project accession
+     * @return PX XML revision number
+     * @throws IOException
+     */
+    private static int preUpdateStep(File pxFile, File outputDirectory, String pxAccession) throws IOException {
+        int revisionNumber = 1;
+
+        // if PX file is not exists, try to take from the backup
+        boolean isPXXMLExists = pxFile.isFile() && pxFile.exists()&& pxFile.length()>1;
+        if(!isPXXMLExists) {
+            revertbackupPxXml(pxFile, outputDirectory);
+            isPXXMLExists = pxFile.isFile() && pxFile.exists()&& pxFile.length()>1;
+        }
+        // after recover, check again
+        if(isPXXMLExists) {
+            // Get the revision number before backup
+            revisionNumber = readRevisionNumber(pxFile, pxAccession);
+            logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
+            backupPxXml(pxFile, outputDirectory);
+        }
+        return revisionNumber;
+    }
+
   /**
    * Backs up the current PX XML to a target directory, using a suffix _number.
    * @param pxFile The PX XML file to backup
@@ -221,6 +239,33 @@ public class UpdateMessage {
       backupPx =  new File(outputDirectory.getAbsolutePath() + File.separator + split[0] + VERSION_SEP + nextVersionNumber + EXT_SEP + ext);
     }
     Files.copy(pxFile.toPath(), backupPx.toPath());
+  }
+
+    /**
+     * Recover PXXML file (if empty) from the latest backup
+     * @param pxFile active PX XML file with <accession>.xml file name
+     * @param outputDirectory "generated" folder in the dataset
+     * @throws IOException
+     */
+  private static void revertbackupPxXml(File pxFile, File outputDirectory) throws IOException{
+      File[] files = outputDirectory.listFiles();
+      List<String> filenames = new ArrayList<>();
+      if (files != null) {
+          for (File file:files) {
+              filenames.add(file.getName());
+          }
+          Collections.sort(filenames);
+
+          for (int i=filenames.size()-1; i>=0; i--){
+              System.out.println(filenames.get(i));
+              File pxCurrentFile = new File(outputDirectory.getAbsolutePath() + "/" + filenames.get(i));
+              boolean isPXXMLExists = pxCurrentFile.isFile() && pxCurrentFile.exists()&& pxCurrentFile.length()>1;
+              if(isPXXMLExists){
+                  Files.move(pxCurrentFile.toPath(), pxFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                  break;
+              }
+          }
+      }
   }
 
     /**
