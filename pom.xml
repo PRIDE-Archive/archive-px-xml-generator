@@ -3,7 +3,7 @@
 
     <groupId>uk.ac.ebi.pride.archive</groupId>
     <artifactId>archive-px-xml-generator</artifactId>
-    <version>1.0.29</version>
+    <version>1.0.30-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <parent>
@@ -144,6 +144,12 @@
             <type>pom</type>
             <version>${uk.ac.ebi.pride.architectural-pride-tdd.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <!-- jsoup HTML parser library -->
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.13.1</version>
         </dependency>
     </dependencies>
 

@@ -1,14 +1,16 @@
 package uk.ac.ebi.pride.archive.px;
 
 import org.apache.commons.io.FilenameUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.pride.archive.px.model.*;
 import uk.ac.ebi.pride.archive.px.reader.ReadMessage;
 import uk.ac.ebi.pride.archive.px.writer.MessageWriter;
 import uk.ac.ebi.pride.archive.px.xml.PxMarshaller;
-import uk.ac.ebi.pride.archive.px.xml.PxUnmarshaller;
 import uk.ac.ebi.pride.data.exception.SubmissionFileException;
 import uk.ac.ebi.pride.data.io.SubmissionFileParser;
 import uk.ac.ebi.pride.data.model.Submission;
@@ -63,8 +65,7 @@ public class UpdateMessage {
 
     ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
 
-      // Get the revision number before backup
-      int revisionNo = readRevisionNumber(pxFile, pxAccession);
+    int revisionNo = getRevisionNumverFromPX(pxAccession);
 
     logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
     backupPxXml(pxFile, outputDirectory);
@@ -72,16 +73,7 @@ public class UpdateMessage {
     MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
     // make new PX XML if dealing with old schema version in current PX XML
     if (!proteomeXchangeDataset.getFormatVersion().equalsIgnoreCase(CURRENT_VERSION)) {
-
-      pxFile = messageWriter.createIntialPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment,pxSchemaVersion);
-      if (pxFile != null) {
-        logger.info("Generated PX XML message file " + pxFile.getAbsolutePath());
-      } else {
-        final String MSG = "Failed to create PX XML message file at " + outputDirectory.getAbsolutePath();
-        logger.error(MSG);
-        throw new SubmissionFileException(MSG);
-      }
-      proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
+        proteomeXchangeDataset = createNewPXXML(messageWriter, pxFile, submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, pxSchemaVersion);
     }
     // set new publication
     proteomeXchangeDataset.getPublicationList().getPublication().clear();
@@ -135,7 +127,7 @@ public class UpdateMessage {
    * @throws IOException
    */
 
-  public static File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment, String pxSchemaVersion) throws SubmissionFileException, IOException {
+  public static File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment, String pxSchemaVersion) throws Exception {
     return  updateMetadataPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, true, pxSchemaVersion);
   }
 
@@ -151,33 +143,53 @@ public class UpdateMessage {
    * @throws SubmissionFileException
    * @throws IOException
    */
-  public static File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment, boolean changeLogEntry, String pxSchemaVersion) throws SubmissionFileException, IOException {
+  public static File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment, boolean changeLogEntry, String pxSchemaVersion) throws Exception {
     Assert.isTrue(submissionSummaryFile.isFile() && submissionSummaryFile.exists(), "Summary file should already exist! In: " + submissionSummaryFile.getAbsolutePath());
     Assert.isTrue(outputDirectory.exists() && outputDirectory.isDirectory(), "PX XML output directory should already exist! In: " + outputDirectory.getAbsolutePath());
     File pxFile = new File(outputDirectory.getAbsolutePath() + File.separator + pxAccession + ".xml");
     Assert.isTrue(pxFile.isFile() && pxFile.exists(), "PX XML file should already exist!");
+      try {
+          int revisionNo = getRevisionNumverFromPX(pxAccession);
 
-      // Get the revision number before backup
-      int revisionNo = readRevisionNumber(pxFile, pxAccession);
+          logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
+          backupPxXml(pxFile, outputDirectory);
+          MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
+          ProteomeXchangeDataset proteomeXchangeDataset = createNewPXXML(messageWriter, pxFile, submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, pxSchemaVersion);
+          if (changeLogEntry) {
+            messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated project metadata.");
+          }
+          changeRevisionNumber( proteomeXchangeDataset,  pxAccession, Integer.toString(revisionNo + 1 )); // increase the revision number when updating PX XML
+          updatePXXML(pxFile, proteomeXchangeDataset, pxSchemaVersion);
+      } catch (Exception e) {
+         throw new Exception("Failed to update project metadata : " + e.getMessage());
+      }
+      return pxFile;
+  }
 
-    logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
-    backupPxXml(pxFile, outputDirectory);
-    MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
-    pxFile = messageWriter.createIntialPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, pxSchemaVersion);
-    if (pxFile != null) {
-      logger.info("Generated PX XML message file " + pxFile.getAbsolutePath());
-    } else {
-      final String MSG = "Failed to create PX XML message file at " + outputDirectory.getAbsolutePath();
-      logger.error(MSG);
-      throw new SubmissionFileException(MSG);
-    }
-    ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
-    if (changeLogEntry) {
-      messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated project metadata.");
-    }
-    changeRevisionNumber( proteomeXchangeDataset,  pxAccession, Integer.toString(revisionNo + 1 )); // increase the revision number when updating PX XML
-    updatePXXML(pxFile, proteomeXchangeDataset, pxSchemaVersion);
-    return pxFile;
+    /**
+     * Create new PXXML File
+     * @param messageWriter the appropriate messageWriter should be passed, based on the PX version
+     * @param pxFile The PX XML file
+     * @param submissionSummaryFile the summary file containing the PX submission summary information.
+     * @param outputDirectory the path to the PX XML output directory
+     * @param pxAccession the PX project accession assigned to the dataset for which we are generating the PX XML.
+     * @param datasetPathFragment the public path fragment(year/month/accession)
+     * @param pxSchemaVersion latest PX schema version
+     * @return ProteomeXchangeDataset Object
+     * @throws SubmissionFileException
+     * @throws IOException
+     */
+  private static ProteomeXchangeDataset createNewPXXML(MessageWriter messageWriter, File pxFile, File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment, String pxSchemaVersion) throws SubmissionFileException, IOException {
+      pxFile = messageWriter.createIntialPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, pxSchemaVersion);
+      if (pxFile != null && pxFile.length() > 0) {
+          logger.info("Generated PX XML message file " + pxFile.getAbsolutePath());
+      } else {
+          final String MSG = "Failed to create PX XML message file at " + outputDirectory.getAbsolutePath();
+          logger.error(MSG);
+          throw new SubmissionFileException(MSG);
+      }
+      ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
+      return proteomeXchangeDataset;
   }
 
   private static void updatePXXML(File pxFile, ProteomeXchangeDataset proteomeXchangeDataset, String pxSchemaVersion){
@@ -224,32 +236,23 @@ public class UpdateMessage {
   }
 
     /**
-     * Reads the current PX XML file and find the revision version
-     * @param pxFile current PX XML file
-     * @param pxAccession Project accession
-     * @return revision number
-     * @throws IOException
+     * Get the revision number from the ProteomXchange Record.
+     * We take it from the HTML because they do not provide revision version in their output JSON (2020-08)
+     * @param pxAccession Project Accession
+     * @return Revision version
      */
-    private static int readRevisionNumber(File pxFile, String pxAccession) throws IOException {
-        int revisionNumber = 1;
-        boolean isAccessionRecordFound = false;
-        ProteomeXchangeDataset proteomeXchangeDataset = new PxUnmarshaller().unmarshall(pxFile);
-        DatasetIdentifierList datasetIdentifierList = proteomeXchangeDataset.getDatasetIdentifierList();
-        List<DatasetIdentifier> datasetIdentifiers = datasetIdentifierList.getDatasetIdentifier();
-        for (DatasetIdentifier datasetIdentifier : datasetIdentifiers) {
-            List<CvParam> cvParams = datasetIdentifier.getCvParam();
-            for (CvParam cvParam : cvParams) {
-                if (cvParam.getAccession().equals("MS:1001919") && cvParam.getValue().equals(pxAccession)) { // ProteomeXchange accession number
-                    isAccessionRecordFound = true;
-                }
-                if (cvParam.getAccession().equals("MS:1001921")) { // ProteomeXchange accession number version number
-                    revisionNumber = Integer.parseInt(cvParam.getValue());
-                    break;
-                }
-            }
-            if(isAccessionRecordFound) break;
-        }
-        return revisionNumber;
+    private static int getRevisionNumverFromPX(String pxAccession){
+        // JSON output does not give revision information
+        String proteomeExchangeUrl= Constants.PROTEOME_EXCHANGE_URL + pxAccession;
+        RestTemplate restTemplate = new RestTemplate();
+        String html = restTemplate.getForObject(proteomeExchangeUrl, String.class);
+
+        Document doc = Jsoup.parse(html);
+
+        // <td class="dataset-currentrev"><a href="GetDataset?ID=PXD017848-1&test=no"><span class='current'>&#9205;</span> 1</a></td>
+        // dataset-currentrev class element -> anchor tag -> second element
+        int currentRevision = Integer.parseInt(doc.select(".dataset-currentrev>a[href]").get(0).childNode(1).toString().trim());
+        return currentRevision;
     }
 
   /**
