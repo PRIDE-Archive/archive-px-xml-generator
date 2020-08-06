@@ -19,9 +19,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 
 /**
  * Class to update existing PX XML, to use new references or other meta-data.
@@ -150,9 +149,7 @@ public class UpdateMessage {
     Assert.isTrue(pxFile.isFile() && pxFile.exists(), "PX XML file should already exist!");
       try {
           int revisionNo = getRevisionNumverFromPX(pxAccession);
-
-          logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
-          backupPxXml(pxFile, outputDirectory);
+          preUpdateStep(pxFile, outputDirectory);
           MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
           ProteomeXchangeDataset proteomeXchangeDataset = createNewPXXML(messageWriter, pxFile, submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, pxSchemaVersion);
           if (changeLogEntry) {
@@ -165,6 +162,31 @@ public class UpdateMessage {
       }
       return pxFile;
   }
+
+    /**
+     * Before changing the PX XML file,
+     *  First, check for any empty XML file. If the file is empty, recover it from the previous backup
+     *  Finally, take a backup of the current XML file before we do any change
+     * @param pxFile Active PX XML file (non-backup file with <accession>.xml filename)
+     * @param outputDirectory generated folder
+     * @return PX XML revision number
+     * @throws IOException
+     */
+    private static void preUpdateStep(File pxFile, File outputDirectory) throws IOException {
+
+        // if PX file is not exists, try to take from the backup
+        boolean isPXXMLExists = pxFile.isFile() && pxFile.exists()&& pxFile.length()>1;
+        if(!isPXXMLExists) {
+            revertbackupPxXml(pxFile, outputDirectory);
+            isPXXMLExists = pxFile.isFile() && pxFile.exists()&& pxFile.length()>1;
+        }
+        // after recover, check again
+        if(isPXXMLExists) {
+            logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
+            backupPxXml(pxFile, outputDirectory);
+        }
+    }
+
 
     /**
      * Create new PXXML File
@@ -234,6 +256,33 @@ public class UpdateMessage {
     }
     Files.copy(pxFile.toPath(), backupPx.toPath());
   }
+
+    /**
+     * Recover PXXML file (if empty) from the latest backup
+     * @param pxFile active PX XML file with <accession>.xml file name
+     * @param outputDirectory "generated" folder in the dataset
+     * @throws IOException
+     */
+    private static void revertbackupPxXml(File pxFile, File outputDirectory) throws IOException{
+        File[] files = outputDirectory.listFiles();
+        List<String> filenames = new ArrayList<>();
+        if (files != null) {
+            for (File file:files) {
+                filenames.add(file.getName());
+            }
+            Collections.sort(filenames);
+
+            for (int i=filenames.size()-1; i>=0; i--){
+                System.out.println(filenames.get(i));
+                File pxCurrentFile = new File(outputDirectory.getAbsolutePath() + "/" + filenames.get(i));
+                boolean isPXXMLExists = pxCurrentFile.isFile() && pxCurrentFile.exists()&& pxCurrentFile.length()>1;
+                if(isPXXMLExists){
+                    Files.move(pxCurrentFile.toPath(), pxFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    break;
+                }
+            }
+        }
+    }
 
     /**
      * Get the revision number from the ProteomXchange Record.
