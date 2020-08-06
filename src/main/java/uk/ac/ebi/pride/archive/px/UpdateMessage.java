@@ -64,7 +64,7 @@ public class UpdateMessage {
 
     ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
 
-    int revisionNo = getRevisionNumverFromPX(pxAccession);
+    int revisionNumber = getRevisionNumverFromPX(pxAccession);
     preUpdateStep(pxFile, outputDirectory);
     MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
     // make new PX XML if dealing with old schema version in current PX XML
@@ -103,7 +103,7 @@ public class UpdateMessage {
       }
     }
 
-    changeRevisionNumber( proteomeXchangeDataset,  pxAccession, Integer.toString(revisionNo + 1 )); // increase the revision number when updating PX XML
+    changeRevisionNumber( proteomeXchangeDataset,  pxAccession, Integer.toString(revisionNumber + 1 )); // increase the revision number when updating PX XML
 
     updatePXXML(pxFile, proteomeXchangeDataset, pxSchemaVersion);
     return pxFile;
@@ -145,14 +145,14 @@ public class UpdateMessage {
     File pxFile = new File(outputDirectory.getAbsolutePath() + File.separator + pxAccession + ".xml");
     Assert.isTrue(pxFile.isFile() && pxFile.exists(), "PX XML file should already exist!");
       try {
-          int revisionNo = getRevisionNumverFromPX(pxAccession);
+          int revisionNumber = getRevisionNumverFromPX(pxAccession);
           preUpdateStep(pxFile, outputDirectory);
           MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
           ProteomeXchangeDataset proteomeXchangeDataset = createNewPXXML(messageWriter, pxFile, submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, pxSchemaVersion);
           if (changeLogEntry) {
             messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated project metadata.");
           }
-          changeRevisionNumber( proteomeXchangeDataset,  pxAccession, Integer.toString(revisionNo + 1 )); // increase the revision number when updating PX XML
+          changeRevisionNumber( proteomeXchangeDataset,  pxAccession, Integer.toString(revisionNumber + 1 )); // increase the revision number when updating PX XML
           updatePXXML(pxFile, proteomeXchangeDataset, pxSchemaVersion);
       } catch (Exception e) {
          throw new Exception("Failed to update project metadata : " + e.getMessage());
