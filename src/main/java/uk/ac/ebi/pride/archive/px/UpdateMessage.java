@@ -65,10 +65,7 @@ public class UpdateMessage {
     ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
 
     int revisionNo = getRevisionNumverFromPX(pxAccession);
-
-    logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
-    backupPxXml(pxFile, outputDirectory);
-
+    preUpdateStep(pxFile, outputDirectory);
     MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
     // make new PX XML if dealing with old schema version in current PX XML
     if (!proteomeXchangeDataset.getFormatVersion().equalsIgnoreCase(CURRENT_VERSION)) {
