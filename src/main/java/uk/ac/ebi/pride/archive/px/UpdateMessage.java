@@ -64,7 +64,7 @@ public class UpdateMessage {
 
     ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
 
-    int revisionNumber = getRevisionNumverFromPX(pxAccession);
+    int revisionNumber = getRevisionNumberFromPX(pxAccession);
     preUpdateStep(pxFile, outputDirectory);
     MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
     // make new PX XML if dealing with old schema version in current PX XML
@@ -145,7 +145,7 @@ public class UpdateMessage {
     File pxFile = new File(outputDirectory.getAbsolutePath() + File.separator + pxAccession + ".xml");
     Assert.isTrue(pxFile.isFile() && pxFile.exists(), "PX XML file should already exist!");
       try {
-          int revisionNumber = getRevisionNumverFromPX(pxAccession);
+          int revisionNumber = getRevisionNumberFromPX(pxAccession);
           preUpdateStep(pxFile, outputDirectory);
           MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
           ProteomeXchangeDataset proteomeXchangeDataset = createNewPXXML(messageWriter, pxFile, submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, pxSchemaVersion);
@@ -287,7 +287,7 @@ public class UpdateMessage {
      * @param pxAccession Project Accession
      * @return Revision version
      */
-    private static int getRevisionNumverFromPX(String pxAccession){
+    private static int getRevisionNumberFromPX(String pxAccession){
         // JSON output does not give revision information
         String proteomeExchangeUrl= Constants.PROTEOME_EXCHANGE_URL + pxAccession;
         RestTemplate restTemplate = new RestTemplate();
