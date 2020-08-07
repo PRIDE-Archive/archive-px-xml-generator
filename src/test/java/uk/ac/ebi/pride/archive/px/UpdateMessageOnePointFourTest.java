@@ -25,7 +25,7 @@ public class UpdateMessageOnePointFourTest {
     }
 
     @Test
-    public void updateMetadataPxXmlTest() {
+    public void updateMetadataPxXmlTest() throws Exception {
 
         try {
             UpdateMessage.updateMetadataPxXml( submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, true, pxSchemaVersion);
