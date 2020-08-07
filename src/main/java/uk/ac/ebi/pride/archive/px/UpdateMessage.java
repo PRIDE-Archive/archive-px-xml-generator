@@ -184,7 +184,6 @@ public class UpdateMessage {
         }
     }
 
-
     /**
      * Create new PXXML File
      * @param messageWriter the appropriate messageWriter should be passed, based on the PX version
@@ -231,36 +230,6 @@ public class UpdateMessage {
     }
     logger.info("PX XML file updated: " + pxFile.getAbsolutePath());
   }
-
-    /**
-     * Before changing the PX XML file,
-     *  First, check for any empty XML file. If the file is empty, recover it from the previous backup
-     *  Secondly, take the revision number
-     *  Finally, take a backup of the current XML file before we do any change
-     * @param pxFile Active PX XML file (non-backup file with <accession>.xml filename)
-     * @param outputDirectory generated folder
-     * @param pxAccession project accession
-     * @return PX XML revision number
-     * @throws IOException
-     */
-    private static int preUpdateStep(File pxFile, File outputDirectory, String pxAccession) throws IOException {
-        int revisionNumber = 1;
-
-        // if PX file is not exists, try to take from the backup
-        boolean isPXXMLExists = pxFile.isFile() && pxFile.exists()&& pxFile.length()>1;
-        if(!isPXXMLExists) {
-            revertbackupPxXml(pxFile, outputDirectory);
-            isPXXMLExists = pxFile.isFile() && pxFile.exists()&& pxFile.length()>1;
-        }
-        // after recover, check again
-        if(isPXXMLExists) {
-            // Get the revision number before backup
-            revisionNumber = readRevisionNumber(pxFile, pxAccession);
-            logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
-            backupPxXml(pxFile, outputDirectory);
-        }
-        return revisionNumber;
-    }
 
   /**
    * Backs up the current PX XML to a target directory, using a suffix _number.
