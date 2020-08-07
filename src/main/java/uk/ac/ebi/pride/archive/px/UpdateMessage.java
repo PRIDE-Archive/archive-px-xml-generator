@@ -63,7 +63,7 @@ public class UpdateMessage {
 
     ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
 
-    int revisionNumber = getRevisionNumverFromPX(pxAccession);
+    int revisionNumber = getRevisionNumberFromPX(pxAccession);
     preUpdateStep(pxFile, outputDirectory);
     MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
 
@@ -145,7 +145,7 @@ public class UpdateMessage {
     File pxFile = new File(outputDirectory.getAbsolutePath() + File.separator + pxAccession + ".xml");
     Assert.isTrue(pxFile.isFile() && pxFile.exists(), "PX XML file should already exist!");
       try {
-          int revisionNumber = getRevisionNumverFromPX(pxAccession);
+          int revisionNumber = getRevisionNumberFromPX(pxAccession);
           preUpdateStep(pxFile, outputDirectory);
           MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
           ProteomeXchangeDataset proteomeXchangeDataset = createNewPXXML(messageWriter, pxFile, submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, pxSchemaVersion);
@@ -183,7 +183,6 @@ public class UpdateMessage {
             backupPxXml(pxFile, outputDirectory);
         }
     }
-
 
     /**
      * Create new PXXML File
@@ -231,36 +230,6 @@ public class UpdateMessage {
     }
     logger.info("PX XML file updated: " + pxFile.getAbsolutePath());
   }
-
-    /**
-     * Before changing the PX XML file,
-     *  First, check for any empty XML file. If the file is empty, recover it from the previous backup
-     *  Secondly, take the revision number
-     *  Finally, take a backup of the current XML file before we do any change
-     * @param pxFile Active PX XML file (non-backup file with <accession>.xml filename)
-     * @param outputDirectory generated folder
-     * @param pxAccession project accession
-     * @return PX XML revision number
-     * @throws IOException
-     */
-    private static int preUpdateStep(File pxFile, File outputDirectory, String pxAccession) throws IOException {
-        int revisionNumber = 1;
-
-        // if PX file is not exists, try to take from the backup
-        boolean isPXXMLExists = pxFile.isFile() && pxFile.exists()&& pxFile.length()>1;
-        if(!isPXXMLExists) {
-            revertbackupPxXml(pxFile, outputDirectory);
-            isPXXMLExists = pxFile.isFile() && pxFile.exists()&& pxFile.length()>1;
-        }
-        // after recover, check again
-        if(isPXXMLExists) {
-            // Get the revision number before backup
-            revisionNumber = readRevisionNumber(pxFile, pxAccession);
-            logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
-            backupPxXml(pxFile, outputDirectory);
-        }
-        return revisionNumber;
-    }
 
   /**
    * Backs up the current PX XML to a target directory, using a suffix _number.
@@ -317,7 +286,7 @@ public class UpdateMessage {
      * @param pxAccession Project Accession
      * @return Revision version
      */
-    private static int getRevisionNumverFromPX(String pxAccession){
+    private static int getRevisionNumberFromPX(String pxAccession){
         // JSON output does not give revision information
         String proteomeExchangeUrl= Constants.PROTEOME_EXCHANGE_URL + pxAccession;
         RestTemplate restTemplate = new RestTemplate();
