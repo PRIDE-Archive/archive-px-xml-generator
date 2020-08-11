@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.archive.px.xml.XMLParams;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.Charset;
 
 /**
@@ -36,7 +35,7 @@ public class PostMessage {
      * @param params the XMLParams needed for configuring the options when sending.
      * @return a String which lists the output from the HTTP service used for posting the PX XML file.
      */
-    public static String postFile(File file, XMLParams params, String formatVersion) {
+    public static String postFile(File file, XMLParams params, String formatVersion) throws Exception {
         String serverResponse = null; // server response if we don't run into errors
         try {
 
@@ -69,10 +68,8 @@ public class PostMessage {
             }else{
                 logger.info(file + " with :" + statusCode + " OK");
             }
-        } catch (IOException e) {
-            logger.error("ERROR executing command! " + e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new Exception("ERROR in posting PXXML file to Proteome Central! " + e.getMessage());
         }
         return serverResponse;
     }
