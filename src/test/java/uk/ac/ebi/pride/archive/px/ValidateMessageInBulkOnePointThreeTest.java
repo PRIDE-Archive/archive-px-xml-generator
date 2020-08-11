@@ -45,7 +45,7 @@ public class ValidateMessageInBulkOnePointThreeTest {
   /** Test validation on public datasets. */
   @Test
   @Ignore
-  public void testValidationInBulk() throws InterruptedException {
+  public void testValidationInBulk() throws Exception {
     Map<String, String> errorMessages = new HashMap<>();
 
     try {
@@ -124,7 +124,7 @@ public class ValidateMessageInBulkOnePointThreeTest {
     }
   }
 
-  private String validate(File submissionFile, String pxAccession, String datasetPathFragment) {
+  private String validate(File submissionFile, String pxAccession, String datasetPathFragment) throws Exception {
 
     String response;
     File directory;

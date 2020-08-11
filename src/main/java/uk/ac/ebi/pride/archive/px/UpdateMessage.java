@@ -6,11 +6,13 @@ import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.pride.archive.px.model.*;
 import uk.ac.ebi.pride.archive.px.reader.ReadMessage;
 import uk.ac.ebi.pride.archive.px.writer.MessageWriter;
 import uk.ac.ebi.pride.archive.px.xml.PxMarshaller;
+import uk.ac.ebi.pride.archive.px.xml.PxUnmarshaller;
 import uk.ac.ebi.pride.data.exception.SubmissionFileException;
 import uk.ac.ebi.pride.data.io.SubmissionFileParser;
 import uk.ac.ebi.pride.data.model.Submission;
@@ -63,9 +65,9 @@ public class UpdateMessage {
 
     ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
 
-    int revisionNumber = getRevisionNumberFromPX(pxAccession);
-    preUpdateStep(pxFile, outputDirectory);
+    int revisionNumber = preUpdateSteps(pxFile, outputDirectory, pxAccession);
     MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
+      Assert.isTrue(messageWriter != null, "No implementation found for " + pxSchemaVersion);
 
     // make new PX XML if dealing with old schema version in current PX XML
     if (!proteomeXchangeDataset.getFormatVersion().equalsIgnoreCase(CURRENT_VERSION)) {
@@ -145,9 +147,9 @@ public class UpdateMessage {
     File pxFile = new File(outputDirectory.getAbsolutePath() + File.separator + pxAccession + ".xml");
     Assert.isTrue(pxFile.isFile() && pxFile.exists(), "PX XML file should already exist!");
       try {
-          int revisionNumber = getRevisionNumberFromPX(pxAccession);
-          preUpdateStep(pxFile, outputDirectory);
+          int revisionNumber = preUpdateSteps(pxFile, outputDirectory, pxAccession);
           MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
+          Assert.isTrue(messageWriter != null, "No implementation found for " + pxSchemaVersion);
           ProteomeXchangeDataset proteomeXchangeDataset = createNewPXXML(messageWriter, pxFile, submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, pxSchemaVersion);
           if (changeLogEntry) {
             messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated project metadata.");
@@ -163,25 +165,33 @@ public class UpdateMessage {
     /**
      * Before changing the PX XML file,
      *  First, check for any empty XML file. If the file is empty, recover it from the previous backup
+     *  Secondly, find the revision number
      *  Finally, take a backup of the current XML file before we do any change
      * @param pxFile Active PX XML file (non-backup file with <accession>.xml filename)
      * @param outputDirectory generated folder
      * @return PX XML revision number
      * @throws IOException
      */
-    private static void preUpdateStep(File pxFile, File outputDirectory) throws IOException {
+    private static int preUpdateSteps(File pxFile, File outputDirectory, String pxAccession) throws IOException {
 
-        // if PX file is not exists, try to take from the backup
         boolean isPXXMLExists = pxFile.isFile() && pxFile.exists()&& pxFile.length()>1;
+
+        // 1) if PX file is not exists, try to take from the backup
         if(!isPXXMLExists) {
             revertbackupPxXml(pxFile, outputDirectory);
             isPXXMLExists = pxFile.isFile() && pxFile.exists()&& pxFile.length()>1;
         }
-        // after recover, check again
+
+        // 2) find the revision number before backup xml file
+        int revisionNumber = getRevisionNumber(pxFile, pxAccession);
+
+        // 3) after recover, check again and backup
         if(isPXXMLExists) {
             logger.debug("Backing up current PX XML file: " + pxFile.getAbsolutePath());
             backupPxXml(pxFile, outputDirectory);
         }
+
+        return revisionNumber;
     }
 
     /**
@@ -281,23 +291,80 @@ public class UpdateMessage {
     }
 
     /**
+     * First try to get the revision number from ProteomeXchange.
+     * There may be cases where dataset is public in PRIDE, but still it is not retrievable in PX.
+     * In such cases, as the second attempt, it will read the revision number from the existing
+     * PXXML file.
+     *
+     * @param pxFile active PX XML file with <accession>.xml file name
+     * @param pxAccession Project Accession
+     * @return Revision version
+     */
+    private static int getRevisionNumber(File pxFile, String pxAccession) {
+        int currentRevisionNo;
+
+            int revNo = getRevisionNoFromProteomeCentral(pxAccession);
+            if(revNo != -1) { // which means an error occured from ProteomeCentral
+                currentRevisionNo = revNo;
+            }else{
+                currentRevisionNo = readRevisionNoFromSubmissionPX(pxFile, pxAccession);
+            }
+        return currentRevisionNo;
+    }
+
+
+    /**
      * Get the revision number from the ProteomXchange Record.
      * We take it from the HTML because they do not provide revision version in their output JSON (2020-08)
      * @param pxAccession Project Accession
      * @return Revision version
      */
-    private static int getRevisionNumberFromPX(String pxAccession){
-        // JSON output does not give revision information
-        String proteomeExchangeUrl= Constants.PROTEOME_EXCHANGE_URL + pxAccession;
-        RestTemplate restTemplate = new RestTemplate();
-        String html = restTemplate.getForObject(proteomeExchangeUrl, String.class);
+    private static int getRevisionNoFromProteomeCentral(String pxAccession){
+        int currentRevisionNo = -1;
+        try {
+            // JSON output does not give revision information
+            String proteomeExchangeUrl= Constants.PROTEOME_EXCHANGE_URL + pxAccession;
+            RestTemplate restTemplate = new RestTemplate();
+            String html = restTemplate.getForObject(proteomeExchangeUrl, String.class);
 
-        Document doc = Jsoup.parse(html);
+            Document doc = Jsoup.parse(html);
 
-        // <td class="dataset-currentrev"><a href="GetDataset?ID=PXD017848-1&test=no"><span class='current'>&#9205;</span> 1</a></td>
-        // dataset-currentrev class element -> anchor tag -> second element
-        int currentRevision = Integer.parseInt(doc.select(".dataset-currentrev>a[href]").get(0).childNode(1).toString().trim());
-        return currentRevision;
+            // <td class="dataset-currentrev"><a href="GetDataset?ID=PXD017848-1&test=no"><span class='current'>&#9205;</span> 1</a></td>
+            // dataset-currentrev class element -> anchor tag -> second element
+            currentRevisionNo = Integer.parseInt(doc.select(".dataset-currentrev>a[href]").get(0).childNode(1).toString().trim());
+        } catch (RestClientException | NumberFormatException e) {
+            logger.warn("Current revision number cannot retrieve from ProteomeXchange!");
+        }
+        return currentRevisionNo;
+    }
+
+    /**
+     * Reads the current PX XML file and find the revision version
+     * @param pxFile current PX XML file
+     * @param pxAccession Project accession
+     * @return revision number
+     * @throws IOException
+     */
+    private static int readRevisionNoFromSubmissionPX(File pxFile, String pxAccession) {
+        int currentRevisionNo = 1;
+        boolean isAccessionRecordFound = false;
+        ProteomeXchangeDataset proteomeXchangeDataset = new PxUnmarshaller().unmarshall(pxFile);
+        DatasetIdentifierList datasetIdentifierList = proteomeXchangeDataset.getDatasetIdentifierList();
+        List<DatasetIdentifier> datasetIdentifiers = datasetIdentifierList.getDatasetIdentifier();
+        for (DatasetIdentifier datasetIdentifier : datasetIdentifiers) {
+            List<CvParam> cvParams = datasetIdentifier.getCvParam();
+            for (CvParam cvParam : cvParams) {
+                if (cvParam.getAccession().equals("MS:1001919") && cvParam.getValue().equals(pxAccession)) { // ProteomeXchange accession number
+                    isAccessionRecordFound = true;
+                }
+                if (cvParam.getAccession().equals("MS:1001921")) { // ProteomeXchange accession number version number
+                    currentRevisionNo = Integer.parseInt(cvParam.getValue());
+                    break;
+                }
+            }
+            if(isAccessionRecordFound) break;
+        }
+        return currentRevisionNo;
     }
 
   /**
