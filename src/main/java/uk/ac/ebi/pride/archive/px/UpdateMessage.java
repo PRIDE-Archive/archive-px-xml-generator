@@ -301,14 +301,15 @@ public class UpdateMessage {
      * @return Revision version
      */
     private static int getRevisionNumber(File pxFile, String pxAccession) {
-        int currentRevisionNo;
+        int currentRevisionNo = 0;
 
             int revNo = getRevisionNoFromProteomeCentral(pxAccession);
             if(revNo != -1) { // which means an error occured from ProteomeCentral
                 currentRevisionNo = revNo;
-            }else{
-                currentRevisionNo = readRevisionNoFromSubmissionPX(pxFile, pxAccession);
             }
+//            else{
+//                currentRevisionNo = readRevisionNoFromSubmissionPX(pxFile, pxAccession);
+//            }
         return currentRevisionNo;
     }
 
