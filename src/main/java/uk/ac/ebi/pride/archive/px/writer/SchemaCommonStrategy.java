@@ -51,10 +51,10 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
     static final String PROTEOME_XCHANGE_PROJECT_TAG = "ProteomeXchange project tag";
     static final String FRED_LAVANDER_LAB_SWE = "webdav.swegrid.se";
     // all allowed CVs
-     static Cv MS_CV;
-     static Cv PRIDE_CV;
-     static Cv MOD_CV;
-     static Cv UNIMOD_CV;
+    static Cv MS_CV;
+    static Cv PRIDE_CV;
+    static Cv MOD_CV;
+    static Cv UNIMOD_CV;
 
     static {
         MS_CV = new Cv();
@@ -91,10 +91,11 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Crates the first version of a PX XML file.
+     *
      * @param submissionSummaryFile the Submission object containing the PX submission summary information.
-     * @param outputDirectory where the output PX XML will be written to.
-     * @param pxAccession the PX project accession assigned to the dataset for which we are generating the PX XML.
-     * @param datasetPathFragment the path fragment that points to the dataset (pattern: /yyyy/mm/accession/).
+     * @param outputDirectory       where the output PX XML will be written to.
+     * @param pxAccession           the PX project accession assigned to the dataset for which we are generating the PX XML.
+     * @param datasetPathFragment   the path fragment that points to the dataset (pattern: /yyyy/mm/accession/).
      * @return The generated PX XML file
      * @throws SubmissionFileException
      * @throws IOException
@@ -136,11 +137,11 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
     /**
      * Method to generate the initial PX XML document.
      * Note: this will not add a change log, since that is not needed for the first version of the PX XML.
-     *       Subsequent changes to an already existing PX XML should add change log entries documenting
-     *       the changes that have been done.
+     * Subsequent changes to an already existing PX XML should add change log entries documenting
+     * the changes that have been done.
      *
-     * @param submissionSummary the Submission object containing the PX submission summary information.
-     * @param pxAccession the PX project accession assigned to the dataset for which we are generating the PX XML.
+     * @param submissionSummary   the Submission object containing the PX submission summary information.
+     * @param pxAccession         the PX project accession assigned to the dataset for which we are generating the PX XML.
      * @param datasetPathFragment the path fragment that points to the dataset (pattern: /yyyy/mm/accession/).
      * @return a ProteomeXchangeDataset ready for marshaling into a PX XML file.
      */
@@ -149,11 +150,11 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
     /**
      * This method clears the publication list of the PX XML and adds a record for the provided PubMed ID.
      * Note: the initial PX XML is generally generated without knowledge of a publication and therefore
-     *       will carry a default annotation. That is the reason, why this method clears the publication
-     *       list before adding a new reference.
+     * will carry a default annotation. That is the reason, why this method clears the publication
+     * list before adding a new reference.
      *
      * @param pxXml the object representing the PX XML.
-     * @param pmid the PubMed ID of the publication to be added.
+     * @param pmid  the PubMed ID of the publication to be added.
      * @return the updated object reflecting the updated PX XML.
      */
     @SuppressWarnings("unused")
@@ -169,10 +170,10 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
     /**
      * This method clears the publication list of the PX XML and adds a record for the provided PubMed ID.
      * Note: the initial PX XML is generally generated without knowledge of a publication and therefore
-     *       will carry a default annotation. That is the reason, why this method clears the publication
-     *       list before adding a new reference.
+     * will carry a default annotation. That is the reason, why this method clears the publication
+     * list before adding a new reference.
      *
-     * @param pxXml the object representing the PX XML.
+     * @param pxXml   the object representing the PX XML.
      * @param refLine the reference line of the publication to be added (in case no PubMed ID can be provided).
      * @return the updated object reflecting the updated PX XML.
      */
@@ -189,10 +190,11 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Check if the PX accession number is valid according to the regex: PX[D|T]\d{6}
+     *
      * @param pxAccession The PX accession number to check.
      * @return
      */
-     boolean isValidPXAccession(String pxAccession) {
+    boolean isValidPXAccession(String pxAccession) {
         Pattern p = Pattern.compile("PX[D|T]\\d{6}");
         Matcher m = p.matcher(pxAccession);
         if (m.matches()) {
@@ -206,15 +208,16 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Check if the public path fragment is valid.
+     *
      * @param datasetPathFragment the path fragment to check.
-     * @param pxAccession the PX accession number.
+     * @param pxAccession         the PX accession number.
      * @return
      */
-     boolean isValidPathFragment(String datasetPathFragment, String pxAccession) {
-        Pattern p = Pattern.compile("20../[0,1][0-9]/"+pxAccession);
+    boolean isValidPathFragment(String datasetPathFragment, String pxAccession) {
+        Pattern p = Pattern.compile("20../[0,1][0-9]/" + pxAccession);
         Matcher m = p.matcher(datasetPathFragment);
         if (!m.matches()) {
-            logger.info("The dataset path fragment '" + datasetPathFragment + "' is not valid for PX accession: " + pxAccession );
+            logger.info("The dataset path fragment '" + datasetPathFragment + "' is not valid for PX accession: " + pxAccession);
             return false;
         }
         return true;
@@ -222,7 +225,8 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Adds a change log entry field to the PX XML.
-     * @param pxXML the PX XML file to update.
+     *
+     * @param pxXML   the PX XML file to update.
      * @param message the update message to be included.
      */
     public void addChangeLogEntry(ProteomeXchangeDataset pxXML, String message) {
@@ -239,6 +243,7 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Gets the publication list. There should always be a publication list, but it may have records to say 'no reference' or 'reference pending'
+     *
      * @param submissionSummary the submission summary.
      * @return The PublicationList is returned.
      */
@@ -246,7 +251,7 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
         PublicationList list = new PublicationList();
         Set<String> pubmedIDs = submissionSummary.getProjectMetaData().getPubmedIds();
         Set<String> dois = submissionSummary.getProjectMetaData().getDois();
-        if ((pubmedIDs==null || pubmedIDs.size()<1) && (dois==null || dois.size()<1)) {
+        if ((pubmedIDs == null || pubmedIDs.size() < 1) && (dois == null || dois.size() < 1)) {
             // no pubmed ID, so no publication, we assume it is pending
             Publication publication = new Publication();
             CvParam cvParam = new CvParam();
@@ -257,7 +262,7 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
             publication.getCvParam().add(cvParam);
             list.getPublication().add(publication);
         } else { // we have already publications
-            if (pubmedIDs!=null) {
+            if (pubmedIDs != null) {
                 for (String pubmedID : pubmedIDs) {
                     Long pmid = Long.parseLong(pubmedID);
                     list.getPublication().add(getPublication(pmid));
@@ -269,11 +274,12 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
                 }
             }
         }
-        return  list;
+        return list;
     }
 
     /**
      * Extracts the publication from a refline.
+     *
      * @param refLine The refline to obtain the publication.
      * @return the Publication object
      */
@@ -289,6 +295,7 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Gets a Publication from a PubMed ID
+     *
      * @param pmid the PubMed ID
      * @return the Publication object
      */
@@ -312,11 +319,12 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Gets a Publication from a DOI
+     *
      * @param doi the DOI
      * @return the Publication object
      */
     public Publication getPublicationDoi(String doi) {
-        if (doi==null || doi.isEmpty()) {
+        if (doi == null || doi.isEmpty()) {
             throw new IllegalArgumentException("No DOI provided!");
         }
         Publication publication = new Publication();
@@ -328,6 +336,7 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Gets a list of allowed CVs
+     *
      * @return CvList.
      */
     protected CvList getCvList() {
@@ -343,19 +352,19 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
      * Method to retrieve keyword list from the summary file.
      * Now also supports project tags, e.g. parent projects or curator keywords.
      *
-     * @param submissionSummary  the object representing the PX submission summary file content.
+     * @param submissionSummary the object representing the PX submission summary file content.
      * @return a KeywordList with all the keywords mentioned in the submission summary file.
      */
     public KeywordList getKeywordList(Submission submissionSummary) {
         KeywordList keywordList = new KeywordList();
         keywordList.getCvParam().add(createCvParam(MS_1001925, submissionSummary.getProjectMetaData().getKeywords(), SUBMITTER_KEYWORD, MS_CV));
         Set<String> projectTags = submissionSummary.getProjectMetaData().getProjectTags();
-        if (projectTags!=null && projectTags.size()>0) {
+        if (projectTags != null && projectTags.size() > 0) {
             HashSet<String> allPossibleCuratorTags = new HashSet<>(Arrays.asList(BIOLOGICAL, BIOMEDICAL, CARDIOVASCULAR, HIGHLIGHTED, TECHNICAL, METAPROTEOMICS));
             for (String tag : projectTags) {
                 if (allPossibleCuratorTags.contains(tag)) {
                     keywordList.getCvParam().add(createCvParam(MS_1001926, tag, CURATOR_KEYWORD, MS_CV));
-                }   else {
+                } else {
                     keywordList.getCvParam().add(createCvParam(MS_1002340, tag, PROTEOME_XCHANGE_PROJECT_TAG, MS_CV));
                 }
             }
@@ -365,6 +374,7 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Method to extract modifications from summary file
+     *
      * @param submissionSummary the submission summary object of the project
      * @return ModificationList.
      */
@@ -400,7 +410,7 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
                 list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), UNIMOD_CV));
             } else if (cvParam.getCvLabel().equalsIgnoreCase("ms") && cvParam.getAccession().equalsIgnoreCase("MS:1001460")) {
                 list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), MS_CV));
-            } else if (modificationSet.size()==1 && cvParam.getCvLabel().equalsIgnoreCase("pride") && cvParam.getAccession().equalsIgnoreCase("PRIDE:0000398")) {
+            } else if (modificationSet.size() == 1 && cvParam.getCvLabel().equalsIgnoreCase("pride") && cvParam.getAccession().equalsIgnoreCase("PRIDE:0000398")) {
                 list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), PRIDE_CV));
             } else {
                 // That should never happen, since the validation pipeline should have checked this before.
@@ -414,6 +424,7 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Method to extract instrument information from summary file
+     *
      * @param submissionSummary the submission summary object of the project
      * @return InstrumentList.
      */
@@ -434,6 +445,7 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Mmethod to get Species information from summary file
+     *
      * @param submissionSummary the submission summary object of the project
      * @return SpeciesList.
      */
@@ -455,12 +467,13 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Method to add Dataset identifier information
+     *
      * @param projectAccession the submission summary object of the project
-     * @param withDOI including a DOU or not.
+     * @param withDOI          including a DOU or not.
      * @return DatasetIdentifierList.
      */
     // ToDo: take submissions into account that refer to previous datasets/submissions
-     DatasetIdentifierList getDatasetIdentifierList(String projectAccession, boolean withDOI) {
+    DatasetIdentifierList getDatasetIdentifierList(String projectAccession, boolean withDOI) {
         DatasetIdentifierList datasetIdentifierList = new DatasetIdentifierList();
         DatasetIdentifier px = new DatasetIdentifier(); // add the PX accession
         px.getCvParam().add(createCvParam("MS:1001919", projectAccession, "ProteomeXchange accession number", MS_CV));
@@ -475,10 +488,11 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Method to create a CV Param.
+     *
      * @param accession the term's accession number
-     * @param value the term's value
-     * @param name the term's name
-     * @param cvRef the term's ontology
+     * @param value     the term's value
+     * @param name      the term's name
+     * @param cvRef     the term's ontology
      * @return
      */
     CvParam createCvParam(String accession, String value, String name, Cv cvRef) {
@@ -492,18 +506,19 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Convert a uk.ac.ebi.pride.data.model.CvParam to a uk.ac.ebi.pride.archive.px.model.CvParam.
+     *
      * @param cvParam The CV Parameter to convert
      * @return The converted CV Parameter
      */
     private CvParam convertCvParam(uk.ac.ebi.pride.data.model.CvParam cvParam) {
         if (cvParam.getCvLabel().trim().equalsIgnoreCase(MS_CV.getId()) || cvParam.getCvLabel().trim().equalsIgnoreCase("PSI-MS")) {
-            return createCvParam(cvParam.getAccession(),cvParam.getValue(), cvParam.getName(), MS_CV);
+            return createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), MS_CV);
         } else if (cvParam.getCvLabel().trim().equalsIgnoreCase(PRIDE_CV.getId())) {
-            return createCvParam(cvParam.getAccession(),cvParam.getValue(), cvParam.getName(), PRIDE_CV);
+            return createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), PRIDE_CV);
         } else if (cvParam.getCvLabel().trim().equalsIgnoreCase(UNIMOD_CV.getId())) {
-            return createCvParam(cvParam.getAccession(),cvParam.getValue(), cvParam.getName(), UNIMOD_CV);
+            return createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), UNIMOD_CV);
         } else if (cvParam.getCvLabel().trim().equalsIgnoreCase(MOD_CV.getId())) {
-            return createCvParam(cvParam.getAccession(),cvParam.getValue(), cvParam.getName(), MOD_CV);
+            return createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), MOD_CV);
         } else {
             throw new IllegalArgumentException("Not a valid CV :" + cvParam.getCvLabel() + "! PX XML only supports the following CVs: MS, PRIDE, MOD, UNIMOD.");
         }
@@ -511,7 +526,8 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Creates a list of files for the dataset
-     * @param submissionSummary the submission summary object of the project
+     *
+     * @param submissionSummary   the submission summary object of the project
      * @param datasetPathFragment the path fragment
      * @return DatasetFileList.
      */
@@ -521,7 +537,7 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
         for (DataFile dataFile : submissionSummary.getDataFiles()) {
             DatasetFile df = new DatasetFile();
             CvParam extraUrlLink = null;
-            df.setId("FILE_"+dataFile.getFileId()); // ID to uniquely identify the DatasetFile
+            df.setId("FILE_" + dataFile.getFileId()); // ID to uniquely identify the DatasetFile
             String fileName = dataFile.getFile().getName();
             df.setName(fileName);
             String fileUri = FTP + "/" + datasetPathFragment + "/" + fileName;
@@ -529,36 +545,44 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
             Set<String> allowedAltDomains = new HashSet<>();
             allowedAltDomains.add(FRED_LAVANDER_LAB_SWE);
             switch (dataFile.getFileType()) {
-                case RAW    : fileParam = createCvParam("PRIDE:0000404", fileUri, "Associated raw file URI", PRIDE_CV);
-                    if (dataFile.getUrl()!=null && dataFile.getUrl().toString().trim().length()>0) {
+                case RAW:
+                    fileParam = createCvParam("PRIDE:0000404", fileUri, "Associated raw file URI", PRIDE_CV);
+                    if (dataFile.getUrl() != null && dataFile.getUrl().toString().trim().length() > 0) {
                         try {
                             URI uri = new URI(dataFile.getUrl().toString().trim());
                             String domain = uri.getHost();
                             if (allowedAltDomains.contains(domain)) {
-                                extraUrlLink =  createCvParam("PRIDE:0000448", dataFile.getUrl().toString().trim(), "Additional associated raw file URI", PRIDE_CV);
+                                extraUrlLink = createCvParam("PRIDE:0000448", dataFile.getUrl().toString().trim(), "Additional associated raw file URI", PRIDE_CV);
                             } else {
-                                logger.error("Alternative URL's domain not allowed: " + domain);                                        }
+                                logger.error("Alternative URL's domain not allowed: " + domain);
+                            }
                         } catch (URISyntaxException urise) {
-                            logger.error("Error checking alternative URL: " +  dataFile.getUrl().toString().trim());
+                            logger.error("Error checking alternative URL: " + dataFile.getUrl().toString().trim());
                             logger.error(urise.toString());
                         }
                     }
                     break;
-                case RESULT : fileParam = createCvParam("PRIDE:0000407", fileUri, "Result file URI", PRIDE_CV);
+                case RESULT:
+                    fileParam = createCvParam("PRIDE:0000407", fileUri, "Result file URI", PRIDE_CV);
                     break;
-                case SEARCH : fileParam = createCvParam("PRIDE:0000408", fileUri, "Search engine output file URI", PRIDE_CV);
+                case SEARCH:
+                    fileParam = createCvParam("PRIDE:0000408", fileUri, "Search engine output file URI", PRIDE_CV);
                     break;
-                case PEAK   : fileParam = createCvParam("PRIDE:0000409", fileUri, "Peak list file URI", PRIDE_CV);
+                case PEAK:
+                    fileParam = createCvParam("PRIDE:0000409", fileUri, "Peak list file URI", PRIDE_CV);
                     break;
-                case GEL   : fileParam = createCvParam("PRIDE:0000449", fileUri, "Gel image file URI", PRIDE_CV);
+                case GEL:
+                    fileParam = createCvParam("PRIDE:0000449", fileUri, "Gel image file URI", PRIDE_CV);
                     break;
-                case OTHER  : fileParam = createCvParam("PRIDE:0000410", fileUri, "'Other' type file URI", PRIDE_CV);
+                case OTHER:
+                    fileParam = createCvParam("PRIDE:0000410", fileUri, "'Other' type file URI", PRIDE_CV);
                     break;
-                default     : fileParam = createCvParam("PRIDE:0000403", fileUri, "Associated file URI", PRIDE_CV);
+                default:
+                    fileParam = createCvParam("PRIDE:0000403", fileUri, "Associated file URI", PRIDE_CV);
                     break;
             }
             df.getCvParam().add(fileParam);
-            if (extraUrlLink!=null) {
+            if (extraUrlLink != null) {
                 df.getCvParam().add(extraUrlLink);
             }
             // ToDo (imminently): extra filetype support for 'fasta' and 'spectrum library'
@@ -570,11 +594,12 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Creates a repository record list,
+     *
      * @param submissionSummary the submission summary object of the project
-     * @param pxAccession the PX accession number
+     * @param pxAccession       the PX accession number
      * @return
      */
-     RepositoryRecordList createRepositoryRecordList(Submission submissionSummary, String pxAccession) {
+    RepositoryRecordList createRepositoryRecordList(Submission submissionSummary, String pxAccession) {
         RepositoryRecordList list = new RepositoryRecordList(); // create a PRIDE repository link for the whole project
         RepositoryRecord record = new RepositoryRecord();
         record.setRepositoryID(HostingRepositoryType.PRIDE);
@@ -589,6 +614,7 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * The DatasetOriginList, at the moment, it is hardcoded, all are new submissions who's origin is in the PRIDE PX repository
+     *
      * @return DatasetOriginList.
      */
     protected DatasetOriginList getDatasetOriginList() {
@@ -605,11 +631,12 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Helper method to return full DatasetLink with FTP location of the dataset
+     *
      * @param datasetPathFragment the path fragment
-     * @param pxAccession the PX accession number
+     * @param pxAccession         the PX accession number
      * @return
      */
-    protected FullDatasetLinkList createFullDatasetLinkList(String datasetPathFragment, String pxAccession)  {
+    protected FullDatasetLinkList createFullDatasetLinkList(String datasetPathFragment, String pxAccession) {
         FullDatasetLinkList fullDatasetLinkList = new FullDatasetLinkList();
         FullDatasetLink prideFtpLink = new FullDatasetLink();
         CvParam ftpParam = createCvParam("PRIDE:0000411", FTP + "/" + datasetPathFragment, "Dataset FTP location", PRIDE_CV);
@@ -624,10 +651,11 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Gets the dataset summary for a submission summary
+     *
      * @param submissionSummary the submission summary object of the project
      * @return DatasetSummary.
      */
-     DatasetSummary getDatasetSummary(Submission submissionSummary) {
+    DatasetSummary getDatasetSummary(Submission submissionSummary) {
         DatasetSummary datasetSummary = new DatasetSummary();
         datasetSummary.setTitle(submissionSummary.getProjectMetaData().getProjectTitle());
         datasetSummary.setDescription(submissionSummary.getProjectMetaData().getProjectDescription());
@@ -643,7 +671,8 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
     }
 
     /**
-     *  Helper method to create RepositorySupportType for either complete or partial submissions (other types are currently not supported and will return null).
+     * Helper method to create RepositorySupportType for either complete or partial submissions (other types are currently not supported and will return null).
+     *
      * @param type the submission type
      * @return RepositorySupportType
      */
@@ -664,12 +693,13 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     /**
      * Helper method to create a ReviewLevelType, either peer-reviewed or non-peer-reviewed
+     *
      * @param peerReviewed peer reviewed dataet, or not.
      * @return ReviewLevelType.
      */
     protected ReviewLevelType createReviewLevel(boolean peerReviewed) {
         ReviewLevelType reviewLevel = new ReviewLevelType();
-        CvParam cvparam ;
+        CvParam cvparam;
         if (peerReviewed) {
             cvparam = createCvParam("PRIDE:0000414", null, "Peer-reviewed dataset", PRIDE_CV);
         } else {
@@ -680,11 +710,12 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
     }
 
     /**
-     *  Method to extract the contact list from the summary file
-     * @param submissionSummary  the submission summary object of the project
+     * Method to extract the contact list from the summary file
+     *
+     * @param submissionSummary the submission summary object of the project
      * @return ContactList
      */
-     ContactList getContactList(Submission submissionSummary) {
+    ContactList getContactList(Submission submissionSummary) {
         ContactList list = new ContactList();
         uk.ac.ebi.pride.data.model.Contact auxSubmitter = submissionSummary.getProjectMetaData().getSubmitterContact();
         Contact submitter = new Contact();
@@ -695,21 +726,26 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
         submitter.getCvParam().add(createCvParam("MS:1002037", null, "dataset submitter", MS_CV));
         list.getContact().add(submitter);
         uk.ac.ebi.pride.data.model.Contact auxLabHead = submissionSummary.getProjectMetaData().getLabHeadContact();
+        Contact labHead = new Contact();
+        labHead.setId("project_lab_head"); // assign a unique ID to this contact
+        labHead.getCvParam().add(createCvParam("MS:1002332", null, "lab head", MS_CV));
         if (auxLabHead != null && auxLabHead.getName() != null && !auxLabHead.getName().trim().isEmpty()) {
-            Contact labHead = new Contact();
-            labHead.setId("project_lab_head"); // assign a unique ID to this contact
-            labHead.getCvParam().add(createCvParam("MS:1002332", null, "lab head", MS_CV));
             labHead.getCvParam().add(createCvParam("MS:1000586", auxLabHead.getName(), "contact name", MS_CV));
-            if (auxLabHead.getEmail() != null && !auxLabHead.getEmail().trim().isEmpty()) {
-                labHead.getCvParam().add(createCvParam("MS:1000589", auxLabHead.getEmail(), "contact email", MS_CV));
-            }
-            if (auxLabHead.getAffiliation() != null && !auxLabHead.getAffiliation().trim().isEmpty()) {
-                labHead.getCvParam().add(createCvParam("MS:1000590", auxLabHead.getAffiliation(), "contact affiliation", MS_CV));
-            }
-            list.getContact().add(labHead);
         } else {
-            logger.warn("No lab head information found while generating PX XML!");
+            labHead.getCvParam().add(createCvParam("MS:1000586", "Unknown", "contact name", MS_CV));
         }
+        if (auxLabHead != null && auxLabHead.getEmail() != null && !auxLabHead.getEmail().trim().isEmpty()) {
+            labHead.getCvParam().add(createCvParam("MS:1000589", auxLabHead.getEmail(), "contact email", MS_CV));
+        } else {
+            labHead.getCvParam().add(createCvParam("MS:1000589", "unknown@unknown.unknown", "contact email", MS_CV));
+        }
+        if (auxLabHead != null && auxLabHead.getAffiliation() != null && !auxLabHead.getAffiliation().trim().isEmpty()) {
+            labHead.getCvParam().add(createCvParam("MS:1000590", auxLabHead.getAffiliation(), "contact affiliation", MS_CV));
+        } else {
+            labHead.getCvParam().add(createCvParam("MS:1000590", "Unknown", "contact affiliation", MS_CV));
+        }
+        list.getContact().add(labHead);
+
         return list;
     }
 }
