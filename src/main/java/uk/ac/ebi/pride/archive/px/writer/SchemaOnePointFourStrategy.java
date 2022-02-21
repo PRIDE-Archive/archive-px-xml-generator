@@ -217,23 +217,27 @@ public class SchemaOnePointFourStrategy extends SchemaCommonStrategy {
         }
       }
     }
-    // we should have modifications by now, since they are mandatory, we break if we have not found any
-    Assert.isTrue(!modificationSet.isEmpty(), "Modification annotation is mandatory submissions!");
-    for (uk.ac.ebi.pride.data.model.CvParam cvParam : modificationSet) {
-      // check if we have PSI-MOD or UNIMOD ontology terms
-      if (cvParam.getCvLabel().equalsIgnoreCase("psi-mod") || cvParam.getCvLabel().equalsIgnoreCase("mod")) {
-        list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), MOD_CV));
-      } else if (cvParam.getCvLabel().equalsIgnoreCase("unimod")) {
-        list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), UNIMOD_CV));
-      } else if (cvParam.getCvLabel().equalsIgnoreCase("ms") && cvParam.getAccession().equalsIgnoreCase("MS:1001460")) {
-        list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), MS_CV));
-      } else if (modificationSet.size()==1 && cvParam.getCvLabel().equalsIgnoreCase("pride") && cvParam.getAccession().equalsIgnoreCase("PRIDE:0000398")) {
-        list.getCvParam().add(createCvParam("MS:1002864", cvParam.getValue(), cvParam.getName(), MS_CV)); // transformed to PSI-MS CV Param
-      } else {
-        // That should never happen, since the validation pipeline should have checked this before.
-        String msg = "Found unknown modification CV: " + cvParam.getCvLabel();
-        logger.error(msg);
-        throw new IllegalStateException(msg);
+    // we should have modifications by now, we will continue with a warning if the modification is not available
+    if(modificationSet.isEmpty()){
+      logger.warn("Modification annotation is mandatory in submission.px, however it was not found!");
+      list.getCvParam().add(createCvParam("MS:1002864", "", "No PTMs are included in the dataset", MS_CV));
+    }else{
+      for (uk.ac.ebi.pride.data.model.CvParam cvParam : modificationSet) {
+        // check if we have PSI-MOD or UNIMOD ontology terms
+        if (cvParam.getCvLabel().equalsIgnoreCase("psi-mod") || cvParam.getCvLabel().equalsIgnoreCase("mod")) {
+          list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), MOD_CV));
+        } else if (cvParam.getCvLabel().equalsIgnoreCase("unimod")) {
+          list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), UNIMOD_CV));
+        } else if (cvParam.getCvLabel().equalsIgnoreCase("ms") && cvParam.getAccession().equalsIgnoreCase("MS:1001460")) {
+          list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), MS_CV));
+        } else if (modificationSet.size()==1 && cvParam.getCvLabel().equalsIgnoreCase("pride") && cvParam.getAccession().equalsIgnoreCase("PRIDE:0000398")) {
+          list.getCvParam().add(createCvParam("MS:1002864", cvParam.getValue(), cvParam.getName(), MS_CV)); // transformed to PSI-MS CV Param
+        } else {
+          // That should never happen, since the validation pipeline should have checked this before.
+          String msg = "Found unknown modification CV: " + cvParam.getCvLabel();
+          logger.error(msg);
+          throw new IllegalStateException(msg);
+        }
       }
     }
     return list;
