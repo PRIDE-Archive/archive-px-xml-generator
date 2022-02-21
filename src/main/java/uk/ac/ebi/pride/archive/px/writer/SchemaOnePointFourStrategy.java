@@ -232,6 +232,8 @@ public class SchemaOnePointFourStrategy extends SchemaCommonStrategy {
           list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), MS_CV));
         } else if (modificationSet.size()==1 && cvParam.getCvLabel().equalsIgnoreCase("pride") && cvParam.getAccession().equalsIgnoreCase("PRIDE:0000398")) {
           list.getCvParam().add(createCvParam("MS:1002864", cvParam.getValue(), cvParam.getName(), MS_CV)); // transformed to PSI-MS CV Param
+        }  else if (modificationSet.size() > 1 && cvParam.getCvLabel().equalsIgnoreCase("pride") && cvParam.getAccession().equalsIgnoreCase("PRIDE:0000398")) {
+          continue; // skip "No PTMs reported in the dataset" if there are other modifications listed
         } else {
           // That should never happen, since the validation pipeline should have checked this before.
           String msg = "Found unknown modification CV: " + cvParam.getCvLabel();
