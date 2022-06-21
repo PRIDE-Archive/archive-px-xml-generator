@@ -167,8 +167,8 @@ public class SchemaOnePointFourStrategy extends SchemaCommonStrategy {
     publication.getCvParam().add(createCvParam("MS:1000879", pmid.toString(), "PubMed identifier", MS_CV));
     String refLine;
     try {
-      refLine = PubMedFetcher.getPubMedSummary(Long.toString(pmid)).getRefLine();
-    } catch (URISyntaxException | IOException e) {
+      refLine = PubMedFetcher.getPubMedSummary(Long.toString(pmid)).getReferenceLine();
+    } catch (Exception e) {
       logger.error("Problems getting reference line from PubMed " + e.getMessage());
       refLine = "No refLine for PMID: " + pmid; // ToDo: better default value?
     }

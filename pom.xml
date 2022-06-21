@@ -3,7 +3,7 @@
 
     <groupId>uk.ac.ebi.pride.archive</groupId>
     <artifactId>archive-px-xml-generator</artifactId>
-    <version>1.0.31-SNAPSHOT</version>
+    <version>1.0.32-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <parent>
@@ -72,8 +72,8 @@
         <!-- TDD -->
         <uk.ac.ebi.pride.architectural-pride-tdd.version>1.0.3</uk.ac.ebi.pride.architectural-pride-tdd.version>
         <uk.ac.ebi.pride.tools-xmlSchemaValidator.version>2.1</uk.ac.ebi.pride.tools-xmlSchemaValidator.version>
-        <uk.ac.ebi.pride-px-submission-core.version>2.0.30</uk.ac.ebi.pride-px-submission-core.version>
-        <uk.ac.ebi.pride.pubmed-pubmed-id-fetcher.version>2.0.6-SNAPSHOT</uk.ac.ebi.pride.pubmed-pubmed-id-fetcher.version>
+        <uk.ac.ebi.pride-px-submission-core.version>2.0.35</uk.ac.ebi.pride-px-submission-core.version>
+        <uk.ac.ebi.pride.pubmed-pubmed-id-fetcher.version>2.0.8-SNAPSHOT</uk.ac.ebi.pride.pubmed-pubmed-id-fetcher.version>
     </properties>
 
     <dependencies>
@@ -207,11 +207,11 @@
     <repositories>
         <repository>
             <id>nexus-ebi-release-repo</id>
-            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
+            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
         </repository>
         <repository>
             <id>nexus-ebi-snapshot-repo</id>
-            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
+            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
         </repository>
     </repositories>
 
@@ -220,14 +220,14 @@
         <repository>
             <id>pst-release</id>
             <name>EBI Nexus Repository</name>
-            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release</url>
+            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release</url>
         </repository>
         <!-- Deployment to EBI's snapshot repository -->
         <snapshotRepository>
             <uniqueVersion>false</uniqueVersion>
             <id>pst-snapshots</id>
             <name>EBI Nexus Snapshots Repository</name>
-            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots</url>
+            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
