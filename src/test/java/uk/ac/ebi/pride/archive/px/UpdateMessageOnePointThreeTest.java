@@ -10,6 +10,7 @@ import uk.ac.ebi.pride.archive.px.model.CvParam;
 import uk.ac.ebi.pride.archive.px.model.ProteomeXchangeDataset;
 import uk.ac.ebi.pride.archive.px.writer.MessageWriter;
 import uk.ac.ebi.pride.archive.px.writer.SchemaOnePointFourStrategy;
+import uk.ac.ebi.pride.data.io.SubmissionFileParser;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -50,13 +51,13 @@ public class UpdateMessageOnePointThreeTest {
         File file = messageWriter.createIntialPxXml(submissionFile, directory, "PXT000001", "2013/07/PXT000001", SCHEMA_VERSION);
         proteomeXchangeDataset = unmarshalFile(file);
         assertEquals(proteomeXchangeDataset.getPublicationList().getPublication().get(0).getId(), "pending");
-        file = UpdateMessage.updateReferencesPxXml(submissionFileWithPubmed,  directory, "PXT000001", "2013/07/PXT000001", SCHEMA_VERSION);
+        file = UpdateMessage.updateReferencesPxXml(directory, "PXT000001", "2013/07/PXT000001", SCHEMA_VERSION, SubmissionFileParser.parse(submissionFileWithPubmed));
         proteomeXchangeDataset = unmarshalFile(file);
 
-        file = UpdateMessage.updateMetadataPxXml(submissionFileWithPubmed, directory, "PXT000001", "2013/07/PXT000001", true, SCHEMA_VERSION);
+        file = UpdateMessage.updateMetadataPxXml(SubmissionFileParser.parse(submissionFileWithPubmed), directory, "PXT000001", "2013/07/PXT000001", true, SCHEMA_VERSION);
         proteomeXchangeDataset = unmarshalFile(file);
 
-        file = UpdateMessage.updateMetadataPxXml(submissionFileWithPubmed, directory, "PXT000001", "2013/07/PXT000001", false, SCHEMA_VERSION);
+        file = UpdateMessage.updateMetadataPxXml(SubmissionFileParser.parse(submissionFileWithPubmed), directory, "PXT000001", "2013/07/PXT000001", false, SCHEMA_VERSION);
         proteomeXchangeDatasetNoChangeLogEntry = unmarshalFile(file);
     }
 

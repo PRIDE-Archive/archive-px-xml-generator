@@ -90,7 +90,7 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
     }
 
     /**
-     * Crates the first version of a PX XML file.
+     * Creates the first version of a PX XML file.
      *
      * @param submissionSummaryFile the Submission object containing the PX submission summary information.
      * @param outputDirectory       where the output PX XML will be written to.
@@ -107,6 +107,25 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
         }
         // we need to be able to parse the submission summary file (we throw on the exception if there is any)
         Submission submissionSummary = SubmissionFileParser.parse(submissionSummaryFile);
+        return this.createIntialPxXml(submissionSummary,outputDirectory,pxAccession,datasetPathFragment,pxSchemaVersion);
+    }
+
+    /**
+     * Creates the first version of a PX XML file.
+     *
+     * @param submissionSummary the Submission object containing the PX submission summary information.
+     * @param outputDirectory       where the output PX XML will be written to.
+     * @param pxAccession           the PX project accession assigned to the dataset for which we are generating the PX XML.
+     * @param datasetPathFragment   the path fragment that points to the dataset (pattern: /yyyy/mm/accession/).
+     * @return The generated PX XML file
+     * @throws SubmissionFileException
+     * @throws IOException
+     */
+    public File createIntialPxXml(Submission submissionSummary, File outputDirectory, String pxAccession, String datasetPathFragment, String pxSchemaVersion) throws IOException {
+        // the submission summary has to exist
+        if (submissionSummary == null) {
+            throw new IllegalArgumentException("Submission object is null");
+        }
         // the output directory has to exist (or we need to be able to create it)
         // ToDo: perhaps expect the file to write to as argument instead of creating it
         if (!outputDirectory.isDirectory()) {

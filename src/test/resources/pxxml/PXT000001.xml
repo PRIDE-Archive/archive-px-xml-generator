@@ -6,9 +6,9 @@
         <Cv fullName="UNIMOD" uri="http://www.unimod.org/obo/unimod.obo" id="UNIMOD"/>
     </CvList>
     <ChangeLog>
-        <ChangeLogEntry date="2020-03-30">Updated project metadata.PXT000001_2</ChangeLogEntry>
+        <ChangeLogEntry date="2022-09-22">Updated project metadata.</ChangeLogEntry>
     </ChangeLog>
-    <DatasetSummary announceDate="2020-03-30" hostingRepository="PRIDE" title="Test project title-PIM1 kinase promotes gallbladder cancer cell proliferation via inhibition of proline-rich Akt substrate of 40 kDa (PRAS40)">
+    <DatasetSummary announceDate="2022-09-22" hostingRepository="PRIDE" title="Test project title-PIM1 kinase promotes gallbladder cancer cell proliferation via inhibition of proline-rich Akt substrate of 40 kDa (PRAS40)">
         <Description>Description for the test project - Gallbladder cancer (GBC) is associated with poor disease prognosis with a survival of less than 5 years in 90% the cases. This has been attributed to late presentation of the disease, lack of early diagnostic markers and limited efficiency of therapeutic interventions. Elucidation of the molecular events in GBC carcinogenesis can contribute in better management of the disease by aiding in identification of therapeutic targets. To identify the aberrantly activated signaling events in GBC, tandem mass tag-based quantitative phosphoproteomic analysis of five GBC cell lines based on the invasive property was carried out. Using a panel of five GBC cell lines, a total of 2,623 phosphosites from 1,343 proteins were identified. Of these, 55 phosphosites were hyperphosphorylated and 39 phosphosites were hypophosphorylated in both replicates and all the 4 invasive GBC cell lines. Proline-rich Akt substrate 40 kDa (PRAS40) was one of the proteins found to be hyperphosphorylated in all the invasive GBC cell lines. Tissue microarray-based immunohistochemical labeling of phospho-PRAS40 (T246) revealed moderate to strong staining in 77% of the primary gallbladder adenocarcinoma cases. Inhibition of PRAS40 phosphorylation using inhibitors of its upstream kinases, PIM1 and AKT resulted in a significant decrease in cell proliferation, colony forming and invasive ability of the GBC cells. Our findings support the role of PRAS40 phosphorylation in tumor cell survival and aggressiveness in GBC and suggest its potential as a therapeutic target for GBC.</Description>
         <ReviewLevel>
             <cvParam cvRef="MS" accession="MS:1002854" name="Peer-reviewed dataset"/>
@@ -20,7 +20,7 @@
     <DatasetIdentifierList>
         <DatasetIdentifier>
             <cvParam cvRef="MS" accession="MS:1001919" name="ProteomeXchange accession number" value="PXT000001"/>
-            <cvParam cvRef="MS" accession="MS:1001921" name="ProteomeXchange accession number version number" value="3"/>
+            <cvParam cvRef="MS" accession="MS:1001921" name="ProteomeXchange accession number version number" value="2"/>
         </DatasetIdentifier>
         <DatasetIdentifier>
             <cvParam cvRef="MS" accession="MS:1001922" name="Digital Object Identifier (DOI)" value="10.6019/PXT000001"/>

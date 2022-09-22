@@ -22,5 +22,5 @@ public interface MessageWriter {
     ModificationList getModificationList(Submission submissionSummary);
     InstrumentList getInstrumentList(Submission submissionSummary);
     SpeciesList getSpeciesList(Submission submissionSummary);
-
+    File createIntialPxXml(Submission submissionSummary, File outputDirectory, String pxAccession, String datasetPathFragment, String pxSchemaVersion)throws IOException;
 }

@@ -41,81 +41,79 @@ public class UpdateMessage {
     MS_CV.setUri("https://raw.githubusercontent.com/HUPO-PSI/psi-ms-CV/master/psi-ms.obo");
   }
 
-  /**
-   * Method to update a PX XML file with new references, intended only for *public* projects.
-   * Note: this will add a change log, since that is needed after the first version of the PX XML.
-   * Will also backup the PX XML before updating.
-   *
-   * @param submissionSummaryFile the summary file containing the PX submission summary information.
-   * @param outputDirectory the path to the PX XML output directory.
-   * @param pxAccession the PX project accession assigned to the dataset for which we are generating the PX XML.
-   * @param datasetPathFragment the public path fragment
-   * @return a File that is the updated PX XML.
-   * @throws SubmissionFileException
-   * @throws IOException
-   */
-  public static File updateReferencesPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment, String pxSchemaVersion) throws SubmissionFileException, IOException {
-    final String CURRENT_VERSION = "1.4.0";
-    Assert.isTrue(submissionSummaryFile.isFile() && submissionSummaryFile.exists(), "Summary file should already exist! In: " + submissionSummaryFile.getAbsolutePath());
-    Submission submissionSummary = SubmissionFileParser.parse(submissionSummaryFile);
-    Assert.isTrue(submissionSummary.getProjectMetaData().hasPubmedIds() || submissionSummary.getProjectMetaData().hasDois(),
-        "Summary file should have PubMed IDs or DOIs listed!");
-    Assert.isTrue(outputDirectory.exists() && outputDirectory.isDirectory(), "PX XML output directory should already exist! In: " + outputDirectory.getAbsolutePath());
-    File pxFile = new File(outputDirectory.getAbsolutePath() + File.separator + pxAccession + ".xml");
+    /**
+     * Method to update a PX XML file with new references, intended only for *public* projects.
+     * Note: this will add a change log, since that is needed after the first version of the PX XML.
+     * Will also backup the PX XML before updating.
+     *
+     * @param submission the summary containing the PX submission summary information.
+     * @param outputDirectory the path to the PX XML output directory.
+     * @param pxAccession the PX project accession assigned to the dataset for which we are generating the PX XML.
+     * @param datasetPathFragment the public path fragment
+     * @return a File that is the updated PX XML.
+     * @throws SubmissionFileException
+     * @throws IOException
+     */
+    public static File updateReferencesPxXml(File outputDirectory, String pxAccession, String datasetPathFragment, String pxSchemaVersion, Submission submission) throws IOException, SubmissionFileException {
+        final String CURRENT_VERSION = "1.4.0";
+        Assert.isTrue(submission.getProjectMetaData().hasPubmedIds() || submission.getProjectMetaData().hasDois(),
+            "Submission Summary should have PubMed IDs or DOIs listed!");
+        Assert.isTrue(outputDirectory.exists() && outputDirectory.isDirectory(), "PX XML output directory should already exist! In: " + outputDirectory.getAbsolutePath());
+        File pxFile = new File(outputDirectory.getAbsolutePath() + File.separator + pxAccession + ".xml");
 
-    ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
+        ProteomeXchangeDataset proteomeXchangeDataset = ReadMessage.readPxXml(pxFile);
 
-    int revisionNumber = preUpdateSteps(pxFile, outputDirectory, pxAccession);
-    MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
-      Assert.isTrue(messageWriter != null, "No implementation found for " + pxSchemaVersion);
+        int revisionNumber = preUpdateSteps(pxFile, outputDirectory, pxAccession);
+        MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
+        Assert.isTrue(messageWriter != null, "No implementation found for " + pxSchemaVersion);
 
-    // make new PX XML if dealing with old schema version in current PX XML
-    if (!proteomeXchangeDataset.getFormatVersion().equalsIgnoreCase(CURRENT_VERSION)) {
-        proteomeXchangeDataset = createNewPXXML(messageWriter, pxFile, submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, pxSchemaVersion);
-    }
-    // set new publication
-    proteomeXchangeDataset.getPublicationList().getPublication().clear();
-    StringBuilder sb = new StringBuilder("");
-    String reference;
-    Set<String> pubmedIds = submissionSummary.getProjectMetaData().getPubmedIds();
-    Iterator<String> it = pubmedIds.iterator();
-    while (it.hasNext()) {
-      reference = it.next();
-      proteomeXchangeDataset.getPublicationList().getPublication().add(messageWriter.getPublication(Long.parseLong(reference.trim())));
-      sb.append(reference);
-      if (it.hasNext()) {
-        sb.append(", ");
-      }
-    }
-    // change the log for the publication
-    if (sb.length()>0) {
-      messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated publication reference for PubMed record(s): " + sb.toString() + ".");
-    }
-    sb.delete(0, sb.length());
-    if (submissionSummary.getProjectMetaData().hasDois()) {
-      for (String doi : submissionSummary.getProjectMetaData().getDois()) {
-        proteomeXchangeDataset.getPublicationList().getPublication().add(messageWriter.getPublicationDoi(doi));
-        sb.append(doi);
-        if (it.hasNext()) {
-          sb.append(", ");
+        // make new PX XML if dealing with old schema version in current PX XML
+        if (!proteomeXchangeDataset.getFormatVersion().equalsIgnoreCase(CURRENT_VERSION)) {
+            proteomeXchangeDataset = createNewPXXML(messageWriter, pxFile, submission, outputDirectory, pxAccession, datasetPathFragment, pxSchemaVersion);
         }
-      }
-      if (sb.length()>0) {
-        messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated publication reference for DOI(s): " + sb.toString() + ".");
-      }
+        // set new publication
+        proteomeXchangeDataset.getPublicationList().getPublication().clear();
+        StringBuilder sb = new StringBuilder("");
+        String reference;
+        Set<String> pubmedIds = submission.getProjectMetaData().getPubmedIds();
+        Iterator<String> it = pubmedIds.iterator();
+        while (it.hasNext()) {
+          reference = it.next();
+          proteomeXchangeDataset.getPublicationList().getPublication().add(messageWriter.getPublication(Long.parseLong(reference.trim())));
+          sb.append(reference);
+          if (it.hasNext()) {
+            sb.append(", ");
+          }
+        }
+        // change the log for the publication
+        if (sb.length()>0) {
+          messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated publication reference for PubMed record(s): " + sb.toString() + ".");
+        }
+        sb.delete(0, sb.length());
+        if (submission.getProjectMetaData().hasDois()) {
+          for (String doi : submission.getProjectMetaData().getDois()) {
+            proteomeXchangeDataset.getPublicationList().getPublication().add(messageWriter.getPublicationDoi(doi));
+            sb.append(doi);
+            if (it.hasNext()) {
+              sb.append(", ");
+            }
+          }
+          if (sb.length()>0) {
+            messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated publication reference for DOI(s): " + sb.toString() + ".");
+          }
+        }
+
+        changeRevisionNumber( proteomeXchangeDataset,  pxAccession, Integer.toString(revisionNumber + 1 )); // increase the revision number when updating PX XML
+
+        updatePXXML(pxFile, proteomeXchangeDataset, pxSchemaVersion);
+        return pxFile;
     }
 
-    changeRevisionNumber( proteomeXchangeDataset,  pxAccession, Integer.toString(revisionNumber + 1 )); // increase the revision number when updating PX XML
-
-    updatePXXML(pxFile, proteomeXchangeDataset, pxSchemaVersion);
-    return pxFile;
-  }
-
-  /**
+    /**
    * Method to update a PX XML file with a newly generated version,
    * e.g. with up-to-date FTP links, project tags, etc, according to the latest schema.
    *
-   * @param submissionSummaryFile the summary file containing the PX submission summary information.
+   * @param submissionSummary the summary containing the PX submission summary information.
    * @param outputDirectory the path to the PX XML output directory.
    * @param pxAccession the PX project accession assigned to the dataset for which we are generating the PX XML.
    * @param datasetPathFragment the public path fragment
@@ -125,14 +123,14 @@ public class UpdateMessage {
    * @throws IOException
    */
 
-  public static File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment, String pxSchemaVersion) throws Exception {
-    return  updateMetadataPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, true, pxSchemaVersion);
+  public static File updateMetadataPxXml(Submission submissionSummary, File outputDirectory, String pxAccession, String datasetPathFragment, String pxSchemaVersion) throws Exception {
+    return  updateMetadataPxXml(submissionSummary, outputDirectory, pxAccession, datasetPathFragment, true, pxSchemaVersion);
   }
 
   /**
    * Method to update a PX XML file with a newly generated version,
    * e.g. with up-to-date FTP links, project tags, etc, according to the latest schema.
-   * @param submissionSummaryFile the summary file containing the PX submission summary information.
+   * @param submission the summary containing the PX submission summary information.
    * @param outputDirectory the path to the PX XML output directory.
    * @param pxAccession the PX project accession assigned to the dataset for which we are generating the PX XML.
    * @param datasetPathFragment the public path fragment
@@ -141,16 +139,15 @@ public class UpdateMessage {
    * @throws SubmissionFileException
    * @throws IOException
    */
-  public static File updateMetadataPxXml(File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment, boolean changeLogEntry, String pxSchemaVersion) throws Exception {
-    Assert.isTrue(submissionSummaryFile.isFile() && submissionSummaryFile.exists(), "Summary file should already exist! In: " + submissionSummaryFile.getAbsolutePath());
-    Assert.isTrue(outputDirectory.exists() && outputDirectory.isDirectory(), "PX XML output directory should already exist! In: " + outputDirectory.getAbsolutePath());
+  public static File updateMetadataPxXml(Submission submission, File outputDirectory, String pxAccession, String datasetPathFragment, boolean changeLogEntry, String pxSchemaVersion) throws Exception {
+     Assert.isTrue(outputDirectory.exists() && outputDirectory.isDirectory(), "PX XML output directory should already exist! In: " + outputDirectory.getAbsolutePath());
     File pxFile = new File(outputDirectory.getAbsolutePath() + File.separator + pxAccession + ".xml");
     Assert.isTrue(pxFile.isFile() && pxFile.exists(), "PX XML file should already exist!");
       try {
           int revisionNumber = preUpdateSteps(pxFile, outputDirectory, pxAccession);
           MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
           Assert.isTrue(messageWriter != null, "No implementation found for " + pxSchemaVersion);
-          ProteomeXchangeDataset proteomeXchangeDataset = createNewPXXML(messageWriter, pxFile, submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, pxSchemaVersion);
+          ProteomeXchangeDataset proteomeXchangeDataset = createNewPXXML(messageWriter, pxFile, submission, outputDirectory, pxAccession, datasetPathFragment, pxSchemaVersion);
           if (changeLogEntry) {
             messageWriter.addChangeLogEntry(proteomeXchangeDataset, "Updated project metadata.");
           }
@@ -198,7 +195,7 @@ public class UpdateMessage {
      * Create new PXXML File
      * @param messageWriter the appropriate messageWriter should be passed, based on the PX version
      * @param pxFile The PX XML file
-     * @param submissionSummaryFile the summary file containing the PX submission summary information.
+     * @param submission the summary containing the PX submission summary information.
      * @param outputDirectory the path to the PX XML output directory
      * @param pxAccession the PX project accession assigned to the dataset for which we are generating the PX XML.
      * @param datasetPathFragment the public path fragment(year/month/accession)
@@ -207,8 +204,8 @@ public class UpdateMessage {
      * @throws SubmissionFileException
      * @throws IOException
      */
-  private static ProteomeXchangeDataset createNewPXXML(MessageWriter messageWriter, File pxFile, File submissionSummaryFile, File outputDirectory, String pxAccession, String datasetPathFragment, String pxSchemaVersion) throws SubmissionFileException, IOException {
-      pxFile = messageWriter.createIntialPxXml(submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, pxSchemaVersion);
+  private static ProteomeXchangeDataset createNewPXXML(MessageWriter messageWriter, File pxFile, Submission submission, File outputDirectory, String pxAccession, String datasetPathFragment, String pxSchemaVersion) throws SubmissionFileException, IOException {
+      pxFile = messageWriter.createIntialPxXml(submission, outputDirectory, pxAccession, datasetPathFragment, pxSchemaVersion);
       if (pxFile != null && pxFile.length() > 0) {
           logger.info("Generated PX XML message file " + pxFile.getAbsolutePath());
       } else {
