@@ -3,7 +3,7 @@
 
     <groupId>uk.ac.ebi.pride.archive</groupId>
     <artifactId>archive-px-xml-generator</artifactId>
-    <version>1.0.32-SNAPSHOT</version>
+    <version>1.0.33-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <parent>
