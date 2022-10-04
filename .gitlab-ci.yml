@@ -25,5 +25,4 @@ deploy:
     - mvn $MAVEN_CLI_OPTS deploy
 #  only:
 #    - master
-   when:
-     -manual
+   when: manual
