@@ -3,6 +3,7 @@ package uk.ac.ebi.pride.archive.px;
 import org.junit.Before;
 import org.junit.Test;
 import uk.ac.ebi.pride.data.exception.SubmissionFileException;
+import uk.ac.ebi.pride.data.io.SubmissionFileParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +29,7 @@ public class UpdateMessageOnePointFourTest {
     public void updateMetadataPxXmlTest() throws Exception {
 
         try {
-            UpdateMessage.updateMetadataPxXml( submissionSummaryFile, outputDirectory, pxAccession, datasetPathFragment, true, pxSchemaVersion);
+            UpdateMessage.updateMetadataPxXml(SubmissionFileParser.parse(submissionSummaryFile), outputDirectory, pxAccession, datasetPathFragment, true, pxSchemaVersion);
         } catch (SubmissionFileException e) {
             e.printStackTrace();
         } catch (IOException e) {
