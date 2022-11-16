@@ -142,7 +142,7 @@ public class UpdateMessage {
   public static File updateMetadataPxXml(Submission submission, File outputDirectory, String pxAccession, String datasetPathFragment, boolean changeLogEntry, String pxSchemaVersion) throws Exception {
      Assert.isTrue(outputDirectory.exists() && outputDirectory.isDirectory(), "PX XML output directory should already exist! In: " + outputDirectory.getAbsolutePath());
     File pxFile = new File(outputDirectory.getAbsolutePath() + File.separator + pxAccession + ".xml");
-    Assert.isTrue(pxFile.isFile() && pxFile.exists(), "PX XML file should already exist!");
+    //Assert.isTrue(pxFile.isFile() && pxFile.exists(), "PX XML file should already exist!");
       try {
           int revisionNumber = preUpdateSteps(pxFile, outputDirectory, pxAccession);
           MessageWriter messageWriter = Util.getSchemaStrategy(pxSchemaVersion);
