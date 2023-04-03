@@ -5,5 +5,5 @@ package uk.ac.ebi.pride.archive.px;
  */
 public class Constants {
 
-    public static final String PROTEOME_EXCHANGE_URL="http://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=";
+    public static final String PROTEOME_EXCHANGE_URL="https://proteomecentral.proteomexchange.org/cgi/";
 }

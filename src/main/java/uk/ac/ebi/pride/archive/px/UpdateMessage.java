@@ -321,7 +321,7 @@ public class UpdateMessage {
         int currentRevisionNo = -1;
         try {
             // JSON output does not give revision information
-            String proteomeExchangeUrl= Constants.PROTEOME_EXCHANGE_URL + pxAccession;
+            String proteomeExchangeUrl= Constants.PROTEOME_EXCHANGE_URL + "GetDataset?ID=" + pxAccession;
             RestTemplate restTemplate = new RestTemplate();
             String html = restTemplate.getForObject(proteomeExchangeUrl, String.class);
 

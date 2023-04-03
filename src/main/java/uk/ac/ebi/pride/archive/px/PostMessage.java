@@ -24,8 +24,6 @@ import java.nio.charset.Charset;
  */
 public class PostMessage {
   public static final Logger logger = LoggerFactory.getLogger(PostMessage.class);
-
-  public static final String URL = "http://proteomecentral.proteomexchange.org/cgi/Dataset";
   public static final String CHARSET = "UTF-8";
 
     /**
@@ -52,7 +50,7 @@ public class PostMessage {
             builder.addPart("noEmailBroadcast",  new StringBody(params.getNoEmailBroadcast(), "text/plain", Charset.forName(CHARSET)));
 
             HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httppost = new HttpPost(URL);
+            HttpPost httppost = new HttpPost(Constants.PROTEOME_EXCHANGE_URL + "Dataset");
             httppost.setEntity(builder);
             // Execute HTTP Post Request
             HttpResponse response = httpclient.execute(httppost);
