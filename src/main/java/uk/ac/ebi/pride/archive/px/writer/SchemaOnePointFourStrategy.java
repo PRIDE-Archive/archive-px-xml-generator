@@ -3,14 +3,13 @@ package uk.ac.ebi.pride.archive.px.writer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
-import uk.ac.ebi.pride.archive.dataprovider.project.SubmissionType;
+import uk.ac.ebi.pride.archive.dataprovider.utils.SubmissionTypeConstants;
 import uk.ac.ebi.pride.archive.px.model.*;
 import uk.ac.ebi.pride.data.model.DataFile;
 import uk.ac.ebi.pride.data.model.SampleMetaData;
 import uk.ac.ebi.pride.data.model.Submission;
 import uk.ac.ebi.pride.pubmed.PubMedFetcher;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
@@ -64,7 +63,7 @@ public class SchemaOnePointFourStrategy extends SchemaCommonStrategy {
         DatasetSummary datasetSummary = getDatasetSummary(submissionSummary);
         pxXml.setDatasetSummary(datasetSummary);
         // add the DatasetIdentifier (add a DOI record for complete submissions)
-        boolean withDOI = submissionSummary.getProjectMetaData().getSubmissionType() == SubmissionType.COMPLETE;
+        boolean withDOI = submissionSummary.getProjectMetaData().getSubmissionType() == SubmissionTypeConstants.COMPLETE;
         DatasetIdentifierList datasetIdentifierList = getDatasetIdentifierList(pxAccession, withDOI);
         pxXml.setDatasetIdentifierList(datasetIdentifierList);
         // add dataset origin info (this is constant right now: PRIDE)
@@ -386,12 +385,12 @@ public class SchemaOnePointFourStrategy extends SchemaCommonStrategy {
      * @return RepositorySupportType
      */
     @Override
-    protected RepositorySupportType createRepositorySupport(SubmissionType type) {
+    protected RepositorySupportType createRepositorySupport(SubmissionTypeConstants type) {
         RepositorySupportType repositorySupport = new RepositorySupportType();
         CvParam cvparam;
-        if (type == SubmissionType.COMPLETE) {
+        if (type == SubmissionTypeConstants.COMPLETE) {
             cvparam = createCvParam("MS:1002856", null, "Supported dataset by repository", MS_CV);
-        } else if (type == SubmissionType.PARTIAL) {
+        } else if (type == SubmissionTypeConstants.PARTIAL) {
             cvparam = createCvParam("MS:1002857", null, "Unsupported dataset by repository", MS_CV);
         } else {
             logger.error("Encoutered unexpected submission type: " + type.name());

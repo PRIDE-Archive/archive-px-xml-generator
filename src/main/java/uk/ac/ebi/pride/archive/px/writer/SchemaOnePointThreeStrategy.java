@@ -2,7 +2,7 @@ package uk.ac.ebi.pride.archive.px.writer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.pride.archive.dataprovider.project.SubmissionType;
+import uk.ac.ebi.pride.archive.dataprovider.utils.SubmissionTypeConstants;
 import uk.ac.ebi.pride.archive.px.model.*;
 import uk.ac.ebi.pride.data.model.Submission;
 
@@ -54,7 +54,7 @@ public class SchemaOnePointThreeStrategy extends SchemaCommonStrategy {
         DatasetSummary datasetSummary = getDatasetSummary(submissionSummary);
         pxXml.setDatasetSummary(datasetSummary);
         // add the DatasetIdentifier (add a DOI record for complete submissions)
-        boolean withDOI = submissionSummary.getProjectMetaData().getSubmissionType() == SubmissionType.COMPLETE;
+        boolean withDOI = submissionSummary.getProjectMetaData().getSubmissionType() == SubmissionTypeConstants.COMPLETE;
         DatasetIdentifierList datasetIdentifierList = getDatasetIdentifierList(pxAccession, withDOI);
         pxXml.setDatasetIdentifierList(datasetIdentifierList);
         // add dataset origin info (this is constant right now: PRIDE)

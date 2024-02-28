@@ -3,7 +3,7 @@ package uk.ac.ebi.pride.archive.px.writer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
-import uk.ac.ebi.pride.archive.dataprovider.project.SubmissionType;
+import uk.ac.ebi.pride.archive.dataprovider.utils.SubmissionTypeConstants;
 import uk.ac.ebi.pride.archive.px.model.*;
 import uk.ac.ebi.pride.archive.px.xml.PxMarshaller;
 import uk.ac.ebi.pride.data.exception.SubmissionFileException;
@@ -695,12 +695,12 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
      * @param type the submission type
      * @return RepositorySupportType
      */
-    protected RepositorySupportType createRepositorySupport(SubmissionType type) {
+    protected RepositorySupportType createRepositorySupport(SubmissionTypeConstants type) {
         RepositorySupportType repositorySupport = new RepositorySupportType();
         CvParam cvparam;
-        if (type == SubmissionType.COMPLETE) {
+        if (type == SubmissionTypeConstants.COMPLETE) {
             cvparam = createCvParam("PRIDE:0000416", null, "Supported dataset by repository", PRIDE_CV);
-        } else if (type == SubmissionType.PARTIAL) {
+        } else if (type == SubmissionTypeConstants.PARTIAL) {
             cvparam = createCvParam("PRIDE:0000417", null, "Unsupported dataset by repository", PRIDE_CV);
         } else {
             logger.error("Encoutered unexpected submission type: " + type.name());
