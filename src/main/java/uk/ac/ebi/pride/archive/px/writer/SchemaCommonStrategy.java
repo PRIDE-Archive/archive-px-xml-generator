@@ -676,7 +676,16 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
      */
     DatasetSummary getDatasetSummary(Submission submissionSummary) {
         DatasetSummary datasetSummary = new DatasetSummary();
-        datasetSummary.setTitle(submissionSummary.getProjectMetaData().getProjectTitle());
+        String projectTitle = submissionSummary.getProjectMetaData().getProjectTitle();
+        int length = projectTitle.length();
+        if(length<30) {
+            StringBuilder sb = new StringBuilder(projectTitle);
+            for(short i=0; i<30-length; i++)
+                sb.append(" ");
+            sb.append(".");
+            projectTitle = sb.toString();
+        }
+        datasetSummary.setTitle(projectTitle);
         datasetSummary.setDescription(submissionSummary.getProjectMetaData().getProjectDescription());
         datasetSummary.setAnnounceDate(Calendar.getInstance());
         datasetSummary.setHostingRepository(HostingRepositoryType.PRIDE);
