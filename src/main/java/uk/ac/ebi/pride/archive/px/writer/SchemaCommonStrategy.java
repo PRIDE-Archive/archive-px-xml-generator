@@ -457,6 +457,7 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
             Instrument instrument = new Instrument();
             instrument.setId("Instrument_" + instrumentNum++);
             instrument.getCvParam().add(convertCvParam(auxInstrument));
+            instrument.getCvParam().forEach(cvParam -> cvParam.setValue(null));
             list.getInstrument().add(instrument);
         }
         return list;
