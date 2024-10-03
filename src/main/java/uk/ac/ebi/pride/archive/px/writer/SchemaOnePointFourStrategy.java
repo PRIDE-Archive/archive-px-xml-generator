@@ -14,6 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Writes out the PX XML file, which contains all the metadata for a dataset to be sent to ProteomeCentral.
@@ -225,6 +226,7 @@ public class SchemaOnePointFourStrategy extends SchemaCommonStrategy {
                 if (dataFile.getSampleMetaData() != null) {
                     Set<uk.ac.ebi.pride.data.model.CvParam> mods = dataFile.getSampleMetaData().getMetaData(SampleMetaData.Type.MODIFICATION);
                     if (mods != null) {
+                        mods.forEach(m -> m.setValue(null));
                         modificationSet.addAll(mods);
                     }
                 }
