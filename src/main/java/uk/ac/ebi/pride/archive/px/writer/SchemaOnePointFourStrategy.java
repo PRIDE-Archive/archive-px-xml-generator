@@ -226,7 +226,6 @@ public class SchemaOnePointFourStrategy extends SchemaCommonStrategy {
                 if (dataFile.getSampleMetaData() != null) {
                     Set<uk.ac.ebi.pride.data.model.CvParam> mods = dataFile.getSampleMetaData().getMetaData(SampleMetaData.Type.MODIFICATION);
                     if (mods != null) {
-                        mods.forEach(m -> m.setValue(null));
                         modificationSet.addAll(mods);
                     }
                 }
@@ -235,6 +234,7 @@ public class SchemaOnePointFourStrategy extends SchemaCommonStrategy {
         // we should have modifications by now, since they are mandatory, we break if we have not found any
         Assert.isTrue(!modificationSet.isEmpty(), "Modification annotation is mandatory submissions!");
         for (uk.ac.ebi.pride.data.model.CvParam cvParam : modificationSet) {
+            cvParam.setValue(null); //set value to null as proteomecentral doesn't expect a value for this
             // check if we have PSI-MOD or UNIMOD ontology terms
             if (cvParam.getCvLabel().equalsIgnoreCase("psi-mod") || cvParam.getCvLabel().equalsIgnoreCase("mod")) {
                 list.getCvParam().add(createCvParam(cvParam.getAccession(), cvParam.getValue(), cvParam.getName(), MOD_CV));
