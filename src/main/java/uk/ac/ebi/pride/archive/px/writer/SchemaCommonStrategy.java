@@ -34,7 +34,7 @@ public abstract class SchemaCommonStrategy implements MessageWriter {
 
     static final String DOI_PREFFIX = "10.6019";
     static final String FTP = "ftp://ftp.pride.ebi.ac.uk/pride/data/archive";
-    static final String PRIDE_REPO_PROJECT_BASE_URL = "http://www.ebi.ac.uk/pride/archive/projects/";
+    static final String PRIDE_REPO_PROJECT_BASE_URL = "https://www.ebi.ac.uk/pride/archive/projects/";
     // CV Parameters
     public static final String MS_1001925 = "MS:1001925";
     public static final String MS_1001926 = "MS:1001926";
